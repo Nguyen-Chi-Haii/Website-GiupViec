@@ -11,5 +11,7 @@ namespace GiupViecAPI.Data
 
         public DbSet<User> Users { get; set; }
         public DbSet<Service> Services { get; set; }
+
+        public DbSet<HelperProfile> HelperProfiles { get; set; }
     }
 }

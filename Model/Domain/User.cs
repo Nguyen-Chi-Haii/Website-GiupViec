@@ -41,5 +41,7 @@ namespace GiupViecAPI.Model.Domain
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+        public HelperProfile? HelperProfile { get; set; }
     }
 }
