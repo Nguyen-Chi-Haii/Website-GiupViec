@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using GiupViecAPI.Model.Domain;
+using GiupViecAPI.Model.DTO.Service;
 using GiupViecAPI.Model.DTO.User;
 
 namespace GiupViecAPI.Mapping
@@ -8,9 +9,14 @@ namespace GiupViecAPI.Mapping
     {
         public MappingProfile()
         {
+            // User Mappings
             CreateMap<UserCreateDTO, User>();
             CreateMap<UserUpdateDTO, User>();
             CreateMap<User, UserResponseDTO>();
+            // Service Mappings
+            CreateMap<ServiceCreateDTO, Service>();
+            CreateMap<ServiceUpdateDTO, Service>();
+            CreateMap<Service, ServiceResponseDTO>();
         }
     }
 }

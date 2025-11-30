@@ -68,12 +68,16 @@ builder.Services.AddSwaggerGen(option =>
         }
     });
 });
+
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IServiceService, ServiceService>();
 
 builder.Services.AddDbContext<GiupViecDBContext>(options =>
     options.UseSqlServer(connectionString));
 var app = builder.Build();
+
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
