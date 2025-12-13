@@ -76,6 +76,7 @@ builder.Services.AddScoped<IHelperProfileService, HelperProfileService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
+builder.Services.AddScoped<IStatisticsService, StatisticsService>();
 
 builder.Services.AddDbContext<GiupViecDBContext>(options =>
     options.UseSqlServer(connectionString));

@@ -102,5 +102,19 @@ namespace GiupViecAPI.Services.Repositories
             await _db.SaveChangesAsync();
             return true;
         }
+        public async Task<bool> ConfirmPaymentAsync(int id)
+        {
+            var booking = await _db.Bookings.FindAsync(id);
+            if (booking == null) return false;
+
+            // Chuyển trạng thái sang Paid
+            booking.PaymentStatus = PaymentStatus.Paid;
+
+            // Tùy chọn: Nếu thanh toán xong thì có thể auto chuyển trạng thái đơn sang Completed nếu muốn
+             booking.Status = BookingStatus.Completed; 
+
+            await _db.SaveChangesAsync();
+            return true;
+        }
     }
 }

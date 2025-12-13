@@ -16,5 +16,7 @@ namespace GiupViecAPI.Services.Interface
 
         // Đổi trạng thái (Dùng chung cho Confirm, Reject, Complete, Cancel)
         Task<bool> UpdateStatusAsync(int id, BookingStatus status);
+
+        Task<bool> ConfirmPaymentAsync(int id);
     }
 }

@@ -93,5 +93,14 @@ namespace GiupViecAPI.Controllers
             if (!success) return NotFound();
             return Ok(new { message = "Đã hủy đơn hàng" });
         }
+        [HttpPut("{id}/payment-confirm")]
+        [Authorize(Roles = "Admin,Helper")] // Chỉ Admin hoặc Helper được xác nhận tiền
+        public async Task<IActionResult> ConfirmPayment(int id)
+        {
+            var success = await _service.ConfirmPaymentAsync(id);
+            if (!success) return NotFound(new { message = "Không tìm thấy đơn hàng" });
+
+            return Ok(new { message = "Đã xác nhận thanh toán thành công" });
+        }
     }
 }

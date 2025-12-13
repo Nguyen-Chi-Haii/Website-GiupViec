@@ -5,14 +5,22 @@ using GiupViecAPI.Model.DTO.Message;
 public class ChatHub : Hub
 {
     private readonly IMessageService _messageService;
+    private readonly IBookingService _bookingService;
 
-    public ChatHub(IMessageService messageService)
+    public ChatHub(IMessageService messageService, IBookingService bookingService)
     {
         _messageService = messageService;
+        _bookingService = bookingService;
     }
 
     public async Task JoinBookingGroup(string bookingId)
     {
+        var userIdString = Context.UserIdentifier;
+
+        if (int.TryParse(bookingId, out int bId) && userIdString != null)
+        {
+            var booking = await _bookingService.GetByIdAsync(bId);
+        }
         await Groups.AddToGroupAsync(Context.ConnectionId, bookingId);
     }
 
