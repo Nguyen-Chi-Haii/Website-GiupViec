@@ -3,6 +3,7 @@ using GiupViecAPI.Model.Enums;
 using GiupViecAPI.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace GiupViecAPI.Controllers
 {
@@ -101,6 +102,23 @@ namespace GiupViecAPI.Controllers
             if (!success) return NotFound(new { message = "Không tìm thấy đơn hàng" });
 
             return Ok(new { message = "Đã xác nhận thanh toán thành công" });
+        }
+        [HttpGet("my-schedule")]
+        [Authorize(Roles = "Helper")] // Chỉ Helper mới gọi được
+        public async Task<IActionResult> GetMySchedule([FromQuery] DateTime from, [FromQuery] DateTime to)
+        {
+            // 1. Lấy ID của Helper đang đăng nhập
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString)) return Unauthorized();
+            int helperId = int.Parse(userIdString);
+
+            // 2. Kiểm tra nếu client quên gửi ngày thì mặc định lấy tháng hiện tại
+            if (from == default) from = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            if (to == default) to = from.AddMonths(1).AddDays(-1);
+
+            // 3. Gọi Service
+            var schedule = await _service.GetHelperScheduleAsync(helperId, from, to);
+            return Ok(schedule);
         }
     }
 }

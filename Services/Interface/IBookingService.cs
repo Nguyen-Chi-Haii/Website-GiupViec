@@ -1,4 +1,5 @@
 ﻿using GiupViecAPI.Model.DTO.Booking;
+using GiupViecAPI.Model.DTO.Schedule;
 using GiupViecAPI.Model.Enums;
 
 namespace GiupViecAPI.Services.Interface
@@ -18,5 +19,7 @@ namespace GiupViecAPI.Services.Interface
         Task<bool> UpdateStatusAsync(int id, BookingStatus status);
 
         Task<bool> ConfirmPaymentAsync(int id);
+
+        Task<List<BookingScheduleDTO>> GetHelperScheduleAsync(int helperId, DateTime fromDate, DateTime toDate);
     }
 }

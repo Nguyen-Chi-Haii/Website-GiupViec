@@ -2,6 +2,7 @@
 using GiupViecAPI.Data;
 using GiupViecAPI.Model.Domain;
 using GiupViecAPI.Model.DTO.Booking;
+using GiupViecAPI.Model.DTO.Schedule;
 using GiupViecAPI.Model.Enums;
 using GiupViecAPI.Services.Interface;
 using Microsoft.EntityFrameworkCore;
@@ -115,6 +116,30 @@ namespace GiupViecAPI.Services.Repositories
 
             await _db.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<List<BookingScheduleDTO>> GetHelperScheduleAsync(int helperId, DateTime fromDate, DateTime toDate)
+        {
+            // Query lấy các đơn hàng của Helper nằm trong khoảng thời gian request
+            var bookings = await _db.Bookings
+                .Include(b => b.Service) // Join bảng Service để lấy tên
+                .Where(b => b.HelperId == helperId
+                            && b.Status != BookingStatus.Cancelled // Không lấy đơn đã hủy
+                            && b.StartDate >= fromDate
+                            && b.StartDate <= toDate)
+                .OrderBy(b => b.StartDate)
+                .Select(b => new BookingScheduleDTO // Map sang DTO gọn nhẹ
+                {
+                    Id = b.Id,
+                    StartDate = b.StartDate,
+                    EndDate = b.EndDate,
+                    ServiceName = b.Service.Name,
+                    Address = b.Address,
+                    Status = b.Status
+                })
+                .ToListAsync();
+
+            return bookings;
         }
     }
 }
