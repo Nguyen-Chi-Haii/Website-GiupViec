@@ -27,7 +27,7 @@ public class ReviewsController : ControllerBase
 
     // GET: api/Reviews/Helper/H001
     [HttpGet("Helper/{helperId}")]
-    public async Task<IActionResult> GetHelperReviews(string helperId)
+    public async Task<IActionResult> GetHelperReviews(int helperId)
     {
         var reviews = await _reviewService.GetReviewsByHelperAsync(helperId);
         return Ok(reviews);

@@ -11,10 +11,10 @@ namespace GiupViecAPI.Model.Domain
         public int BookingId { get; set; } // Dùng để nhóm chat theo đơn hàng/booking
 
         [Required]
-        public string SenderId { get; set; }
+        public int SenderId { get; set; }
 
         [Required]
-        public string ReceiverId { get; set; }
+        public int ReceiverId { get; set; }
 
         [Required]
         public string Content { get; set; }

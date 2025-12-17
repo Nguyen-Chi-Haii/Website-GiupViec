@@ -9,7 +9,7 @@ namespace GiupViecAPI.Services.Interface
         Task<Review> CreateReviewAsync(CreateReviewDTO input);
 
         // Lấy tất cả đánh giá của một Helper (để hiển thị profile Helper)
-        Task<List<Review>> GetReviewsByHelperAsync(string helperId);
+        Task<List<Review>> GetReviewsByHelperAsync(int helperId);
 
         // Lấy đánh giá của một Booking cụ thể
         Task<Review> GetReviewByBookingIdAsync(int bookingId);

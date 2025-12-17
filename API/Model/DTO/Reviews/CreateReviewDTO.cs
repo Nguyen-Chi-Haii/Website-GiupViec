@@ -8,10 +8,10 @@ namespace GiupViecAPI.Model.DTO.Reviews
         public int BookingId { get; set; }
 
         [Required]
-        public string CustomerId { get; set; }
+        public int CustomerId { get; set; }
 
         [Required]
-        public string HelperId { get; set; }
+        public int HelperId { get; set; }
 
         [Range(1, 5)]
         public int Rating { get; set; }

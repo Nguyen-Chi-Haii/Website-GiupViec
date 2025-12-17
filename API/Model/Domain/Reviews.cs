@@ -11,10 +11,10 @@ namespace GiupViecAPI.Model.Domain
         public int BookingId { get; set; }
 
         [Required]
-        public string CustomerId { get; set; } // Người đánh giá
+        public int CustomerId { get; set; } // Người đánh giá
 
         [Required]
-        public string HelperId { get; set; }   // Người được đánh giá
+        public int HelperId { get; set; }   // Người được đánh giá
 
         [Range(1, 5, ErrorMessage = "Rating must be between 1 and 5")]
         public int Rating { get; set; }
