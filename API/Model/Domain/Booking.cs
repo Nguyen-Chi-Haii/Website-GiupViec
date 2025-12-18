@@ -8,6 +8,7 @@ namespace GiupViecAPI.Model.Domain
     public class Booking
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
         // --- CÁC KHÓA NGOẠI (Giữ nguyên) ---

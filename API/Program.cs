@@ -80,6 +80,12 @@ builder.Services.AddScoped<IStatisticsService, StatisticsService>();
 
 builder.Services.AddDbContext<GiupViecDBContext>(options =>
     options.UseSqlServer(connectionString));
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Giúp đảm bảo các kiểu dữ liệu đặc biệt được xử lý ổn định
+        options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+    });
 
 builder.Services.AddSignalR();
 var app = builder.Build();

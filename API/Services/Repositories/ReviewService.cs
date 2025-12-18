@@ -18,46 +18,18 @@ public class ReviewService : IReviewService
         _context = context;
     }
 
-    public async Task<Review> CreateReviewAsync(CreateReviewDTO input)
+    public async Task<Review> CreateReviewAsync(CreateReviewDTO dto, int customerId)
     {
-        var booking = await _context.Bookings.FindAsync(input.BookingId);
-        if (booking == null) throw new Exception("Đơn hàng không tồn tại.");
+        var reviews = await _context.Reviews
+           .FromSqlInterpolated($@"EXEC sp_CreateReview 
+            @BookingId={dto.BookingId}, 
+            @CustomerId={customerId}, 
+            @HelperId={dto.HelperId}, 
+            @Rating={dto.Rating}, 
+            @Comment={dto.Comment}")
+           .ToListAsync();
 
-        if (booking.Status != BookingStatus.Completed)
-            throw new Exception("Bạn chỉ có thể đánh giá khi công việc đã hoàn thành.");
-
-        if (booking.CustomerId != input.CustomerId)
-            throw new Exception("Bạn không có quyền đánh giá đơn hàng này.");
-
-        var newReview = new Review
-        {
-            BookingId = input.BookingId,
-            CustomerId = input.CustomerId,
-            HelperId = input.HelperId,
-            Rating = input.Rating,
-            Comment = input.Comment,
-            CreatedAt = DateTime.UtcNow
-        };
-
-        _context.Reviews.Add(newReview);
-        await _context.SaveChangesAsync();
-
-        var reviews = await _context.Reviews.Where(r => r.HelperId == input.HelperId).ToListAsync();
-        if (reviews.Any())
-        {
-            double average = reviews.Average(r => r.Rating);
-
-            // Use the integer helper id directly (CreateReviewDTO.HelperId is int)
-            var helperIdInt = input.HelperId;
-            var helperProfile = await _context.HelperProfiles.FirstOrDefaultAsync(h => h.UserId == helperIdInt);
-            if (helperProfile != null)
-            {
-                helperProfile.RatingAverage = (decimal)average;
-                await _context.SaveChangesAsync();
-            }
-        }
-
-        return newReview;
+        return reviews.FirstOrDefault();
     }
 
     public async Task<List<Review>> GetReviewsByHelperAsync(int helperId)

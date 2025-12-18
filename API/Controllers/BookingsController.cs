@@ -1,7 +1,9 @@
 ﻿using GiupViecAPI.Model.DTO.Booking;
 using GiupViecAPI.Model.Enums;
 using GiupViecAPI.Services.Interface;
+using GiupViecAPI.Services.Repositories;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -18,7 +20,31 @@ namespace GiupViecAPI.Controllers
         {
             _service = service;
         }
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] BookingCreateDTO createDto)
+        {
+            // Lấy CustomerId từ Token của người dùng đang đăng nhập
+            // Giả định bạn dùng ClaimTypes.NameIdentifier để lưu UserId
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+            if (userIdClaim == null) return Unauthorized("Không tìm thấy thông tin người dùng.");
 
+            int customerId = int.Parse(userIdClaim.Value);
+
+            try
+            {
+                // Gọi hàm CreateAsync đã sửa ở bước trước (gọi Stored Procedure)
+                var result = await _service.CreateBookingAsync(createDto, customerId);
+
+                if (result == null) return BadRequest("Không thể tạo đơn hàng.");
+
+                return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+            }
+            catch (Exception ex)
+            {
+                // Trả về lỗi nếu Procedure hoặc Trigger ném ngoại lệ (vd: lỗi tính toán, logic DB)
+                return BadRequest(ex.Message);
+            }
+        }
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {

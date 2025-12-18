@@ -21,8 +21,25 @@ public class ReviewsController : ControllerBase
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var result = await _reviewService.CreateReviewAsync(input);
-        return Ok(result);
+        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+        if (userIdClaim == null) return Unauthorized();
+        int customerId = int.Parse(userIdClaim.Value);
+
+        try
+        {
+            // --- SỬA TẠI ĐÂY: Gọi Service để thực thi Stored Procedure ---
+            // Thay vì gọi _context.Reviews.Add(reviewDto), ta gọi hàm xử lý DB
+            var result = await _reviewService.CreateReviewAsync(reviewDto, customerId);
+
+            if (result == null) return BadRequest("Không thể gửi đánh giá.");
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            // --- KHÔNG ĐỔI: Catch lỗi từ Database (ví dụ: vi phạm ràng buộc) ---
+            return BadRequest(ex.Message);
+        }
     }
 
     // GET: api/Reviews/Helper/H001

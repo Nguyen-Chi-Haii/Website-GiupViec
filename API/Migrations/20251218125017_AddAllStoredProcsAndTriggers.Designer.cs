@@ -4,6 +4,7 @@ using GiupViecAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GiupViecAPI.Migrations
 {
     [DbContext(typeof(GiupViecDBContext))]
-    partial class GiupViecDBContextModelSnapshot : ModelSnapshot
+    [Migration("20251218125017_AddAllStoredProcsAndTriggers")]
+    partial class AddAllStoredProcsAndTriggers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -79,12 +82,7 @@ namespace GiupViecAPI.Migrations
 
                     b.HasIndex("ServiceId");
 
-                    b.ToTable("Bookings", t =>
-                        {
-                            t.HasTrigger("TRG_Booking_CalculateTotalPrice");
-                        });
-
-                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                    b.ToTable("Bookings");
                 });
 
             modelBuilder.Entity("GiupViecAPI.Model.Domain.HelperProfile", b =>

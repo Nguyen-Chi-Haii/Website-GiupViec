@@ -34,6 +34,15 @@ namespace GiupViecAPI.Data
                 .WithMany() // Một Helper có thể nhận nhiều đơn
                 .HasForeignKey(b => b.HelperId)
                 .OnDelete(DeleteBehavior.Restrict); // Xóa User helper -> KHÔNG tự động xóa Booking
+            modelBuilder.Entity<Booking>() // Thay 'Booking' bằng tên class Entity tương ứng
+        .ToTable(tb => tb.HasTrigger("TRG_Booking_CalculateTotalPrice"));
+            modelBuilder.Entity<HelperProfile>()
+        .Property(h => h.RatingAverage)
+        .HasColumnType("decimal(3,2)");
+
+            // THÊM: Báo cho EF biết bảng này có logic database can thiệp
+            modelBuilder.Entity<Review>().ToTable(tb => tb.HasTrigger("sp_CreateReview"));
+            modelBuilder.Entity<HelperProfile>().ToTable(tb => tb.HasTrigger("RatingUpdate"));
         }
     }
 }

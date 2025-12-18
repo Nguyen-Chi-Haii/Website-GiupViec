@@ -19,7 +19,24 @@ namespace GiupViecAPI.Services.Repositories
             _db = db;
             _mapper = mapper;
         }
+        public async Task<BookingResponseDTO> CreateBookingAsync(BookingCreateDTO dto, int customerId)
+        {
+            // 1. Chuyển đổi DTO sang Domain Model để chuẩn bị các tham số
+            // Lưu ý: TotalPrice sẽ được Trigger TRG_Booking_CalculateTotalPrice tự tính trong DB
+            var booking = _mapper.Map<Booking>(dto); //
+            booking.CustomerId = customerId; //
 
+            // 2. Thực hiện thêm mới vào DB
+            // Chúng ta dùng AddAsync thông thường, Trigger trong DB sẽ tự động can thiệp để tính tiền
+            await _db.Bookings.AddAsync(booking); //
+            await _db.SaveChangesAsync(); //
+
+            // 3. Reload để lấy các thông tin DB tự sinh (TotalPrice từ Trigger, Id, CreatedAt)
+            await _db.Entry(booking).Reference(b => b.Service).LoadAsync(); // Load Service để lấy Price cho Trigger hoặc hiển thị
+            await _db.Entry(booking).ReloadAsync(); // Cập nhật TotalPrice mà Trigger vừa tính
+
+            return _mapper.Map<BookingResponseDTO>(booking); //
+        }
         public async Task<IEnumerable<BookingResponseDTO>> GetAllAsync()
         {
             var list = await _db.Bookings
@@ -58,64 +75,70 @@ namespace GiupViecAPI.Services.Repositories
             booking.WorkShiftEnd = dto.WorkShiftEnd;
             booking.Notes = dto.Notes;
 
-            // 2. Tính lại tiền (Do thay đổi thời gian)
-            // Công thức: Số ngày * Số giờ mỗi ngày * Giá dịch vụ
-            double totalDays = (dto.EndDate - dto.StartDate).TotalDays + 1;
-            double hoursPerDay = (dto.WorkShiftEnd - dto.WorkShiftStart).TotalHours;
+            await _db.SaveChangesAsync(); //
 
-            if (totalDays > 0 && hoursPerDay > 0)
-            {
-                booking.TotalPrice = (decimal)(totalDays * hoursPerDay) * booking.Service.Price;
-            }
+            // Reload lại để lấy TotalPrice mới do Trigger tính
+            await _db.Entry(booking).ReloadAsync();
 
-            await _db.SaveChangesAsync();
             return _mapper.Map<BookingResponseDTO>(booking);
         }
 
         public async Task<BookingResponseDTO> AssignHelperAsync(int id, int helperId)
         {
-            var booking = await _db.Bookings.FindAsync(id);
-            if (booking == null) return null;
+            var booking = await _db.Bookings.FindAsync(id); //
+            if (booking == null) return null; //
 
-            // Kiểm tra xem helper có tồn tại và đúng Role không
-            var helper = await _db.Users.FirstOrDefaultAsync(u => u.Id == helperId && u.Role == UserRoles.Helper);
-            if (helper == null) throw new Exception("Helper không tồn tại hoặc không hợp lệ");
+            // THAY ĐỔI: Sử dụng Function SQL để kiểm tra trùng lịch thay vì viết logic LINQ phức tạp
+            var isConflict = await _db.Database
+                .SqlQueryRaw<bool>("SELECT dbo.fn_CheckHelperConflict({0}, {1}, {2}, {3}, {4})",
+                    helperId, booking.StartDate, booking.EndDate, booking.WorkShiftStart, booking.WorkShiftEnd)
+                .SingleAsync();
 
+            if (isConflict) throw new Exception("Helper đã có lịch làm việc khác trùng lặp.");
+
+            // ... phần gán và lưu giữ nguyên
             booking.HelperId = helperId;
-            booking.Status = BookingStatus.Confirmed; // Gán xong thì Confirm luôn
-
+            booking.Status = BookingStatus.Confirmed;
             await _db.SaveChangesAsync();
-
-            // Load lại thông tin để map sang DTO đầy đủ
-            await _db.Entry(booking).Reference(b => b.Helper).LoadAsync();
-            await _db.Entry(booking).Reference(b => b.Service).LoadAsync();
-            await _db.Entry(booking).Reference(b => b.Customer).LoadAsync();
 
             return _mapper.Map<BookingResponseDTO>(booking);
         }
 
         public async Task<bool> UpdateStatusAsync(int id, BookingStatus status)
         {
-            var booking = await _db.Bookings.FindAsync(id);
-            if (booking == null) return false;
+            var booking = await _db.Bookings.FindAsync(id); //
+            if (booking == null) return false; //
 
-            booking.Status = status;
-            await _db.SaveChangesAsync();
-            return true;
+            // THAY ĐỔI: Thêm kiểm tra logic cơ bản trước khi đẩy xuống DB
+            if (booking.Status == BookingStatus.Completed || booking.Status == BookingStatus.Cancelled)
+            {
+                throw new Exception("Không thể thay đổi trạng thái của đơn hàng đã kết thúc.");
+            }
+
+            booking.Status = status; //
+
+            try
+            {
+                await _db.SaveChangesAsync(); //
+            }
+            catch (Exception ex)
+            {
+                // Catch lỗi từ Trigger TRG_Booking_ProtectFinalState nếu có
+                throw new Exception(ex.Message);
+            }
+
+            return true; //
         }
         public async Task<bool> ConfirmPaymentAsync(int id)
         {
-            var booking = await _db.Bookings.FindAsync(id);
-            if (booking == null) return false;
+            var booking = await _db.Bookings.FindAsync(id); //
+            if (booking == null) return false; //
 
-            // Chuyển trạng thái sang Paid
-            booking.PaymentStatus = PaymentStatus.Paid;
+            // 1. Cập nhật trạng thái thanh toán
+            booking.PaymentStatus = PaymentStatus.Paid; //
 
-            // Tùy chọn: Nếu thanh toán xong thì có thể auto chuyển trạng thái đơn sang Completed nếu muốn
-             booking.Status = BookingStatus.Completed; 
-
-            await _db.SaveChangesAsync();
-            return true;
+            await _db.SaveChangesAsync(); //
+            return true; //
         }
 
         public async Task<List<BookingScheduleDTO>> GetHelperScheduleAsync(int helperId, DateTime fromDate, DateTime toDate)
@@ -140,6 +163,10 @@ namespace GiupViecAPI.Services.Repositories
                 .ToListAsync();
 
             return bookings;
+        }
+        public async Task CleanExpiredBookingsAsync()
+        {
+            await _db.Database.ExecuteSqlRawAsync("EXEC sp_CancelExpiredBookings");
         }
     }
 }

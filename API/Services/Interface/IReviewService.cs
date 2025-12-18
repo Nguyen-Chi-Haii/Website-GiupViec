@@ -6,7 +6,7 @@ namespace GiupViecAPI.Services.Interface
     public interface IReviewService
     {
         // Tạo đánh giá mới
-        Task<Review> CreateReviewAsync(CreateReviewDTO input);
+        Task<Review> CreateReviewAsync(CreateReviewDTO dto, int customerId);
 
         // Lấy tất cả đánh giá của một Helper (để hiển thị profile Helper)
         Task<List<Review>> GetReviewsByHelperAsync(int helperId);

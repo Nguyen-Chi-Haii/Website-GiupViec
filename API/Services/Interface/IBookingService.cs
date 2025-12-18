@@ -6,6 +6,7 @@ namespace GiupViecAPI.Services.Interface
 {
     public interface IBookingService
     {
+        Task<BookingResponseDTO> CreateBookingAsync(BookingCreateDTO dto, int customerId);
         Task<IEnumerable<BookingResponseDTO>> GetAllAsync();
         Task<BookingResponseDTO> GetByIdAsync(int id);
 
@@ -21,5 +22,7 @@ namespace GiupViecAPI.Services.Interface
         Task<bool> ConfirmPaymentAsync(int id);
 
         Task<List<BookingScheduleDTO>> GetHelperScheduleAsync(int helperId, DateTime fromDate, DateTime toDate);
+
+        Task CleanExpiredBookingsAsync();
     }
 }
