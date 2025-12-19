@@ -18,41 +18,24 @@ namespace GiupViecAPI.Services.Repositories
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<ServiceResponseDTO>> GetAllAsync()
+        public Task<ServiceResponseDTO> CreateAsync(ServiceCreateDTO dto)
         {
-            var services = await _db.Services.ToListAsync();
-            return _mapper.Map<IEnumerable<ServiceResponseDTO>>(services);
+            throw new NotImplementedException();
         }
 
-        public async Task<ServiceResponseDTO> GetByIdAsync(int id)
+        public Task<IEnumerable<ServiceResponseDTO>> GetAllAsync()
         {
-            var service = await _db.Services.FindAsync(id);
-            if (service == null) return null;
-
-            return _mapper.Map<ServiceResponseDTO>(service);
+            throw new NotImplementedException();
         }
 
-        public async Task<ServiceResponseDTO> CreateAsync(ServiceCreateDTO dto)
+        public Task<ServiceResponseDTO> GetByIdAsync(int id)
         {
-            var service = _mapper.Map<Service>(dto);
-
-            _db.Services.Add(service);
-            await _db.SaveChangesAsync();
-
-            return _mapper.Map<ServiceResponseDTO>(service);
+            throw new NotImplementedException();
         }
 
-        public async Task<ServiceResponseDTO> UpdateAsync(int id, ServiceUpdateDTO dto)
+        public Task<ServiceResponseDTO> UpdateAsync(int id, ServiceUpdateDTO dto)
         {
-            var service = await _db.Services.FindAsync(id);
-            if (service == null) return null;
-
-            // Map dữ liệu từ DTO vào Entity cũ
-            _mapper.Map(dto, service);
-
-            await _db.SaveChangesAsync();
-
-            return _mapper.Map<ServiceResponseDTO>(service);
+            throw new NotImplementedException();
         }
     }
 }
