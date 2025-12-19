@@ -7,9 +7,9 @@ using System.Collections.Generic;
 
 namespace GiupViecAPI.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, int>
+    public class GiupViecDBContext : IdentityDbContext<User, IdentityRole<int>, int>
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
+        public GiupViecDBContext(DbContextOptions<GiupViecDBContext> options) : base(options) { }
 
         public DbSet<HelperProfile> HelperProfiles { get; set; }
         public DbSet<Service> Services { get; set; }

@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "D:\\Code\\Angular\\GIUPVIEC\\API\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\model\\domain\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:model\\domain\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -22,7 +26,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 8,
+          "SelectedChildIndex": 6,
           "Children": [
             {
               "$type": "Bookmark",
@@ -50,7 +54,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-19T03:31:36.02Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "appsettings.json",
               "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\appsettings.json",
               "RelativeDocumentMoniker": "appsettings.json",
@@ -58,12 +75,11 @@
               "RelativeToolTip": "appsettings.json",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-12-19T03:23:13.475Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-19T03:23:13.475Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "GiupViecDBContext.cs",
               "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Data\\GiupViecDBContext.cs",
               "RelativeDocumentMoniker": "Data\\GiupViecDBContext.cs",
@@ -71,12 +87,11 @@
               "RelativeToolTip": "Data\\GiupViecDBContext.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-19T03:20:38.017Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-19T03:20:38.017Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "User.cs",
               "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Model\\Domain\\User.cs",
               "RelativeDocumentMoniker": "Model\\Domain\\User.cs",
