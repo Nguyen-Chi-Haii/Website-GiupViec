@@ -4,8 +4,14 @@
     {
         public int Id { get; set; }
         public int UserId { get; set; }
-        public string UserName { get; set; } // Để hiển thị tên cho tiện
+        public string UserName { get; set; } // Tên lấy từ bảng User
+        public string Avatar { get; set; }   // Ảnh lấy từ bảng User
+
         public decimal RatingAverage { get; set; }
         public string ActiveArea { get; set; }
+
+        // --- BỔ SUNG ---
+        public string Bio { get; set; }
+        public int ExperienceYears { get; set; }
     }
 }

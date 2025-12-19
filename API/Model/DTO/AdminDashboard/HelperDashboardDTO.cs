@@ -3,9 +3,9 @@
     public class HelperDashboardDTO
     {
         public int TotalJobs { get; set; }       // Tổng số việc đã nhận
-        public int CompletedJobs { get; set; }   // Số việc đã làm xong
-        public decimal TotalIncome { get; set; } // Tổng thu nhập (từ các đơn Completed)
-        public decimal Rating { get; set; }      // Điểm đánh giá hiện tại
-        public int UpcomingJobs { get; set; }    // Việc sắp tới (Confirmed nhưng chưa làm)
+        public decimal TotalEarnings { get; internal set; }
+        public int TotalCompletedJobs { get; internal set; }
+        public int TotalUpcomingJobs { get; internal set; }
+        public decimal AverageRating { get; internal set; }
     }
 }

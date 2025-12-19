@@ -9,5 +9,7 @@ namespace GiupViecAPI.Services.Interface
         Task<HelperProfileResponseDTO> CreateAsync(HelperProfileCreateDTO dto);
 
         Task<HelperProfileResponseDTO> UpdateAsync(int userId, HelperProfileUpdateDTO dto);
+        Task<IEnumerable<HelperSuggestionDTO>> GetAvailableHelpersAsync(AvailableHelperFilterDTO filter);
     }
+
 }

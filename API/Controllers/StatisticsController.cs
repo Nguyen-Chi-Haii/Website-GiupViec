@@ -17,30 +17,47 @@ namespace GiupViecAPI.Controllers
             _service = service;
         }
 
-        // GET: api/statistics/admin
         [HttpGet("admin")]
-        [Authorize(Roles = "Admin")] // Chỉ Admin được xem
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAdminStats()
         {
-            var stats = await _service.GetAdminDashboardAsync();
-            return Ok(stats);
+            try
+            {
+                var stats = await _service.GetAdminDashboardAsync();
+                return Ok(stats);
+            }
+            catch (Exception ex)
+            {
+                // Bắt lỗi nếu DB trục trặc
+                return StatusCode(500, new { message = "Lỗi server: " + ex.Message });
+            }
         }
 
-        // GET: api/statistics/helper
         [HttpGet("helper")]
-        [Authorize(Roles = "Helper")] // Chỉ Helper được xem
+        [Authorize(Roles = "Helper")]
         public async Task<IActionResult> GetHelperStats()
         {
-            // Lấy ID của user đang đăng nhập từ Token
-            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdString))
+            try
             {
-                return Unauthorized();
-            }
+                var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdString))
+                {
+                    return Unauthorized();
+                }
 
-            var userId = int.Parse(userIdString);
-            var stats = await _service.GetHelperDashboardAsync(userId);
-            return Ok(stats);
+                var userId = int.Parse(userIdString);
+
+                var stats = await _service.GetHelperDashboardAsync(userId);
+
+                // Nếu chưa có hồ sơ hoặc dữ liệu, trả về mặc định thay vì lỗi
+                if (stats == null) return NotFound(new { message = "Không tìm thấy dữ liệu thống kê." });
+
+                return Ok(stats);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Lỗi server: " + ex.Message });
+            }
         }
     }
 }

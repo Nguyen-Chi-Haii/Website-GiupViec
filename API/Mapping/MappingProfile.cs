@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using GiupViecAPI.Model.Domain;
-using GiupViecAPI.Model.DTO.Auth;
 using GiupViecAPI.Model.DTO.Booking;
+using GiupViecAPI.Model.DTO.HelperProfile; // <-- Bổ sung namespace này
+using GiupViecAPI.Model.DTO.Service;       // <-- Bổ sung namespace này
 using GiupViecAPI.Model.DTO.User;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace GiupViecAPI.Mapping
 {
@@ -11,20 +11,79 @@ namespace GiupViecAPI.Mapping
     {
         public MappingProfile()
         {
-            // User Mapping
+            // --- 1. USER MAPPING ---
             CreateMap<UserCreateDTO, User>()
-                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email)); // Identity dùng UserName
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email)); // Identity yêu cầu UserName
 
             CreateMap<User, UserResponseDTO>();
-            CreateMap<UserUpdateDTO, User>();
 
-            // Booking Mapping
+            // Logic Update: Chỉ map các trường có dữ liệu (không null), tránh ghi đè null vào DB
+            CreateMap<UserUpdateDTO, User>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+
+            // --- 2. BOOKING MAPPING ---
             CreateMap<BookingCreateDTO, Booking>();
+
+            CreateMap<BookingUpdateDTO, Booking>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
             CreateMap<Booking, BookingResponseDTO>()
                 .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer.FullName))
                 .ForMember(dest => dest.ServiceName, opt => opt.MapFrom(src => src.Service.Name));
+            // Nếu BookingResponseDTO có HelperName thì thêm dòng dưới:
+            // .ForMember(dest => dest.HelperName, opt => opt.MapFrom(src => src.Helper != null ? src.Helper.FullName : "Chưa có"));
 
-            // Thêm các map khác khi cần...
+
+            // --- 3. HELPER PROFILE MAPPING (Đây là phần bạn đang thiếu) ---
+            CreateMap<HelperProfileCreateDTO, HelperProfile>();
+
+            CreateMap<HelperProfileUpdateDTO, HelperProfile>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            CreateMap<HelperProfile, HelperProfileResponseDTO>()
+                // Ví dụ: Muốn lấy tên thật từ bảng User để hiển thị trong Profile
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.FullName));
+
+
+            // --- 4. SERVICE MAPPING (Cũng cần thêm vì ServiceService có dùng) ---
+            CreateMap<ServiceCreateDTO, Service>();
+
+            CreateMap<ServiceUpdateDTO, Service>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            CreateMap<Service, ServiceResponseDTO>();
+            CreateMap<HelperProfile, HelperSuggestionDTO>()
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.User.FullName))
+                .ForMember(dest => dest.Avatar, opt => opt.MapFrom(src => src.User.Avatar));
+            CreateMap<HelperProfileCreateDTO, HelperProfile>()
+                .ForMember(dest => dest.CareerStartDate,
+                           opt => opt.MapFrom(src => DateTime.Now.AddYears(-src.ExperienceYears)));
+
+            // Update cũng tương tự
+            CreateMap<HelperProfileUpdateDTO, HelperProfile>()
+                .ForMember(dest => dest.CareerStartDate,
+                           opt => opt.MapFrom(src => src.ExperienceYears.HasValue
+                                ? DateTime.Now.AddYears(-src.ExperienceYears.Value)
+                                : default(DateTime?)))
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            // 2. OUTPUT: Từ Ngày bắt đầu (Entity) -> Tính ra Số năm (DTO)
+            // Ví dụ: DB lưu 2020 -> Nay 2025 -> Trả về 5 năm
+            CreateMap<HelperProfile, HelperProfileResponseDTO>()
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.FullName))
+                .ForMember(dest => dest.Avatar, opt => opt.MapFrom(src => src.User.Avatar))
+                // Logic tính toán tự động cập nhật theo thời gian thực
+                .ForMember(dest => dest.ExperienceYears,
+                           opt => opt.MapFrom(src => DateTime.Now.Year - src.CareerStartDate.Year));
+
+            // Logic cho Suggestion DTO (Tính năng tìm kiếm)
+            CreateMap<HelperProfile, HelperSuggestionDTO>()
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.User.FullName))
+                .ForMember(dest => dest.Avatar, opt => opt.MapFrom(src => src.User.Avatar))
+                .ForMember(dest => dest.ExperienceYears,
+                           opt => opt.MapFrom(src => DateTime.Now.Year - src.CareerStartDate.Year));
         }
     }
+    
 }

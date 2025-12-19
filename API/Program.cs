@@ -49,6 +49,16 @@ builder.Services.AddSwaggerGen(option =>
         }
     });
 });
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngularApp",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:4200") // Địa chỉ của Angular
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
 
 // 2. Database Context
 builder.Services.AddDbContext<GiupViecDBContext>(options =>
@@ -83,8 +93,9 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
-builder.Services.AddScoped<IServiceService, ServiceService>(); // (Bỏ comment khi bạn có file này)
+builder.Services.AddScoped<IServiceService, ServiceService>(); 
 builder.Services.AddScoped<IHelperProfileService, HelperProfileService>();
+builder.Services.AddScoped<IStatisticsService, StatisticsService>();
 
 // 6. ---> ĐĂNG KÝ AUTOMAPPER
 builder.Services.AddAutoMapper(typeof(MappingProfile));
@@ -100,6 +111,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowAngularApp");
 
 // 7. Thứ tự Middleware bắt buộc: AuthN -> AuthZ
 app.UseAuthentication();

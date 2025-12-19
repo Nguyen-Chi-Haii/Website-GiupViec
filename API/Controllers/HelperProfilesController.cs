@@ -64,5 +64,24 @@ namespace GiupViecAPI.Controllers
 
             return Ok(result);
         }
+        [HttpPost("available")]
+        public async Task<IActionResult> GetAvailableHelpers([FromBody] AvailableHelperFilterDTO filter)
+        {
+            // Có thể validate thêm logic: Ngày bắt đầu phải lớn hơn hiện tại...
+            if (filter.StartDate < DateTime.Today)
+            {
+                return BadRequest(new { message = "Ngày tìm kiếm không hợp lệ." });
+            }
+
+            var result = await _service.GetAvailableHelpersAsync(filter);
+
+            // Nếu không có ai rảnh
+            if (!result.Any())
+            {
+                return Ok(new { message = "Không tìm thấy người giúp việc nào rảnh trong khung giờ này.", data = result });
+            }
+
+            return Ok(result);
+        }
     }
 }

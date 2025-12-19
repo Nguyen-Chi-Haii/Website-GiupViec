@@ -32,17 +32,16 @@ namespace GiupViecAPI.Controllers
 
             try
             {
-                // Gọi hàm CreateAsync đã sửa ở bước trước (gọi Stored Procedure)
                 var result = await _service.CreateBookingAsync(createDto, customerId);
 
-                if (result == null) return BadRequest("Không thể tạo đơn hàng.");
-
+                // Trả về 201 Created
                 return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
             }
             catch (Exception ex)
             {
-                // Trả về lỗi nếu Procedure hoặc Trigger ném ngoại lệ (vd: lỗi tính toán, logic DB)
-                return BadRequest(ex.Message);
+                // QUAN TRỌNG: Hứng lỗi từ Service (VD: Giờ âm, ngày kết thúc nhỏ hơn ngày bắt đầu...)
+                // Trả về lỗi 400 kèm message để FE hiển thị alert
+                return BadRequest(new { message = ex.Message });
             }
         }
         [HttpGet]
@@ -64,23 +63,38 @@ namespace GiupViecAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateInfo(int id, [FromBody] BookingUpdateDTO dto)
         {
-            var result = await _service.UpdateAsync(id, dto);
-            if (result == null) return NotFound();
-            return Ok(result);
-        }
-
-        // PUT: api/bookings/5/assign-helper
-        [HttpPut("{id}/assign-helper")]
-        public async Task<IActionResult> AssignHelper(int id, [FromBody] BookingAssignHelperDTO dto)
-        {
             try
             {
-                var result = await _service.AssignHelperAsync(id, dto.HelperId);
-                if (result == null) return NotFound();
+                var result = await _service.UpdateAsync(id, dto);
+
+                if (result == null)
+                    return NotFound(new { message = "Không tìm thấy đơn hàng hoặc đơn đã hoàn thành." });
+
                 return Ok(result);
             }
             catch (Exception ex)
             {
+                // Hứng lỗi logic (VD: Không được sửa đơn đã hủy...)
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPut("assign-helper")]
+        [Authorize(Roles = "Admin,Employee")] // Ví dụ: Chỉ Admin được gán
+        public async Task<IActionResult> AssignHelper([FromBody] BookingAssignHelperDTO dto)
+        {
+            try
+            {
+                // Service sẽ check trùng lịch, nếu trùng sẽ throw Exception
+                var result = await _service.AssignHelperAsync(dto.BookingId, dto.HelperId);
+
+                if (result == null) return NotFound(new { message = "Không tìm thấy đơn hàng." });
+
+                return Ok(new { message = "Gán người làm thành công!", data = result });
+            }
+            catch (Exception ex)
+            {
+                // Hứng lỗi "Người giúp việc đã bận..." từ Service
                 return BadRequest(new { message = ex.Message });
             }
         }

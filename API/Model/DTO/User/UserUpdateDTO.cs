@@ -1,23 +1,21 @@
-﻿using GiupViecAPI.Model.Enums;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace GiupViecAPI.Model.DTO.User
 {
     public class UserUpdateDTO
     {
-        [MaxLength(100)]
-        public string FullName { get; set; }
+        [MaxLength(100, ErrorMessage = "Họ tên không được vượt quá 100 ký tự")]
+        public string? FullName { get; set; }
 
         [MinLength(6, ErrorMessage = "Mật khẩu phải từ 6 ký tự trở lên")]
-        public string? Password { get; set; }
+        public string? Password { get; set; } // Nếu null nghĩa là không đổi mật khẩu
 
-        [Phone]
-        [MaxLength(20)]
-        public string Phone { get; set; }
+        [Phone(ErrorMessage = "Số điện thoại không đúng định dạng")]
+        [MaxLength(20, ErrorMessage = "Số điện thoại không được vượt quá 20 ký tự")]
+        public string? Phone { get; set; }
 
-        public string Avatar { get; set; }
+        public string? Avatar { get; set; }
 
-        [MaxLength(255)]
-        public string Address { get; set; }
+        public string? Address { get; set; }
     }
 }

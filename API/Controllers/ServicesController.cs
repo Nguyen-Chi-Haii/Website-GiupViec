@@ -37,31 +37,47 @@ namespace GiupViecAPI.Controllers
             return Ok(result);
         }
 
-        // POST: api/services
-        // Cần đăng nhập mới được thêm
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Admin")] // <--- SỬA: Chỉ Admin mới được tạo dịch vụ
         public async Task<IActionResult> Create([FromBody] ServiceCreateDTO dto)
         {
-            var result = await _service.CreateAsync(dto);
-            // Trả về mã 201 Created và đường dẫn để lấy chi tiết
-            return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+            // --- THÊM TRY-CATCH ---
+            try
+            {
+                var result = await _service.CreateAsync(dto);
+                return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+            }
+            catch (Exception ex)
+            {
+                // Bắt lỗi trùng tên từ Service ném ra
+                return BadRequest(new { message = ex.Message });
+            }
+            // -----------------------
         }
 
         // PUT: api/services/5
-        // Cần đăng nhập mới được sửa
         [HttpPut("{id}")]
-        [Authorize]
+        [Authorize(Roles = "Admin")] // <--- SỬA: Chỉ Admin mới được sửa
         public async Task<IActionResult> Update(int id, [FromBody] ServiceUpdateDTO dto)
         {
-            var result = await _service.UpdateAsync(id, dto);
-
-            if (result == null)
+            // --- THÊM TRY-CATCH ---
+            try
             {
-                return NotFound(new { message = "Không tìm thấy dịch vụ để cập nhật" });
-            }
+                var result = await _service.UpdateAsync(id, dto);
 
-            return Ok(result);
+                if (result == null)
+                {
+                    return NotFound(new { message = "Không tìm thấy dịch vụ để cập nhật" });
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                // Bắt lỗi trùng tên hoặc lỗi logic khác
+                return BadRequest(new { message = ex.Message });
+            }
+            // -----------------------
         }
     }
 }

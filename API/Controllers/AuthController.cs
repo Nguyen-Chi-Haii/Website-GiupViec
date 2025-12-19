@@ -1,4 +1,5 @@
 ﻿using GiupViecAPI.Model.DTO.Auth;
+using GiupViecAPI.Model.DTO.User;
 using GiupViecAPI.Services.Interface;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,6 +25,20 @@ namespace GiupViecAPI.Controllers
                 return Unauthorized(new { message = "Sai tài khoản hoặc mật khẩu" });
 
             return Ok(new { token = token });
+        }
+
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] UserCreateDTO registerDto)
+        {
+            try
+            {
+                var user = await _userService.RegisterAsync(registerDto);
+                return CreatedAtAction(null, new { id = user.Id }, user);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
     }
 }

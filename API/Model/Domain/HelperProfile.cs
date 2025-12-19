@@ -8,13 +8,19 @@ namespace GiupViecAPI.Model.Domain
         [Key]
         public int Id { get; set; }
 
-        // Khóa ngoại trỏ về bảng Users
         public int UserId { get; set; }
-
         [ForeignKey("UserId")]
         public User User { get; set; }
 
-        // Điểm đánh giá (Mặc định là 0 khi mới tạo)
+        // --- BỔ SUNG CÁC TRƯỜNG MỚI ---
+
+        [MaxLength(500)]
+        public string? Bio { get; set; } // Giới thiệu bản thân (VD: "Tôi có 5 năm kinh nghiệm chăm bé...")
+
+        public DateTime CareerStartDate { get; set; }
+
+        // ------------------------------
+
         public decimal RatingAverage { get; set; } = 0;
 
         [MaxLength(255)]

@@ -3,51 +3,132 @@
   "WorkspaceRootPath": "D:\\Code\\Angular\\GIUPVIEC\\API\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Code\\Angular\\GIUPVIEC\\API\\Migrations\\20251219085439_AddHelperProfileFields.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Migrations\\20251219085439_AddHelperProfileFields.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\services\\interface\\ihelperprofileservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:services\\interface\\ihelperprofileservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\mapping\\mappingprofile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:mapping\\mappingprofile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\downloads\\Website-GiupViec-master\\Website-GiupViec-master\\API\\Program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\model\\dto\\helperprofile\\helperprofileupdatedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:model\\dto\\helperprofile\\helperprofileupdatedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\services\\interface\\ibookingservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:services\\interface\\ibookingservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\model\\dto\\booking\\bookingupdatedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:model\\dto\\booking\\bookingupdatedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\services\\repositories\\userservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:services\\repositories\\userservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\model\\domain\\helperprofile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:model\\domain\\helperprofile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\services\\repositories\\statisticsservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:services\\repositories\\statisticsservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\model\\dto\\helperprofile\\helperprofileresponsedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:model\\dto\\helperprofile\\helperprofileresponsedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\services\\repositories\\serviceservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:services\\repositories\\serviceservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\model\\dto\\helperprofile\\helperprofilecreatedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:model\\dto\\helperprofile\\helperprofilecreatedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\model\\dto\\booking\\bookingcreatedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:model\\dto\\booking\\bookingcreatedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\controllers\\helperprofilescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:controllers\\helperprofilescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\services\\repositories\\helperprofileservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:services\\repositories\\helperprofileservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\model\\dto\\helperprofile\\helpersuggestiondto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:model\\dto\\helperprofile\\helpersuggestiondto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\model\\dto\\helperprofile\\availablehelperfilterdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:model\\dto\\helperprofile\\availablehelperfilterdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\model\\dto\\service\\servicecreatedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:model\\dto\\service\\servicecreatedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\services\\repositories\\bookingservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:services\\repositories\\bookingservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\model\\dto\\booking\\bookingresponsedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:model\\dto\\booking\\bookingresponsedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\model\\domain\\booking.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:model\\domain\\booking.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\controllers\\statisticscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:controllers\\statisticscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\model\\enums\\userroles.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:model\\enums\\userroles.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\services\\repositories\\statisticsservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:services\\repositories\\statisticsservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\model\\domain\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:model\\domain\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\data\\giupviecdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:data\\giupviecdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+      "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\controllers\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:controllers\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\services\\repositories\\userservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:services\\repositories\\userservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\services\\interface\\iuserservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:services\\interface\\iuserservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\model\\dto\\admindashboard\\helperdashboarddto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:model\\dto\\admindashboard\\helperdashboarddto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\model\\dto\\service\\serviceupdatedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:model\\dto\\service\\serviceupdatedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\controllers\\servicescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:controllers\\servicescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\services\\repositories\\serviceservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:services\\repositories\\serviceservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\controllers\\bookingscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:controllers\\bookingscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\model\\dto\\booking\\bookingassignhelperdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:model\\dto\\booking\\bookingassignhelperdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -57,8 +138,99 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 14,
+          "SelectedChildIndex": 0,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "20251219085439_AddHelperProfileFields.cs",
+              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Migrations\\20251219085439_AddHelperProfileFields.cs",
+              "RelativeDocumentMoniker": "Migrations\\20251219085439_AddHelperProfileFields.cs",
+              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Migrations\\20251219085439_AddHelperProfileFields.cs",
+              "RelativeToolTip": "Migrations\\20251219085439_AddHelperProfileFields.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-19T08:54:39.516Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "BookingUpdateDTO.cs",
+              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Model\\DTO\\Booking\\BookingUpdateDTO.cs",
+              "RelativeDocumentMoniker": "Model\\DTO\\Booking\\BookingUpdateDTO.cs",
+              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Model\\DTO\\Booking\\BookingUpdateDTO.cs",
+              "RelativeToolTip": "Model\\DTO\\Booking\\BookingUpdateDTO.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-19T08:53:31.883Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "HelperProfileUpdateDTO.cs",
+              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Model\\DTO\\HelperProfile\\HelperProfileUpdateDTO.cs",
+              "RelativeDocumentMoniker": "Model\\DTO\\HelperProfile\\HelperProfileUpdateDTO.cs",
+              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Model\\DTO\\HelperProfile\\HelperProfileUpdateDTO.cs",
+              "RelativeToolTip": "Model\\DTO\\HelperProfile\\HelperProfileUpdateDTO.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAxAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-19T08:51:03.656Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "HelperProfileCreateDTO.cs",
+              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Model\\DTO\\HelperProfile\\HelperProfileCreateDTO.cs",
+              "RelativeDocumentMoniker": "Model\\DTO\\HelperProfile\\HelperProfileCreateDTO.cs",
+              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Model\\DTO\\HelperProfile\\HelperProfileCreateDTO.cs",
+              "RelativeToolTip": "Model\\DTO\\HelperProfile\\HelperProfileCreateDTO.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-19T08:50:53.361Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "HelperProfilesController.cs",
+              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Controllers\\HelperProfilesController.cs",
+              "RelativeDocumentMoniker": "Controllers\\HelperProfilesController.cs",
+              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Controllers\\HelperProfilesController.cs",
+              "RelativeToolTip": "Controllers\\HelperProfilesController.cs",
+              "ViewState": "AgIAADYAAAAAAAAAAAAYwFQAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-19T08:46:43Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "IHelperProfileService.cs",
+              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Services\\Interface\\IHelperProfileService.cs",
+              "RelativeDocumentMoniker": "Services\\Interface\\IHelperProfileService.cs",
+              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Services\\Interface\\IHelperProfileService.cs",
+              "RelativeToolTip": "Services\\Interface\\IHelperProfileService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-19T08:46:17.18Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "HelperProfileResponseDTO.cs",
+              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Model\\DTO\\HelperProfile\\HelperProfileResponseDTO.cs",
+              "RelativeDocumentMoniker": "Model\\DTO\\HelperProfile\\HelperProfileResponseDTO.cs",
+              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Model\\DTO\\HelperProfile\\HelperProfileResponseDTO.cs",
+              "RelativeToolTip": "Model\\DTO\\HelperProfile\\HelperProfileResponseDTO.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAwAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-19T08:25:18.69Z",
+              "EditorCaption": ""
+            },
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{b1e99781-ab81-11d0-b683-00aa00a3ee26}"
@@ -85,158 +257,327 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "UserService.cs",
-              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Services\\Repositories\\UserService.cs",
-              "RelativeDocumentMoniker": "Services\\Repositories\\UserService.cs",
-              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Services\\Repositories\\UserService.cs",
-              "RelativeToolTip": "Services\\Repositories\\UserService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAlAAAAAAAAAA==",
+              "DocumentIndex": 11,
+              "Title": "HelperSuggestionDTO.cs",
+              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Model\\DTO\\HelperProfile\\HelperSuggestionDTO.cs",
+              "RelativeDocumentMoniker": "Model\\DTO\\HelperProfile\\HelperSuggestionDTO.cs",
+              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Model\\DTO\\HelperProfile\\HelperSuggestionDTO.cs",
+              "RelativeToolTip": "Model\\DTO\\HelperProfile\\HelperSuggestionDTO.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAnAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-19T03:52:47.471Z",
+              "WhenOpened": "2025-12-19T08:45:19.787Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "StatisticsService.cs",
-              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Services\\Repositories\\StatisticsService.cs",
-              "RelativeDocumentMoniker": "Services\\Repositories\\StatisticsService.cs",
-              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Services\\Repositories\\StatisticsService.cs",
-              "RelativeToolTip": "Services\\Repositories\\StatisticsService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAqwBoAAAAAAAAAAAAAAA==",
+              "DocumentIndex": 12,
+              "Title": "AvailableHelperFilterDTO.cs",
+              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Model\\DTO\\HelperProfile\\AvailableHelperFilterDTO.cs",
+              "RelativeDocumentMoniker": "Model\\DTO\\HelperProfile\\AvailableHelperFilterDTO.cs",
+              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Model\\DTO\\HelperProfile\\AvailableHelperFilterDTO.cs",
+              "RelativeToolTip": "Model\\DTO\\HelperProfile\\AvailableHelperFilterDTO.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-19T03:52:35.297Z",
+              "WhenOpened": "2025-12-19T08:45:01.421Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "ServiceService.cs",
-              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Services\\Repositories\\ServiceService.cs",
-              "RelativeDocumentMoniker": "Services\\Repositories\\ServiceService.cs",
-              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Services\\Repositories\\ServiceService.cs",
-              "RelativeToolTip": "Services\\Repositories\\ServiceService.cs",
-              "ViewState": "AgIAABkAAAAAAAAAAAA0wCcAAAAAAAAAAAAAAA==",
+              "DocumentIndex": 15,
+              "Title": "BookingResponseDTO.cs",
+              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Model\\DTO\\Booking\\BookingResponseDTO.cs",
+              "RelativeDocumentMoniker": "Model\\DTO\\Booking\\BookingResponseDTO.cs",
+              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Model\\DTO\\Booking\\BookingResponseDTO.cs",
+              "RelativeToolTip": "Model\\DTO\\Booking\\BookingResponseDTO.cs",
+              "ViewState": "AgIAAAQAAAAAAAAAAAAzwBkAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-19T03:52:24.669Z",
+              "WhenOpened": "2025-12-19T08:40:10.663Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "HelperProfileService.cs",
-              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Services\\Repositories\\HelperProfileService.cs",
-              "RelativeDocumentMoniker": "Services\\Repositories\\HelperProfileService.cs",
-              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Services\\Repositories\\HelperProfileService.cs",
-              "RelativeToolTip": "Services\\Repositories\\HelperProfileService.cs",
-              "ViewState": "AgIAABUAAAAAAAAAAAA0wCMAAAAAAAAAAAAAAA==",
+              "DocumentIndex": 13,
+              "Title": "ServiceCreateDTO.cs",
+              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Model\\DTO\\Service\\ServiceCreateDTO.cs",
+              "RelativeDocumentMoniker": "Model\\DTO\\Service\\ServiceCreateDTO.cs",
+              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Model\\DTO\\Service\\ServiceCreateDTO.cs",
+              "RelativeToolTip": "Model\\DTO\\Service\\ServiceCreateDTO.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAqAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-19T03:52:11.367Z",
+              "WhenOpened": "2025-12-19T08:39:50.09Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "BookingService.cs",
-              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Services\\Repositories\\BookingService.cs",
-              "RelativeDocumentMoniker": "Services\\Repositories\\BookingService.cs",
-              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Services\\Repositories\\BookingService.cs",
-              "RelativeToolTip": "Services\\Repositories\\BookingService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEIAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-19T03:51:46.245Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "IBookingService.cs",
-              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Services\\Interface\\IBookingService.cs",
-              "RelativeDocumentMoniker": "Services\\Interface\\IBookingService.cs",
-              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Services\\Interface\\IBookingService.cs",
-              "RelativeToolTip": "Services\\Interface\\IBookingService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-19T03:51:41.408Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Program.cs",
-              "DocumentMoniker": "D:\\downloads\\Website-GiupViec-master\\Website-GiupViec-master\\API\\Program.cs",
-              "RelativeDocumentMoniker": "..\\..\\..\\..\\downloads\\Website-GiupViec-master\\Website-GiupViec-master\\API\\Program.cs",
-              "ToolTip": "D:\\downloads\\Website-GiupViec-master\\Website-GiupViec-master\\API\\Program.cs",
-              "RelativeToolTip": "..\\..\\..\\..\\downloads\\Website-GiupViec-master\\Website-GiupViec-master\\API\\Program.cs",
-              "ViewState": "AgIAADAAAAAAAAAAAAAAACAAAAAKAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-19T03:49:44.599Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "MappingProfile.cs",
-              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Mapping\\MappingProfile.cs",
-              "RelativeDocumentMoniker": "Mapping\\MappingProfile.cs",
-              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Mapping\\MappingProfile.cs",
-              "RelativeToolTip": "Mapping\\MappingProfile.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB0AAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-19T03:38:31.863Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 18,
               "Title": "Program.cs",
               "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Program.cs",
               "RelativeDocumentMoniker": "Program.cs",
               "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Program.cs",
               "RelativeToolTip": "Program.cs",
-              "ViewState": "AgIAAD8AAAAAAAAAAAAhwFkAAAAfAAAAAAAAAA==",
+              "ViewState": "AgIAAEsAAAAAAAAAAAAAAGEAAABEAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-19T03:31:36.02Z",
+              "WhenOpened": "2025-12-19T08:30:27.547Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
-              "Title": "appsettings.json",
-              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\appsettings.json",
-              "RelativeDocumentMoniker": "appsettings.json",
-              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\appsettings.json",
-              "RelativeToolTip": "appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-12-19T03:23:13.475Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
-              "Title": "GiupViecDBContext.cs",
-              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Data\\GiupViecDBContext.cs",
-              "RelativeDocumentMoniker": "Data\\GiupViecDBContext.cs",
-              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Data\\GiupViecDBContext.cs",
-              "RelativeToolTip": "Data\\GiupViecDBContext.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAuwAkAAAAbAAAAAAAAAA==",
+              "DocumentIndex": 2,
+              "Title": "MappingProfile.cs",
+              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Mapping\\MappingProfile.cs",
+              "RelativeDocumentMoniker": "Mapping\\MappingProfile.cs",
+              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Mapping\\MappingProfile.cs",
+              "RelativeToolTip": "Mapping\\MappingProfile.cs",
+              "ViewState": "AgIAAEIAAAAAAAAAAADgv1cAAAAEAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-19T03:20:38.017Z",
+              "WhenOpened": "2025-12-19T07:55:54.008Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 5,
+              "Title": "HelperProfile.cs",
+              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Model\\Domain\\HelperProfile.cs",
+              "RelativeDocumentMoniker": "Model\\Domain\\HelperProfile.cs",
+              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Model\\Domain\\HelperProfile.cs",
+              "RelativeToolTip": "Model\\Domain\\HelperProfile.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAABkAAAAYAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-19T07:54:08.024Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "Booking.cs",
+              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Model\\Domain\\Booking.cs",
+              "RelativeDocumentMoniker": "Model\\Domain\\Booking.cs",
+              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Model\\Domain\\Booking.cs",
+              "RelativeToolTip": "Model\\Domain\\Booking.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAgAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-19T07:54:06.918Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "UserRoles.cs",
+              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Model\\Enums\\UserRoles.cs",
+              "RelativeDocumentMoniker": "Model\\Enums\\UserRoles.cs",
+              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Model\\Enums\\UserRoles.cs",
+              "RelativeToolTip": "Model\\Enums\\UserRoles.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-19T07:47:46.719Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "BookingCreateDTO.cs",
+              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Model\\DTO\\Booking\\BookingCreateDTO.cs",
+              "RelativeDocumentMoniker": "Model\\DTO\\Booking\\BookingCreateDTO.cs",
+              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Model\\DTO\\Booking\\BookingCreateDTO.cs",
+              "RelativeToolTip": "Model\\DTO\\Booking\\BookingCreateDTO.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-19T07:43:25.073Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
               "Title": "User.cs",
               "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Model\\Domain\\User.cs",
               "RelativeDocumentMoniker": "Model\\Domain\\User.cs",
               "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Model\\Domain\\User.cs",
               "RelativeToolTip": "Model\\Domain\\User.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAkwBQAAAAuAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-19T03:19:10.321Z",
+              "WhenOpened": "2025-12-19T07:42:17.584Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "AuthController.cs",
+              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Controllers\\AuthController.cs",
+              "RelativeDocumentMoniker": "Controllers\\AuthController.cs",
+              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Controllers\\AuthController.cs",
+              "RelativeToolTip": "Controllers\\AuthController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACYAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-19T07:39:49.317Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 23,
+              "Title": "UsersController.cs",
+              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Controllers\\UsersController.cs",
+              "RelativeDocumentMoniker": "Controllers\\UsersController.cs",
+              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Controllers\\UsersController.cs",
+              "RelativeToolTip": "Controllers\\UsersController.cs",
+              "ViewState": "AgIAACUAAAAAAAAAAAAAAFkAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-19T07:39:25.813Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 25,
+              "Title": "IUserService.cs",
+              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Services\\Interface\\IUserService.cs",
+              "RelativeDocumentMoniker": "Services\\Interface\\IUserService.cs",
+              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Services\\Interface\\IUserService.cs",
+              "RelativeToolTip": "Services\\Interface\\IUserService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-19T07:38:08.854Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 24,
+              "Title": "UserService.cs",
+              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Services\\Repositories\\UserService.cs",
+              "RelativeDocumentMoniker": "Services\\Repositories\\UserService.cs",
+              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Services\\Repositories\\UserService.cs",
+              "RelativeToolTip": "Services\\Repositories\\UserService.cs",
+              "ViewState": "AgIAAAsAAAAAAAAAAAAiwHsAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-19T07:35:49.845Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 26,
+              "Title": "HelperDashboardDTO.cs",
+              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Model\\DTO\\AdminDashboard\\HelperDashboardDTO.cs",
+              "RelativeDocumentMoniker": "Model\\DTO\\AdminDashboard\\HelperDashboardDTO.cs",
+              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Model\\DTO\\AdminDashboard\\HelperDashboardDTO.cs",
+              "RelativeToolTip": "Model\\DTO\\AdminDashboard\\HelperDashboardDTO.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAABIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-19T07:33:32.864Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "StatisticsService.cs",
+              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Services\\Repositories\\StatisticsService.cs",
+              "RelativeDocumentMoniker": "Services\\Repositories\\StatisticsService.cs",
+              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Services\\Repositories\\StatisticsService.cs",
+              "RelativeToolTip": "Services\\Repositories\\StatisticsService.cs",
+              "ViewState": "AgIAAA4AAAAAAAAAAAAuwEUAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-19T07:33:16.346Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "StatisticsController.cs",
+              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Controllers\\StatisticsController.cs",
+              "RelativeDocumentMoniker": "Controllers\\StatisticsController.cs",
+              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Controllers\\StatisticsController.cs",
+              "RelativeToolTip": "Controllers\\StatisticsController.cs",
+              "ViewState": "AgIAABMAAAAAAAAAAAAQwDwAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-19T07:32:15.115Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 28,
+              "Title": "ServicesController.cs",
+              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Controllers\\ServicesController.cs",
+              "RelativeDocumentMoniker": "Controllers\\ServicesController.cs",
+              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Controllers\\ServicesController.cs",
+              "RelativeToolTip": "Controllers\\ServicesController.cs",
+              "ViewState": "AgIAACMAAAAAAAAAAAAqwFAAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-19T07:30:09.913Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 27,
+              "Title": "ServiceUpdateDTO.cs",
+              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Model\\DTO\\Service\\ServiceUpdateDTO.cs",
+              "RelativeDocumentMoniker": "Model\\DTO\\Service\\ServiceUpdateDTO.cs",
+              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Model\\DTO\\Service\\ServiceUpdateDTO.cs",
+              "RelativeToolTip": "Model\\DTO\\Service\\ServiceUpdateDTO.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-19T07:30:01.813Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 31,
+              "Title": "BookingAssignHelperDTO.cs",
+              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Model\\DTO\\Booking\\BookingAssignHelperDTO.cs",
+              "RelativeDocumentMoniker": "Model\\DTO\\Booking\\BookingAssignHelperDTO.cs",
+              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Model\\DTO\\Booking\\BookingAssignHelperDTO.cs",
+              "RelativeToolTip": "Model\\DTO\\Booking\\BookingAssignHelperDTO.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAqAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-19T07:27:34.309Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 30,
+              "Title": "BookingsController.cs",
+              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Controllers\\BookingsController.cs",
+              "RelativeDocumentMoniker": "Controllers\\BookingsController.cs",
+              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Controllers\\BookingsController.cs",
+              "RelativeToolTip": "Controllers\\BookingsController.cs",
+              "ViewState": "AgIAAD8AAAAAAAAAAAA7wFcAAABMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-19T07:24:47.968Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "BookingService.cs",
+              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Services\\Repositories\\BookingService.cs",
+              "RelativeDocumentMoniker": "Services\\Repositories\\BookingService.cs",
+              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Services\\Repositories\\BookingService.cs",
+              "RelativeToolTip": "Services\\Repositories\\BookingService.cs",
+              "ViewState": "AgIAADIAAAAAAAAAAAAgwE4AAABMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-19T07:24:24.615Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 29,
+              "Title": "ServiceService.cs",
+              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Services\\Repositories\\ServiceService.cs",
+              "RelativeDocumentMoniker": "Services\\Repositories\\ServiceService.cs",
+              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Services\\Repositories\\ServiceService.cs",
+              "RelativeToolTip": "Services\\Repositories\\ServiceService.cs",
+              "ViewState": "AgIAAC8AAAAAAAAAAAAAwFgAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-19T07:22:15.697Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "HelperProfileService.cs",
+              "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Services\\Repositories\\HelperProfileService.cs",
+              "RelativeDocumentMoniker": "Services\\Repositories\\HelperProfileService.cs",
+              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Services\\Repositories\\HelperProfileService.cs",
+              "RelativeToolTip": "Services\\Repositories\\HelperProfileService.cs",
+              "ViewState": "AgIAADsAAAAAAAAAAAAuwGkAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-19T07:22:10.683Z",
               "EditorCaption": ""
             }
           ]
