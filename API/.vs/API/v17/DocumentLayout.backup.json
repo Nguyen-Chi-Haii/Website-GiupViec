@@ -11,6 +11,9 @@
       "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:mapping\\mappingprofile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\downloads\\Website-GiupViec-master\\Website-GiupViec-master\\API\\Program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\services\\interface\\ibookingservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:services\\interface\\ibookingservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -33,9 +36,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\services\\repositories\\bookingservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|solutionrelative:services\\repositories\\bookingservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\downloads\\Website-GiupViec-master\\Website-GiupViec-master\\API\\Program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{93943090-2512-45F3-9BD3-BB8B1E90EA20}|API.csproj|d:\\code\\angular\\giupviec\\api\\model\\domain\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -85,7 +85,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "UserService.cs",
               "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Services\\Repositories\\UserService.cs",
               "RelativeDocumentMoniker": "Services\\Repositories\\UserService.cs",
@@ -98,7 +98,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "StatisticsService.cs",
               "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Services\\Repositories\\StatisticsService.cs",
               "RelativeDocumentMoniker": "Services\\Repositories\\StatisticsService.cs",
@@ -111,7 +111,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
               "Title": "ServiceService.cs",
               "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Services\\Repositories\\ServiceService.cs",
               "RelativeDocumentMoniker": "Services\\Repositories\\ServiceService.cs",
@@ -124,7 +124,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 7,
               "Title": "HelperProfileService.cs",
               "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Services\\Repositories\\HelperProfileService.cs",
               "RelativeDocumentMoniker": "Services\\Repositories\\HelperProfileService.cs",
@@ -137,7 +137,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 8,
               "Title": "BookingService.cs",
               "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Services\\Repositories\\BookingService.cs",
               "RelativeDocumentMoniker": "Services\\Repositories\\BookingService.cs",
@@ -150,7 +150,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "IBookingService.cs",
               "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Services\\Interface\\IBookingService.cs",
               "RelativeDocumentMoniker": "Services\\Interface\\IBookingService.cs",
@@ -163,13 +163,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 2,
               "Title": "Program.cs",
               "DocumentMoniker": "D:\\downloads\\Website-GiupViec-master\\Website-GiupViec-master\\API\\Program.cs",
               "RelativeDocumentMoniker": "..\\..\\..\\..\\downloads\\Website-GiupViec-master\\Website-GiupViec-master\\API\\Program.cs",
               "ToolTip": "D:\\downloads\\Website-GiupViec-master\\Website-GiupViec-master\\API\\Program.cs",
               "RelativeToolTip": "..\\..\\..\\..\\downloads\\Website-GiupViec-master\\Website-GiupViec-master\\API\\Program.cs",
-              "ViewState": "AgIAAE4AAAAAAAAAAADwv20AAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAADAAAAAAAAAAAAAAACAAAAAKAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-12-19T03:49:44.599Z",
               "EditorCaption": ""
@@ -182,7 +182,7 @@
               "RelativeDocumentMoniker": "Mapping\\MappingProfile.cs",
               "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Mapping\\MappingProfile.cs",
               "RelativeToolTip": "Mapping\\MappingProfile.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAfAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB0AAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-12-19T03:38:31.863Z",
               "EditorCaption": ""
@@ -193,9 +193,9 @@
               "Title": "Program.cs",
               "DocumentMoniker": "D:\\Code\\Angular\\GIUPVIEC\\API\\Program.cs",
               "RelativeDocumentMoniker": "Program.cs",
-              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Program.cs*",
-              "RelativeToolTip": "Program.cs*",
-              "ViewState": "AgIAABkAAAAAAAAAAADwv0QAAAAAAAAAAAAAAA==",
+              "ToolTip": "D:\\Code\\Angular\\GIUPVIEC\\API\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAAD8AAAAAAAAAAAAhwFkAAAAfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-12-19T03:31:36.02Z",
               "EditorCaption": ""
