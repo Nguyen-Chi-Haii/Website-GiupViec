@@ -14,7 +14,7 @@ namespace GiupViecAPI.Model.DTO.User
         [MaxLength(150, ErrorMessage = "Email không được vượt quá 150 ký tự")] // Khớp với Domain [MaxLength(150)]
         public string Email { get; set; }
 
-        [Phone(ErrorMessage = "Số điện thoại không đúng định dạng")]
+        [RegularExpression(@"^(0|\+84)[0-9]{9,10}$", ErrorMessage = "Số điện thoại không đúng định dạng (VD: 0912345678 hoặc +84912345678)")]
         [MaxLength(20, ErrorMessage = "Số điện thoại không được vượt quá 20 ký tự")] // Khớp với Domain [MaxLength(20)]
         public string? Phone { get; set; } // Cho phép null nếu Domain không bắt buộc
 

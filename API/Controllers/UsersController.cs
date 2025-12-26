@@ -18,22 +18,8 @@ namespace GiupViecAPI.Controllers
             _service = service;
         }
 
-        // POST: api/users/register
-        // Ai cũng có thể đăng ký -> Không cần [Authorize]
-        [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] UserCreateDTO dto)
-        {
-            try
-            {
-                var result = await _service.RegisterAsync(dto);
-                return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
-            }
-            catch (Exception ex)
-            {
-                // Bắt lỗi trùng Email
-                return BadRequest(new { message = ex.Message });
-            }
-        }
+        // Register endpoint đã được chuyển sang AuthController để tránh trùng lặp
+        // POST: /api/Auth/register
 
         // GET: api/users
         // Chỉ Admin mới được xem danh sách User

@@ -99,40 +99,31 @@ namespace GiupViecAPI.Controllers
             }
         }
 
-        // PUT: api/bookings/5/confirm
-        [HttpPut("{id}/confirm")]
-        public async Task<IActionResult> Confirm(int id)
+        // PUT: api/bookings/5/status
+        // Gom chung các action thay đổi trạng thái vào 1 endpoint
+        [HttpPut("{id}/status")]
+        public async Task<IActionResult> UpdateStatus(int id, [FromBody] BookingStatusUpdateDTO dto)
         {
-            var success = await _service.UpdateStatusAsync(id, BookingStatus.Confirmed);
-            if (!success) return NotFound();
-            return Ok(new { message = "Đã xác nhận đơn hàng" });
-        }
+            // Mapping trạng thái sang message tương ứng
+            var statusMessages = new Dictionary<BookingStatus, string>
+            {
+                { BookingStatus.Confirmed, "Đã xác nhận đơn hàng" },
+                { BookingStatus.Completed, "Đã hoàn thành công việc" },
+                { BookingStatus.Rejected, "Đã từ chối đơn hàng" },
+                { BookingStatus.Cancelled, "Đã hủy đơn hàng" },
+                { BookingStatus.Pending, "Đã chuyển về trạng thái chờ xác nhận" }
+            };
 
-        // PUT: api/bookings/5/complete
-        [HttpPut("{id}/complete")]
-        public async Task<IActionResult> Complete(int id)
-        {
-            var success = await _service.UpdateStatusAsync(id, BookingStatus.Completed);
-            if (!success) return NotFound();
-            return Ok(new { message = "Đã hoàn thành công việc" });
-        }
+            var success = await _service.UpdateStatusAsync(id, dto.Status);
+            
+            if (!success) 
+                return NotFound(new { message = "Không tìm thấy đơn hàng" });
 
-        // PUT: api/bookings/5/reject
-        [HttpPut("{id}/reject")]
-        public async Task<IActionResult> Reject(int id)
-        {
-            var success = await _service.UpdateStatusAsync(id, BookingStatus.Rejected);
-            if (!success) return NotFound();
-            return Ok(new { message = "Đã từ chối đơn hàng" });
-        }
-
-        // PUT: api/bookings/5/cancel
-        [HttpPut("{id}/cancel")]
-        public async Task<IActionResult> Cancel(int id)
-        {
-            var success = await _service.UpdateStatusAsync(id, BookingStatus.Cancelled);
-            if (!success) return NotFound();
-            return Ok(new { message = "Đã hủy đơn hàng" });
+            var message = statusMessages.TryGetValue(dto.Status, out var msg) 
+                ? msg 
+                : "Cập nhật trạng thái thành công";
+                
+            return Ok(new { message = message, newStatus = dto.Status.ToString() });
         }
         [HttpPut("{id}/payment-confirm")]
         [Authorize(Roles = "Admin,Helper")] // Chỉ Admin hoặc Helper được xác nhận tiền
