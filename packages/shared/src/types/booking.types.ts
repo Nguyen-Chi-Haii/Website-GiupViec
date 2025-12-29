@@ -1,5 +1,5 @@
 /**
- * Booking types matching API DTOs
+ * Booking types matching API DTOs - Updated for 2025
  */
 
 export enum BookingStatus {
@@ -7,43 +7,56 @@ export enum BookingStatus {
   Confirmed = 'Confirmed',
   InProgress = 'InProgress',
   Completed = 'Completed',
+  Rejected = 'Rejected',
   Cancelled = 'Cancelled'
 }
 
-export interface BookingResponse {
-  id: number;
-  customerId: number;
-  customerName: string;
-  helperId: number;
-  helperName: string;
-  serviceId: number;
-  serviceName: string;
-  servicePrice: number;
-  address: string;
-  startDate: Date | string;
-  startTime: string;
-  durationHours: number;
-  totalPrice: number;
-  status: BookingStatus;
-  note?: string;
-  createdAt: Date | string;
+export enum PaymentStatus {
+  Unpaid = 'Unpaid',
+  Paid = 'Paid'
 }
 
 export interface BookingCreateDTO {
-  helperId: number;
   serviceId: number;
+  startDate: string;        // ISO date string
+  endDate: string;          // ISO date string
+  workShiftStart: string;   // TimeSpan format: "HH:mm:ss"
+  workShiftEnd: string;     // TimeSpan format: "HH:mm:ss"
   address: string;
-  startDate: Date | string;
-  startTime: string;
-  durationHours: number;
-  note?: string;
+  notes?: string;
 }
 
 export interface BookingUpdateDTO {
+  startDate?: string;
+  endDate?: string;
+  workShiftStart?: string;
+  workShiftEnd?: string;
   address?: string;
-  startDate?: Date | string;
-  startTime?: string;
-  durationHours?: number;
-  note?: string;
-  status?: BookingStatus;
+  notes?: string;
+}
+
+export interface BookingResponseDTO {
+  id: number;
+  customerId: number;
+  helperId?: number;
+  customerName: string;
+  helperName?: string;
+  serviceName: string;
+  address: string;
+  startDate: string;
+  endDate: string;
+  workShiftStart: string;
+  workShiftEnd: string;
+  totalPrice: number;
+  status: string;
+  paymentStatus: string;
+}
+
+export interface BookingAssignHelperDTO {
+  bookingId: number;
+  helperId: number;
+}
+
+export interface BookingStatusUpdateDTO {
+  status: BookingStatus;
 }

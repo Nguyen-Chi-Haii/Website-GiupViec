@@ -1,0 +1,213 @@
+<div class="booking-step">
+  <!-- Progress Bar -->
+  <div class="progress-bar">
+    <div class="progress-step completed">
+      <span class="step-number">✓</span>
+      <span class="step-label">Chọn Dịch Vụ</span>
+    </div>
+    <div class="progress-line active"></div>
+    <div class="progress-step active">
+      <span class="step-number">2</span>
+      <span class="step-label">Lịch & Địa Chỉ</span>
+    </div>
+    <div class="progress-line"></div>
+    <div class="progress-step">
+      <span class="step-number">3</span>
+      <span class="step-label">Chọn Helper</span>
+    </div>
+    <div class="progress-line"></div>
+    <div class="progress-step">
+      <span class="step-number">4</span>
+      <span class="step-label">Xác Nhận</span>
+    </div>
+  </div>
+
+  <!-- Main Card -->
+  <div class="card-container">
+    <div class="card-header">
+      <h1 class="card-title">Thời Gian & Địa Chỉ</h1>
+      <p class="card-subtitle">Chọn thời gian và địa điểm làm việc</p>
+    </div>
+
+    <!-- Selected Service Badge -->
+    @if (selectedService) {
+      <div class="selected-service">
+        <span class="material-symbols-outlined">cleaning_services</span>
+        <span>{{ selectedService.name }}</span>
+        <span class="service-price">{{ formatPrice(selectedService.price) }}/giờ</span>
+      </div>
+    }
+
+    <!-- Form -->
+    <form class="schedule-form">
+      <!-- Date Section -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <span class="material-symbols-outlined">calendar_month</span>
+          Ngày Làm Việc
+        </h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="startDate">Ngày bắt đầu <span class="required">*</span></label>
+            <input 
+              type="date" 
+              id="startDate"
+              [min]="minDate"
+              [(ngModel)]="startDate"
+              name="startDate"
+              [class.error]="errors()['startDate']"
+            />
+            @if (errors()['startDate']) {
+              <span class="error-text">{{ errors()['startDate'] }}</span>
+            }
+          </div>
+          <div class="form-group">
+            <label for="endDate">Ngày kết thúc <span class="required">*</span></label>
+            <input 
+              type="date" 
+              id="endDate"
+              [min]="startDate || minDate"
+              [(ngModel)]="endDate"
+              name="endDate"
+              [class.error]="errors()['endDate']"
+            />
+            @if (errors()['endDate']) {
+              <span class="error-text">{{ errors()['endDate'] }}</span>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Time Section -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <span class="material-symbols-outlined">schedule</span>
+          Giờ Làm Việc
+        </h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="workShiftStart">Giờ bắt đầu <span class="required">*</span></label>
+            <select 
+              id="workShiftStart"
+              [(ngModel)]="workShiftStart"
+              name="workShiftStart"
+              [class.error]="errors()['workShiftStart']"
+            >
+              @for (time of timeOptions; track time) {
+                <option [value]="time">{{ time }}</option>
+              }
+            </select>
+            @if (errors()['workShiftStart']) {
+              <span class="error-text">{{ errors()['workShiftStart'] }}</span>
+            }
+          </div>
+          <div class="form-group">
+            <label for="workShiftEnd">Giờ kết thúc <span class="required">*</span></label>
+            <select 
+              id="workShiftEnd"
+              [(ngModel)]="workShiftEnd"
+              name="workShiftEnd"
+              [class.error]="errors()['workShiftEnd']"
+            >
+              @for (time of timeOptions; track time) {
+                <option [value]="time">{{ time }}</option>
+              }
+            </select>
+            @if (errors()['workShiftEnd']) {
+              <span class="error-text">{{ errors()['workShiftEnd'] }}</span>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Address Section -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <span class="material-symbols-outlined">location_on</span>
+          Địa Chỉ Làm Việc
+        </h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="province">Tỉnh/Thành phố <span class="required">*</span></label>
+            <select 
+              id="province"
+              [(ngModel)]="selectedProvinceCode"
+              name="province"
+              (change)="onProvinceChange()"
+              [class.error]="errors()['province']"
+            >
+              <option value="">-- Chọn Tỉnh/Thành --</option>
+              @for (province of provinces; track province.code) {
+                <option [value]="province.code">{{ province.fullName }}</option>
+              }
+            </select>
+            @if (errors()['province']) {
+              <span class="error-text">{{ errors()['province'] }}</span>
+            }
+          </div>
+          <div class="form-group">
+            <label for="ward">Phường/Xã <span class="required">*</span></label>
+            <select 
+              id="ward"
+              [(ngModel)]="selectedWardCode"
+              name="ward"
+              [disabled]="!selectedProvinceCode"
+              [class.error]="errors()['ward']"
+            >
+              <option value="">-- Chọn Phường/Xã --</option>
+              @for (ward of wards; track ward.code) {
+                <option [value]="ward.code">{{ ward.fullName }}</option>
+              }
+            </select>
+            @if (errors()['ward']) {
+              <span class="error-text">{{ errors()['ward'] }}</span>
+            }
+          </div>
+        </div>
+        <div class="form-group full-width">
+          <label for="streetAddress">Số nhà, Tên đường <span class="required">*</span></label>
+          <input 
+            type="text" 
+            id="streetAddress"
+            [(ngModel)]="streetAddress"
+            name="streetAddress"
+            placeholder="VD: 123 Nguyễn Huệ"
+            [class.error]="errors()['streetAddress']"
+          />
+          @if (errors()['streetAddress']) {
+            <span class="error-text">{{ errors()['streetAddress'] }}</span>
+          }
+        </div>
+      </div>
+
+      <!-- Notes Section -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <span class="material-symbols-outlined">notes</span>
+          Ghi Chú
+        </h3>
+        <div class="form-group full-width">
+          <textarea 
+            id="notes"
+            [(ngModel)]="notes"
+            name="notes"
+            rows="3"
+            placeholder="VD: Căn hộ tầng 5, bấm chuông gọi trước khi đến..."
+          ></textarea>
+        </div>
+      </div>
+    </form>
+
+    <!-- Navigation -->
+    <div class="card-footer">
+      <button class="btn btn-outline" (click)="onBack()">
+        <span class="material-symbols-outlined">arrow_back</span>
+        Quay Lại
+      </button>
+      <button class="btn btn-primary" (click)="onNext()">
+        Tiếp Tục
+        <span class="material-symbols-outlined">arrow_forward</span>
+      </button>
+    </div>
+  </div>
+</div>

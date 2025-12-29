@@ -1,0 +1,185 @@
+<div class="booking-step">
+  <!-- Progress Bar -->
+  <div class="progress-bar">
+    <div class="progress-step completed">
+      <span class="step-number">✓</span>
+      <span class="step-label">Chọn Dịch Vụ</span>
+    </div>
+    <div class="progress-line active"></div>
+    <div class="progress-step completed">
+      <span class="step-number">✓</span>
+      <span class="step-label">Lịch & Địa Chỉ</span>
+    </div>
+    <div class="progress-line active"></div>
+    <div class="progress-step completed">
+      <span class="step-number">✓</span>
+      <span class="step-label">Chọn Helper</span>
+    </div>
+    <div class="progress-line active"></div>
+    <div class="progress-step active">
+      <span class="step-number">4</span>
+      <span class="step-label">Xác Nhận</span>
+    </div>
+  </div>
+
+  <!-- Main Card -->
+  <div class="card-container">
+    <div class="card-header">
+      <span class="material-symbols-outlined header-icon">task_alt</span>
+      <h1 class="card-title">Xác Nhận Đặt Dịch Vụ</h1>
+      <p class="card-subtitle">Kiểm tra lại thông tin trước khi xác nhận</p>
+    </div>
+
+    <!-- Success Message -->
+    @if (successMessage()) {
+      <div class="message success">
+        <span class="material-symbols-outlined">check_circle</span>
+        <p>{{ successMessage() }}</p>
+      </div>
+    }
+
+    <!-- Error Message -->
+    @if (errorMessage()) {
+      <div class="message error">
+        <span class="material-symbols-outlined">error</span>
+        <p>{{ errorMessage() }}</p>
+      </div>
+    }
+
+    <!-- Summary Sections -->
+    @if (!successMessage()) {
+      <div class="summary-sections">
+        <!-- Service Info -->
+        <div class="summary-section">
+          <div class="section-header">
+            <span class="material-symbols-outlined">cleaning_services</span>
+            <h3>Thông Tin Dịch Vụ</h3>
+          </div>
+          <div class="section-content">
+            <div class="info-row">
+              <span class="label">Dịch vụ:</span>
+              <span class="value">{{ selectedService?.name }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Đơn giá:</span>
+              <span class="value highlight">{{ formatPrice(selectedService?.price || 0) }}/giờ</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Người thực hiện:</span>
+              <span class="value">
+                @if (autoAssignHelper) {
+                  <em>Hệ thống tự động chọn</em>
+                } @else if (selectedHelper) {
+                  {{ selectedHelper.fullName }}
+                }
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Schedule Info -->
+        <div class="summary-section">
+          <div class="section-header">
+            <span class="material-symbols-outlined">calendar_month</span>
+            <h3>Lịch Làm Việc</h3>
+          </div>
+          <div class="section-content">
+            <div class="info-row">
+              <span class="label">Ngày bắt đầu:</span>
+              <span class="value">{{ formatDate(schedule?.startDate || '') }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Ngày kết thúc:</span>
+              <span class="value">{{ formatDate(schedule?.endDate || '') }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Giờ làm việc:</span>
+              <span class="value">{{ formatTime(schedule?.workShiftStart || '') }} - {{ formatTime(schedule?.workShiftEnd || '') }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Address Info -->
+        <div class="summary-section">
+          <div class="section-header">
+            <span class="material-symbols-outlined">location_on</span>
+            <h3>Địa Chỉ</h3>
+          </div>
+          <div class="section-content">
+            <div class="info-row full">
+              <span class="value">{{ address?.fullAddress }}</span>
+            </div>
+            @if (notes) {
+              <div class="info-row full">
+                <span class="label">Ghi chú:</span>
+                <span class="value note">{{ notes }}</span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Price Summary -->
+        <div class="summary-section price-section">
+          <div class="section-header">
+            <span class="material-symbols-outlined">payments</span>
+            <h3>Chi Phí</h3>
+          </div>
+          <div class="section-content">
+            <div class="info-row">
+              <span class="label">Số giờ làm:</span>
+              <span class="value">{{ totalHours }} giờ</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Đơn giá:</span>
+              <span class="value">{{ formatPrice(selectedService?.price || 0) }}/giờ</span>
+            </div>
+            <div class="divider"></div>
+            <div class="info-row total">
+              <span class="label">TỔNG CỘNG:</span>
+              <span class="value">{{ formatPrice(totalPrice) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Terms -->
+      <div class="terms-section">
+        <label class="terms-checkbox">
+          <input 
+            type="checkbox" 
+            [checked]="agreeTerms()"
+            (change)="agreeTerms.set($any($event.target).checked)"
+          />
+          <span>Tôi đồng ý với <a href="#">Điều khoản sử dụng</a> và <a href="#">Chính sách bảo mật</a></span>
+        </label>
+      </div>
+
+      <!-- Navigation -->
+      <div class="card-footer">
+        <button class="btn btn-outline" (click)="onBack()" [disabled]="isSubmitting()">
+          <span class="material-symbols-outlined">arrow_back</span>
+          Quay Lại
+        </button>
+        <button 
+          class="btn btn-primary btn-submit" 
+          (click)="onSubmit()"
+          [disabled]="isSubmitting()"
+        >
+          @if (isSubmitting()) {
+            <span class="spinner"></span>
+            <span>Đang xử lý...</span>
+          } @else {
+            <span class="material-symbols-outlined">lock</span>
+            <span>Xác Nhận Đặt Dịch Vụ</span>
+          }
+        </button>
+      </div>
+    } @else {
+      <!-- Success State -->
+      <div class="success-state">
+        <span class="material-symbols-outlined success-icon">celebration</span>
+        <p>Đang chuyển hướng về trang chủ...</p>
+      </div>
+    }
+  </div>
+</div>

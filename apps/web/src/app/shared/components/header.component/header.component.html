@@ -16,9 +16,10 @@
         }
       </nav>
       
-      <!-- CTA Button -->
+      <!-- CTA Buttons -->
       <div class="nav-actions">
-        <button class="btn btn-primary">
+        <a routerLink="/login" class="btn btn-outline-sm">Đăng Nhập</a>
+        <button routerLink="/booking" class="btn btn-primary">
           <span>Đặt Dịch Vụ</span>
         </button>
         
@@ -37,7 +38,8 @@
         @for (link of navLinks; track link.label) {
           <a class="nav-link-mobile" (click)="scrollTo(link.href)">{{ link.label }}</a>
         }
-        <button class="btn btn-primary btn-full">Đặt Dịch Vụ</button>
+        <a routerLink="/login" class="btn btn-outline btn-full">Đăng Nhập</a>
+        <button routerLink="/booking" class="btn btn-primary btn-full">Đặt Dịch Vụ</button>
       </nav>
     }
   </div>

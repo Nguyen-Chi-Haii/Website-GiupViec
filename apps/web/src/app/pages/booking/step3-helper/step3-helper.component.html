@@ -1,0 +1,123 @@
+<div class="booking-step">
+  <!-- Progress Bar -->
+  <div class="progress-bar">
+    <div class="progress-step completed">
+      <span class="step-number">✓</span>
+      <span class="step-label">Chọn Dịch Vụ</span>
+    </div>
+    <div class="progress-line active"></div>
+    <div class="progress-step completed">
+      <span class="step-number">✓</span>
+      <span class="step-label">Lịch & Địa Chỉ</span>
+    </div>
+    <div class="progress-line active"></div>
+    <div class="progress-step active">
+      <span class="step-number">3</span>
+      <span class="step-label">Chọn Helper</span>
+    </div>
+    <div class="progress-line"></div>
+    <div class="progress-step">
+      <span class="step-number">4</span>
+      <span class="step-label">Xác Nhận</span>
+    </div>
+  </div>
+
+  <!-- Main Card -->
+  <div class="card-container">
+    <div class="card-header">
+      <h1 class="card-title">Chọn Người Giúp Việc</h1>
+      <p class="card-subtitle">Chọn người giúp việc phù hợp hoặc để hệ thống tự chọn</p>
+    </div>
+
+    <!-- Auto Assign Option -->
+    <label class="auto-assign-option" [class.selected]="autoAssign()">
+      <input 
+        type="checkbox" 
+        [checked]="autoAssign()"
+        (change)="toggleAutoAssign($any($event.target).checked)"
+      />
+      <span class="material-symbols-outlined icon">auto_awesome</span>
+      <div class="option-text">
+        <span class="option-title">Để hệ thống tự động chọn người phù hợp nhất</span>
+        <span class="option-desc">Chúng tôi sẽ ghép bạn với người giúp việc phù hợp nhất dựa trên thời gian và địa điểm</span>
+      </div>
+    </label>
+
+    <!-- Divider -->
+    <div class="divider">
+      <span>Hoặc chọn từ danh sách</span>
+    </div>
+
+    <!-- Loading State -->
+    @if (isLoading()) {
+      <div class="loading-state">
+        <div class="spinner-large"></div>
+        <p>Đang tìm người giúp việc phù hợp...</p>
+      </div>
+    } @else {
+      <!-- Helpers Grid -->
+      <div class="helpers-grid">
+        @for (helper of helpers(); track helper.id) {
+          <div 
+            class="helper-card" 
+            [class.selected]="isSelected(helper)"
+            (click)="selectHelper(helper)"
+          >
+            <div class="helper-avatar">
+              @if (helper.avatar) {
+                <img [src]="helper.avatar" [alt]="helper.fullName" />
+              } @else {
+                <span class="initials">{{ getInitials(helper.fullName) }}</span>
+              }
+            </div>
+            <div class="helper-info">
+              <h3 class="helper-name">{{ helper.fullName }}</h3>
+              <div class="helper-rating">
+                <span class="material-symbols-outlined star">star</span>
+                <span>{{ helper.ratingAverage }}</span>
+              </div>
+              <div class="helper-details">
+                <span>{{ helper.experienceYears }} năm KN</span>
+                <span class="dot">•</span>
+                <span>{{ helper.activeArea }}</span>
+              </div>
+              <div class="helper-rate">
+                {{ formatPrice(helper.hourlyRate) }}/giờ
+              </div>
+            </div>
+            <div class="helper-check">
+              @if (isSelected(helper)) {
+                <span class="material-symbols-outlined check-icon">check_circle</span>
+              } @else {
+                <span class="material-symbols-outlined">radio_button_unchecked</span>
+              }
+            </div>
+          </div>
+        }
+
+        @if (helpers().length === 0) {
+          <div class="empty-state">
+            <span class="material-symbols-outlined">search_off</span>
+            <p>Không tìm thấy người giúp việc phù hợp. Vui lòng để hệ thống tự động chọn.</p>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Navigation -->
+    <div class="card-footer">
+      <button class="btn btn-outline" (click)="onBack()">
+        <span class="material-symbols-outlined">arrow_back</span>
+        Quay Lại
+      </button>
+      <button 
+        class="btn btn-primary" 
+        [disabled]="!autoAssign() && !selectedHelperId()"
+        (click)="onNext()"
+      >
+        Tiếp Tục
+        <span class="material-symbols-outlined">arrow_forward</span>
+      </button>
+    </div>
+  </div>
+</div>

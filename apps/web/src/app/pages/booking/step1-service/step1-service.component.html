@@ -1,0 +1,82 @@
+<div class="booking-step">
+  <!-- Progress Bar -->
+  <div class="progress-bar">
+    <div class="progress-step active">
+      <span class="step-number">1</span>
+      <span class="step-label">Chọn Dịch Vụ</span>
+    </div>
+    <div class="progress-line"></div>
+    <div class="progress-step">
+      <span class="step-number">2</span>
+      <span class="step-label">Lịch & Địa Chỉ</span>
+    </div>
+    <div class="progress-line"></div>
+    <div class="progress-step">
+      <span class="step-number">3</span>
+      <span class="step-label">Chọn Helper</span>
+    </div>
+    <div class="progress-line"></div>
+    <div class="progress-step">
+      <span class="step-number">4</span>
+      <span class="step-label">Xác Nhận</span>
+    </div>
+  </div>
+
+  <!-- Main Card -->
+  <div class="card-container">
+    <div class="card-header">
+      <h1 class="card-title">Chọn Dịch Vụ</h1>
+      <p class="card-subtitle">Vui lòng chọn dịch vụ bạn cần</p>
+    </div>
+
+    <!-- Loading State -->
+    @if (isLoading) {
+      <div class="loading-state">
+        <div class="spinner-large"></div>
+        <p>Đang tải dịch vụ...</p>
+      </div>
+    } @else {
+      <!-- Services Grid -->
+      <div class="services-grid">
+        @for (service of services; track service.id) {
+          <div 
+            class="service-card" 
+            [class.selected]="isSelected(service)"
+            (click)="selectService(service)"
+          >
+            <div class="service-icon">
+              <span class="material-symbols-outlined">{{ getServiceIcon(service.name) }}</span>
+            </div>
+            <div class="service-info">
+              <h3 class="service-name">{{ service.name }}</h3>
+              <p class="service-price">{{ formatPrice(service.price) }}<span>/giờ</span></p>
+            </div>
+            <div class="service-check">
+              @if (isSelected(service)) {
+                <span class="material-symbols-outlined check-icon">check_circle</span>
+              } @else {
+                <span class="material-symbols-outlined">radio_button_unchecked</span>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Navigation -->
+    <div class="card-footer">
+      <a routerLink="/" class="btn btn-outline">
+        <span class="material-symbols-outlined">arrow_back</span>
+        Về Trang Chủ
+      </a>
+      <button 
+        class="btn btn-primary" 
+        [disabled]="!selectedServiceId"
+        (click)="onNext()"
+      >
+        Tiếp Tục
+        <span class="material-symbols-outlined">arrow_forward</span>
+      </button>
+    </div>
+  </div>
+</div>
