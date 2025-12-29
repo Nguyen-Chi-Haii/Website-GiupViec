@@ -1,0 +1,13 @@
+{
+  "name": "@giupviec/shared",
+  "version": "1.0.0",
+  "description": "Shared types, constants, and utilities for Giúp Việc Nhà",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rimraf dist"
+  },
+  "keywords": ["giupviec", "shared", "types"],
+  "license": "MIT"
+}
