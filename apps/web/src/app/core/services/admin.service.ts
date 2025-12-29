@@ -30,6 +30,7 @@ export interface BookingResponse {
   startTime: string;
   endTime: string;
   status: string;
+  paymentStatus: string;
   totalPrice: number;
   isPaid: boolean;
   notes?: string;
@@ -37,7 +38,7 @@ export interface BookingResponse {
 }
 
 export interface BookingStatusUpdate {
-  status: 'Pending' | 'Confirmed' | 'Completed' | 'Cancelled' | 'Rejected';
+  status: number; // 1=Pending, 2=Confirmed, 3=Rejected, 4=Completed, 5=Cancelled
 }
 
 export interface BookingAssignHelper {
@@ -70,8 +71,29 @@ export interface UserResponse {
   email: string;
   fullName: string;
   phoneNumber: string;
+  address?: string;
   role: string;
+  status: string;
   createdAt: string;
+}
+
+export interface UserCreate {
+  fullName: string;
+  email: string;
+  phone?: string;
+  password: string;
+  address?: string;
+  role: string;
+  status: number;
+}
+
+export interface UserUpdate {
+  fullName?: string;
+  phone?: string;
+  address?: string;
+  password?: string;
+  avatar?: string;
+  // Note: role and status cannot be updated via API
 }
 
 // ============== Helper Types ==============
@@ -79,12 +101,19 @@ export interface HelperProfile {
   id: number;
   userId: number;
   fullName: string;
+  email: string;
+  phone: string;
   bio?: string;
-  experienceYears: number;
-  skills?: string;
+  careerStartDate: string;
   ratingAverage: number;
-  totalReviews: number;
-  isAvailable: boolean;
+  activeArea: string;
+}
+
+export interface AvailableHelper {
+  id: number;
+  fullName: string;
+  email: string;
+  ratingAverage: number;
 }
 
 // ============== Admin Service ==============
@@ -117,6 +146,10 @@ export class AdminService {
     return this.http.put(`${this.apiUrl}/bookings/assign-helper`, dto);
   }
 
+  confirmPayment(id: number): Observable<any> {
+    return this.http.put(`${this.apiUrl}/bookings/${id}/payment-confirm`, {});
+  }
+
   // --- Services ---
   getAllServices(): Observable<ServiceResponse[]> {
     return this.http.get<ServiceResponse[]>(`${this.apiUrl}/services`);
@@ -139,8 +172,23 @@ export class AdminService {
     return this.http.get<UserResponse>(`${this.apiUrl}/users/${id}`);
   }
 
+  createUser(dto: UserCreate): Observable<UserResponse> {
+    return this.http.post<UserResponse>(`${this.apiUrl}/auth/register`, dto);
+  }
+
+  updateUser(id: number, dto: UserUpdate): Observable<UserResponse> {
+    return this.http.put<UserResponse>(`${this.apiUrl}/users/${id}`, dto);
+  }
+
   // --- Helpers ---
+  getAllHelperProfiles(): Observable<HelperProfile[]> {
+    return this.http.get<HelperProfile[]>(`${this.apiUrl}/helperprofiles`);
+  }
+
   getHelperProfile(userId: number): Observable<HelperProfile> {
     return this.http.get<HelperProfile>(`${this.apiUrl}/helperprofiles/user/${userId}`);
   }
+
+  // Note: For available helpers in booking, use HelperService.getAvailableHelpers() with filters
+  // For admin assigning helpers, use getAllUsers() and filter by role = 'Helper'
 }

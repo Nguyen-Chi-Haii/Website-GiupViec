@@ -15,6 +15,19 @@ import { AdminServicesComponent } from './pages/admin/services/services.componen
 import { AdminHelpersComponent } from './pages/admin/helpers/helpers.component';
 import { AdminUsersComponent } from './pages/admin/users/users.component';
 import { AdminContentComponent } from './pages/admin/content/content.component';
+// Helper imports
+import { HelperLayoutComponent } from './pages/helper/helper-layout.component';
+import { HelperDashboardComponent } from './pages/helper/dashboard/dashboard.component';
+import { HelperScheduleComponent } from './pages/helper/schedule/schedule.component';
+import { HelperProfileComponent } from './pages/helper/profile/profile.component';
+// Customer imports
+import { CustomerLayoutComponent } from './pages/customer/customer-layout.component';
+import { CustomerMyBookingsComponent } from './pages/customer/my-bookings/my-bookings.component';
+import { CustomerProfileComponent } from './pages/customer/profile/profile.component';
+// Employee imports
+import { EmployeeLayoutComponent } from './pages/employee/employee-layout.component';
+import { EmployeeDashboardComponent } from './pages/employee/dashboard/dashboard.component';
+import { EmployeeBookingsComponent } from './pages/employee/bookings/bookings.component';
 
 export const routes: Routes = [
   {
@@ -71,7 +84,6 @@ export const routes: Routes = [
   {
     path: 'admin',
     component: AdminLayoutComponent,
-    // TODO: Add AuthGuard for admin role
     children: [
       {
         path: '',
@@ -105,9 +117,64 @@ export const routes: Routes = [
       }
     ]
   },
+  // Helper Routes
+  {
+    path: 'helper',
+    component: HelperLayoutComponent,
+    children: [
+      {
+        path: '',
+        component: HelperDashboardComponent,
+        title: 'Tổng Quan - Helper'
+      },
+      {
+        path: 'schedule',
+        component: HelperScheduleComponent,
+        title: 'Lịch Làm Việc - Helper'
+      },
+      {
+        path: 'profile',
+        component: HelperProfileComponent,
+        title: 'Hồ Sơ Của Tôi - Helper'
+      }
+    ]
+  },
+  // Customer Routes
+  {
+    path: 'customer',
+    component: CustomerLayoutComponent,
+    children: [
+      {
+        path: '',
+        component: CustomerMyBookingsComponent,
+        title: 'Đơn Của Tôi - Khách Hàng'
+      },
+      {
+        path: 'profile',
+        component: CustomerProfileComponent,
+        title: 'Hồ Sơ - Khách Hàng'
+      }
+    ]
+  },
+  // Employee Routes
+  {
+    path: 'employee',
+    component: EmployeeLayoutComponent,
+    children: [
+      {
+        path: '',
+        component: EmployeeDashboardComponent,
+        title: 'Tổng Quan - Nhân Viên'
+      },
+      {
+        path: 'bookings',
+        component: EmployeeBookingsComponent,
+        title: 'Quản Lý Đơn - Nhân Viên'
+      }
+    ]
+  },
   {
     path: '**',
     redirectTo: ''
   }
 ];
-

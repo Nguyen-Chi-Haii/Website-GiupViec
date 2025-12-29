@@ -145,9 +145,17 @@ export class AuthService {
    */
   getRedirectPath(): string {
     const role = this.getUserRole();
-    if (role === 'Admin') {
-      return '/admin';
+    switch (role) {
+      case 'Admin':
+        return '/admin';
+      case 'Employee':
+        return '/employee';
+      case 'Helper':
+        return '/helper';
+      case 'Customer':
+        return '/customer';
+      default:
+        return '/';
     }
-    return '/';
   }
 }

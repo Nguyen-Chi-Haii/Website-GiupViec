@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { RouterLink, RouterLinkActive, RouterOutlet, Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 
 interface NavItem {
   label: string;
@@ -11,7 +13,7 @@ interface NavItem {
 @Component({
   selector: 'app-admin-layout',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive, RouterOutlet],
   template: `
     <div class="admin-layout">
       <!-- Sidebar -->
@@ -62,21 +64,21 @@ interface NavItem {
         <!-- Top Header -->
         <header class="top-header">
           <div class="header-left">
-            <h2 class="page-title">{{ currentPageTitle }}</h2>
+            <!-- Removed duplicate title - each page has its own -->
           </div>
           <div class="header-right">
             <!-- Search -->
             <div class="search-box">
               <span class="material-symbols-outlined">search</span>
-              <input type="text" placeholder="Tìm kiếm..." />
+              <input type="text" placeholder="Tìm kiếm..." [(ngModel)]="searchQuery" (keyup.enter)="onSearch()" />
             </div>
             <!-- Notifications -->
-            <button class="header-btn">
+            <button class="header-btn" (click)="showNotifications()" title="Thông báo">
               <span class="material-symbols-outlined">notifications</span>
               <span class="notification-badge"></span>
             </button>
             <!-- Settings -->
-            <button class="header-btn">
+            <button class="header-btn" (click)="showSettings()" title="Cài đặt">
               <span class="material-symbols-outlined">settings</span>
             </button>
           </div>
@@ -351,7 +353,9 @@ interface NavItem {
     }
   `]
 })
-export class AdminLayoutComponent {
+export class AdminLayoutComponent implements OnInit {
+  private readonly router = inject(Router);
+  
   navItems: NavItem[] = [
     { label: 'Tổng Quan', icon: 'dashboard', route: '/admin' },
     { label: 'Quản Lý Đơn Hàng', icon: 'receipt_long', route: '/admin/bookings' },
@@ -363,9 +367,38 @@ export class AdminLayoutComponent {
 
   currentPageTitle = 'Tổng Quan';
 
+  ngOnInit(): void {
+    this.updatePageTitle(this.router.url);
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      this.updatePageTitle(event.urlAfterRedirects);
+    });
+  }
+
+  private updatePageTitle(url: string): void {
+    const matched = this.navItems.find(item => item.route === url);
+    this.currentPageTitle = matched?.label || 'Tổng Quan';
+  }
+
   logout(): void {
-    // TODO: Implement logout logic
     localStorage.removeItem('token');
     window.location.href = '/login';
+  }
+
+  showNotifications(): void {
+    alert('Tính năng Thông báo đang được phát triển.');
+  }
+
+  showSettings(): void {
+    alert('Tính năng Cài đặt đang được phát triển.');
+  }
+
+  searchQuery = '';
+
+  onSearch(): void {
+    if (this.searchQuery.trim()) {
+      alert('Tìm kiếm: "' + this.searchQuery + '"\nTính năng tìm kiếm đang được phát triển.');
+    }
   }
 }

@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AdminService, UserResponse } from '../../../core/services/admin.service';
+import { AdminService, UserResponse, UserCreate, UserUpdate } from '../../../core/services/admin.service';
 
 @Component({
   selector: 'app-admin-users',
@@ -12,12 +12,22 @@ import { AdminService, UserResponse } from '../../../core/services/admin.service
       <div class="page-header">
         <h2>Quản Lý Người Dùng</h2>
         <div class="header-actions">
-          <select [(ngModel)]="roleFilter" (change)="filterByRole()" class="filter-select">
+          <select [(ngModel)]="roleFilter" (change)="applyFilters()" class="filter-select">
             <option value="">Tất cả vai trò</option>
             <option value="Customer">Khách hàng</option>
             <option value="Helper">Người giúp việc</option>
+            <option value="Employee">Nhân viên</option>
             <option value="Admin">Admin</option>
           </select>
+          <select [(ngModel)]="statusFilter" (change)="applyFilters()" class="filter-select">
+            <option value="">Tất cả trạng thái</option>
+            <option value="Active">Hoạt động</option>
+            <option value="Inactive">Khóa</option>
+          </select>
+          <button class="btn-primary" (click)="openCreateModal()">
+            <span class="material-symbols-outlined">add</span>
+            Thêm User
+          </button>
         </div>
       </div>
 
@@ -34,7 +44,9 @@ import { AdminService, UserResponse } from '../../../core/services/admin.service
                   <th>Email</th>
                   <th>Số điện thoại</th>
                   <th>Vai trò</th>
+                  <th>Trạng thái</th>
                   <th>Ngày tạo</th>
+                  <th>Hành động</th>
                 </tr>
               </thead>
               <tbody>
@@ -48,17 +60,34 @@ import { AdminService, UserResponse } from '../../../core/services/admin.service
                       </div>
                     </td>
                     <td class="text-muted">{{ user.email }}</td>
-                    <td>{{ user.phoneNumber }}</td>
+                    <td>{{ user.phoneNumber || '-' }}</td>
                     <td>
                       <span class="role-badge" [class]="getRoleClass(user.role)">
                         {{ getRoleLabel(user.role) }}
                       </span>
                     </td>
+                    <td>
+                      <span class="status-badge" [class]="getStatusClass(user.status)">
+                        {{ getStatusLabel(user.status) }}
+                      </span>
+                    </td>
                     <td class="text-muted">{{ user.createdAt | date:'dd/MM/yyyy' }}</td>
+                    <td>
+                      <div class="action-buttons">
+                        <button class="icon-btn" title="Sửa" (click)="openEditModal(user)">
+                          <span class="material-symbols-outlined">edit</span>
+                        </button>
+                        <button class="icon-btn" title="Đổi trạng thái" (click)="toggleStatus(user)">
+                          <span class="material-symbols-outlined">
+                            {{ user.status === 'Active' ? 'lock' : 'lock_open' }}
+                          </span>
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 } @empty {
                   <tr>
-                    <td colspan="6" class="empty-state">Không có người dùng nào</td>
+                    <td colspan="8" class="empty-state">Không có người dùng nào</td>
                   </tr>
                 }
               </tbody>
@@ -66,107 +95,116 @@ import { AdminService, UserResponse } from '../../../core/services/admin.service
           }
         </div>
       </div>
+
+      <!-- Create/Edit Modal -->
+      @if (showModal()) {
+        <div class="modal-overlay" (click)="closeModal()">
+          <div class="modal" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+              <h3>{{ isEditing() ? 'Sửa Người Dùng' : 'Thêm Người Dùng Mới' }}</h3>
+              <button class="close-btn" (click)="closeModal()">
+                <span class="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="form-grid">
+                <div class="form-group full-width">
+                  <label>Họ và tên <span class="required">*</span></label>
+                  <input type="text" [(ngModel)]="formData.fullName" placeholder="Nguyễn Văn A" />
+                </div>
+                <div class="form-group">
+                  <label>Email <span class="required">*</span></label>
+                  <input type="email" [(ngModel)]="formData.email" placeholder="example@email.com" [disabled]="isEditing()" />
+                </div>
+                <div class="form-group">
+                  <label>Số điện thoại</label>
+                  <input type="tel" [(ngModel)]="formData.phone" placeholder="0912345678" />
+                </div>
+                <div class="form-group full-width">
+                  <label>Địa chỉ</label>
+                  <input type="text" [(ngModel)]="formData.address" placeholder="Số nhà, đường, quận, thành phố" />
+                </div>
+                @if (!isEditing()) {
+                  <div class="form-group full-width">
+                    <label>Mật khẩu <span class="required">*</span></label>
+                    <input type="password" [(ngModel)]="formData.password" placeholder="Tối thiểu 6 ký tự" />
+                  </div>
+                }
+                <div class="form-group">
+                  <label>Vai trò <span class="required">*</span></label>
+                  <select [(ngModel)]="formData.role">
+                    <option value="Customer">Khách hàng</option>
+                    <option value="Helper">Người giúp việc</option>
+                    <option value="Employee">Nhân viên</option>
+                    <option value="Admin">Quản trị viên</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Trạng thái</label>
+                  <select [(ngModel)]="formData.status">
+                    <option [ngValue]="1">Hoạt động</option>
+                    <option [ngValue]="2">Khóa</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn-outline" (click)="closeModal()">Hủy</button>
+              <button class="btn-primary" (click)="saveUser()">
+                {{ isEditing() ? 'Cập nhật' : 'Tạo mới' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      }
     </div>
   `,
   styles: [`
-    .page {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-    }
-
-    .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .page-header h2 {
-      margin: 0;
-      font-size: 1.5rem;
-      font-weight: 700;
-    }
-
-    .filter-select {
-      padding: 0.5rem 1rem;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      background: white;
-      cursor: pointer;
-    }
-
-    .card {
-      background: white;
-      border-radius: 12px;
-      border: 1px solid #e5e7eb;
-      overflow: hidden;
-    }
-
+    .page { display: flex; flex-direction: column; gap: 1.5rem; }
+    .page-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .page-header h2 { margin: 0; font-size: 1.5rem; font-weight: 700; }
+    .header-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+    .filter-select { padding: 0.5rem 1rem; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.9rem; background: white; cursor: pointer; }
+    .btn-primary { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.25rem; background: #13b9a5; color: white; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .btn-primary:hover { background: #0f9685; }
+    .btn-outline { padding: 0.75rem 1.25rem; background: transparent; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.9rem; font-weight: 500; cursor: pointer; }
+    .card { background: white; border-radius: 12px; border: 1px solid #e5e7eb; overflow: hidden; }
     .table-container { overflow-x: auto; }
-
-    .data-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.9rem;
-    }
-
-    .data-table th {
-      text-align: left;
-      padding: 1rem 1.5rem;
-      background: #f6f8f8;
-      color: #638884;
-      font-weight: 500;
-      font-size: 0.75rem;
-      text-transform: uppercase;
-    }
-
-    .data-table td {
-      padding: 1rem 1.5rem;
-      border-top: 1px solid #e5e7eb;
-    }
-
+    .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    .data-table th { text-align: left; padding: 1rem 1rem; background: #f6f8f8; color: #638884; font-weight: 500; font-size: 0.75rem; text-transform: uppercase; white-space: nowrap; }
+    .data-table td { padding: 1rem 1rem; border-top: 1px solid #e5e7eb; }
     .data-table tr:hover { background: #f9fafb; }
-
     .font-medium { font-weight: 500; }
     .text-muted { color: #638884; }
-
-    .user-cell {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .user-avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #13b9a5 0%, #0f9685 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-weight: 600;
-      font-size: 0.75rem;
-    }
-
-    .role-badge {
-      display: inline-flex;
-      padding: 0.25rem 0.75rem;
-      border-radius: 9999px;
-      font-size: 0.75rem;
-      font-weight: 500;
-    }
-
+    .user-cell { display: flex; align-items: center; gap: 0.75rem; }
+    .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #13b9a5 0%, #0f9685 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.75rem; }
+    .role-badge, .status-badge { display: inline-flex; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
     .role-badge.customer { background: #dbeafe; color: #1d4ed8; }
     .role-badge.helper { background: #fef3c7; color: #b45309; }
+    .role-badge.employee { background: #f3e8ff; color: #7c3aed; }
     .role-badge.admin { background: #faf5ff; color: #7c3aed; }
-
-    .loading, .empty-state {
-      padding: 3rem;
-      text-align: center;
-      color: #638884;
-    }
+    .status-badge.active { background: #dcfce7; color: #16a34a; }
+    .status-badge.inactive { background: #f3f4f6; color: #6b7280; }
+    .action-buttons { display: flex; gap: 0.5rem; }
+    .icon-btn { width: 32px; height: 32px; border: none; background: #f6f8f8; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #638884; transition: all 0.2s; }
+    .icon-btn:hover { background: #e5e7eb; color: #111817; }
+    .icon-btn .material-symbols-outlined { font-size: 18px; }
+    .loading, .empty-state { padding: 3rem; text-align: center; color: #638884; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+    .modal { background: white; border-radius: 16px; width: 90%; max-width: 600px; max-height: 90vh; overflow: auto; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; border-bottom: 1px solid #e5e7eb; }
+    .modal-header h3 { margin: 0; font-size: 1.25rem; font-weight: 700; }
+    .close-btn { background: none; border: none; cursor: pointer; color: #638884; }
+    .modal-body { padding: 1.5rem; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 1rem; padding: 1.5rem; border-top: 1px solid #e5e7eb; }
+    .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+    .form-group { display: flex; flex-direction: column; }
+    .form-group.full-width { grid-column: span 2; }
+    .form-group label { font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem; color: #111817; }
+    .required { color: #ef4444; }
+    .form-group input, .form-group select { width: 100%; padding: 0.75rem 1rem; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.9rem; }
+    .form-group input:focus, .form-group select:focus { outline: none; border-color: #13b9a5; }
+    .form-group input:disabled { background: #f3f4f6; cursor: not-allowed; }
   `]
 })
 export class AdminUsersComponent implements OnInit {
@@ -175,7 +213,22 @@ export class AdminUsersComponent implements OnInit {
   users = signal<UserResponse[]>([]);
   filteredUsers = signal<UserResponse[]>([]);
   isLoading = signal(true);
+  showModal = signal(false);
+  isEditing = signal(false);
+  editingId = 0;
+  
   roleFilter = '';
+  statusFilter = '';
+
+  formData = {
+    fullName: '',
+    email: '',
+    phone: '',
+    address: '',
+    password: '',
+    role: 'Customer',
+    status: 1
+  };
 
   ngOnInit(): void {
     this.loadUsers();
@@ -195,14 +248,96 @@ export class AdminUsersComponent implements OnInit {
     });
   }
 
-  filterByRole(): void {
-    if (!this.roleFilter) {
-      this.filteredUsers.set(this.users());
-    } else {
-      this.filteredUsers.set(
-        this.users().filter(u => u.role === this.roleFilter)
-      );
+  applyFilters(): void {
+    let result = this.users();
+    if (this.roleFilter) {
+      result = result.filter(u => u.role === this.roleFilter);
     }
+    if (this.statusFilter) {
+      result = result.filter(u => u.status === this.statusFilter);
+    }
+    this.filteredUsers.set(result);
+  }
+
+  openCreateModal(): void {
+    this.formData = { fullName: '', email: '', phone: '', address: '', password: '', role: 'Customer', status: 1 };
+    this.isEditing.set(false);
+    this.showModal.set(true);
+  }
+
+  openEditModal(user: UserResponse): void {
+    this.formData = {
+      fullName: user.fullName,
+      email: user.email,
+      phone: user.phoneNumber || '',
+      address: user.address || '',
+      password: '',
+      role: user.role,
+      status: user.status === 'Active' ? 1 : 2
+    };
+    this.editingId = user.id;
+    this.isEditing.set(true);
+    this.showModal.set(true);
+  }
+
+  closeModal(): void {
+    this.showModal.set(false);
+  }
+
+  saveUser(): void {
+    if (!this.formData.fullName || !this.formData.email) {
+      alert('Vui lòng điền đầy đủ thông tin bắt buộc!');
+      return;
+    }
+
+    if (this.isEditing()) {
+      const dto: UserUpdate = {
+        fullName: this.formData.fullName,
+        phone: this.formData.phone || undefined,
+        address: this.formData.address || undefined
+        // Note: role and status cannot be updated via current API
+      };
+      if (this.formData.password) {
+        dto.password = this.formData.password;
+      }
+
+      this.adminService.updateUser(this.editingId, dto).subscribe({
+        next: () => {
+          alert('Cập nhật thành công!');
+          this.closeModal();
+          this.loadUsers();
+        },
+        error: (err) => alert('Lỗi: ' + (err.error?.message || 'Không thể cập nhật'))
+      });
+    } else {
+      if (!this.formData.password || this.formData.password.length < 6) {
+        alert('Mật khẩu phải có ít nhất 6 ký tự!');
+        return;
+      }
+      const dto: UserCreate = {
+        fullName: this.formData.fullName,
+        email: this.formData.email,
+        phone: this.formData.phone || undefined,
+        address: this.formData.address || undefined,
+        password: this.formData.password,
+        role: this.formData.role,
+        status: this.formData.status
+      };
+
+      this.adminService.createUser(dto).subscribe({
+        next: () => {
+          alert('Tạo người dùng thành công!');
+          this.closeModal();
+          this.loadUsers();
+        },
+        error: (err) => alert('Lỗi: ' + (err.error?.message || 'Không thể tạo'))
+      });
+    }
+  }
+
+  toggleStatus(user: UserResponse): void {
+    // API hiện tại không hỗ trợ thay đổi trạng thái người dùng
+    alert('Tính năng thay đổi trạng thái người dùng chưa được hỗ trợ bởi API.');
   }
 
   getInitials(name: string): string {
@@ -217,8 +352,17 @@ export class AdminUsersComponent implements OnInit {
     const labels: Record<string, string> = {
       'Customer': 'Khách hàng',
       'Helper': 'Người giúp việc',
+      'Employee': 'Nhân viên',
       'Admin': 'Quản trị viên'
     };
     return labels[role] || role;
+  }
+
+  getStatusClass(status: string): string {
+    return status?.toLowerCase() || 'inactive';
+  }
+
+  getStatusLabel(status: string): string {
+    return status === 'Active' ? 'Hoạt động' : 'Khóa';
   }
 }
