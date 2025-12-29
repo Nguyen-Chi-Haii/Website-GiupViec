@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { BookingStateService } from '../../../core/services/booking-state.service';
 import { HelperService } from '../../../core/services/helper.service';
 import { HelperSuggestion } from '@giupviec/shared';
@@ -9,7 +9,7 @@ import { HelperSuggestion } from '@giupviec/shared';
 @Component({
   selector: 'app-booking-step3',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   templateUrl: './step3-helper.component.html',
   styleUrl: './step3-helper.component.css'
 })
@@ -67,9 +67,9 @@ export class BookingStep3Component implements OnInit {
         console.error('Error loading helpers:', err);
         // Fallback data
         this.helpers.set([
-          { userId: 1, fullName: 'Nguyễn Thị Lan', avatar: '', ratingAverage: 4.9, experienceYears: 3, activeArea: 'TP. Hồ Chí Minh', bio: '' },
-          { userId: 2, fullName: 'Trần Văn Minh', avatar: '', ratingAverage: 4.8, experienceYears: 5, activeArea: 'TP. Hồ Chí Minh', bio: '' },
-          { userId: 3, fullName: 'Lê Thị Hương', avatar: '', ratingAverage: 4.7, experienceYears: 2, activeArea: 'Hà Nội', bio: '' }
+          { id: 1, userId: 1, fullName: 'Nguyễn Thị Lan', avatar: '', ratingAverage: 4.9, experienceYears: 3, activeArea: 'TP. Hồ Chí Minh', bio: '', hourlyRate: 50000 },
+          { id: 2, userId: 2, fullName: 'Trần Văn Minh', avatar: '', ratingAverage: 4.8, experienceYears: 5, activeArea: 'TP. Hồ Chí Minh', bio: '', hourlyRate: 60000 },
+          { id: 3, userId: 3, fullName: 'Lê Thị Hương', avatar: '', ratingAverage: 4.7, experienceYears: 2, activeArea: 'Hà Nội', bio: '', hourlyRate: 45000 }
         ]);
         this.isLoading.set(false);
       }

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
@@ -10,6 +10,8 @@ import { RouterLink } from '@angular/router';
   styleUrl: './header.component.css'
 })
 export class HeaderComponent {
+  @Input() activeSection = '';
+  
   isMenuOpen = false;
 
   readonly navLinks = [
@@ -28,5 +30,9 @@ export class HeaderComponent {
       element.scrollIntoView({ behavior: 'smooth' });
     }
     this.isMenuOpen = false;
+  }
+
+  isActive(href: string): boolean {
+    return this.activeSection === href;
   }
 }

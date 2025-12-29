@@ -1,19 +1,22 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { BookingStateService, BookingSchedule, BookingAddress } from '../../../core/services/booking-state.service';
-import { getProvinces, getWardsByProvinceCode, buildFullAddress, Province, Ward } from '../../../core/data/vietnam-provinces.data';
+import { VietnamProvincesService } from '../../../core/services/vietnam-provinces.service';
+import { ProvinceResponse, WardResponse } from '../../../core/types/vietnam-provinces.types';
+import { SearchableDropdownComponent, DropdownOption } from '../../../shared/components/searchable-dropdown/searchable-dropdown.component';
 
 @Component({
   selector: 'app-booking-step2',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, SearchableDropdownComponent],
   templateUrl: './step2-schedule.component.html',
   styleUrl: './step2-schedule.component.css'
 })
 export class BookingStep2Component implements OnInit {
   private readonly bookingState = inject(BookingStateService);
+  private readonly provincesService = inject(VietnamProvincesService);
   private readonly router = inject(Router);
 
   // Form data
@@ -26,15 +29,28 @@ export class BookingStep2Component implements OnInit {
   streetAddress = '';
   notes = '';
 
-  // Dropdown data
-  provinces: Province[] = [];
-  wards: Ward[] = [];
+  // Dropdown data from API v2 (2-tier: Province → Ward)
+  provinces = signal<ProvinceResponse[]>([]);
+  wards = signal<WardResponse[]>([]);
+
+  // Loading states
+  isLoadingProvinces = signal(false);
+  isLoadingWards = signal(false);
 
   // Validation
   errors = signal<Record<string, string>>({});
 
   // Time options
   timeOptions: string[] = [];
+
+  // Computed dropdown options for searchable dropdown
+  provinceOptions = computed<DropdownOption[]>(() => 
+    this.provinces().map(p => ({ code: p.code, name: p.name }))
+  );
+
+  wardOptions = computed<DropdownOption[]>(() => 
+    this.wards().map(w => ({ code: w.code, name: w.name }))
+  );
 
   ngOnInit(): void {
     this.bookingState.setCurrentStep(2);
@@ -45,9 +61,6 @@ export class BookingStep2Component implements OnInit {
       return;
     }
 
-    // Load provinces
-    this.provinces = getProvinces();
-    
     // Generate time options (06:00 - 22:00)
     this.generateTimeOptions();
 
@@ -56,8 +69,24 @@ export class BookingStep2Component implements OnInit {
     this.startDate = this.formatDate(today);
     this.endDate = this.formatDate(today);
 
+    // Load provinces from API v2 (34 provinces after 2025 reform)
+    this.loadProvinces();
+
     // Restore previous data if exists
     this.restoreData();
+  }
+
+  private loadProvinces(): void {
+    this.isLoadingProvinces.set(true);
+    this.provincesService.getProvinces().subscribe({
+      next: (data) => {
+        this.provinces.set(data);
+        this.isLoadingProvinces.set(false);
+      },
+      error: () => {
+        this.isLoadingProvinces.set(false);
+      }
+    });
   }
 
   private generateTimeOptions(): void {
@@ -88,8 +117,11 @@ export class BookingStep2Component implements OnInit {
 
     if (address) {
       this.selectedProvinceCode = address.provinceCode;
-      this.onProvinceChange();
-      this.selectedWardCode = address.wardCode;
+      if (this.selectedProvinceCode) {
+        this.onProvinceChange().then(() => {
+          this.selectedWardCode = address.wardCode;
+        });
+      }
       this.streetAddress = address.streetAddress;
     }
 
@@ -98,9 +130,49 @@ export class BookingStep2Component implements OnInit {
     }
   }
 
-  onProvinceChange(): void {
-    this.wards = getWardsByProvinceCode(this.selectedProvinceCode);
-    this.selectedWardCode = '';
+  onProvinceChange(): Promise<void> {
+    return new Promise((resolve) => {
+      this.wards.set([]);
+      this.selectedWardCode = '';
+
+      if (!this.selectedProvinceCode) {
+        resolve();
+        return;
+      }
+
+      this.isLoadingWards.set(true);
+      this.provincesService.getWardsByProvince(Number(this.selectedProvinceCode)).subscribe({
+        next: (data) => {
+          this.wards.set(data);
+          this.isLoadingWards.set(false);
+          resolve();
+        },
+        error: () => {
+          this.isLoadingWards.set(false);
+          resolve();
+        }
+      });
+    });
+  }
+
+  // Searchable dropdown handlers
+  onProvinceSelect(option: DropdownOption | null): void {
+    if (option) {
+      this.selectedProvinceCode = String(option.code);
+      this.onProvinceChange();
+    } else {
+      this.selectedProvinceCode = '';
+      this.wards.set([]);
+      this.selectedWardCode = '';
+    }
+  }
+
+  onWardSelect(option: DropdownOption | null): void {
+    if (option) {
+      this.selectedWardCode = String(option.code);
+    } else {
+      this.selectedWardCode = '';
+    }
   }
 
   get selectedService() {
@@ -175,17 +247,17 @@ export class BookingStep2Component implements OnInit {
     };
     this.bookingState.setSchedule(schedule);
 
-    const selectedProvince = this.provinces.find(p => p.code === this.selectedProvinceCode);
-    const selectedWard = this.wards.find(w => w.code === this.selectedWardCode);
+    const selectedProvince = this.provinces().find(p => p.code === Number(this.selectedProvinceCode));
+    const selectedWard = this.wards().find(w => w.code === Number(this.selectedWardCode));
 
     if (selectedProvince && selectedWard) {
       const address: BookingAddress = {
         provinceCode: this.selectedProvinceCode,
-        provinceName: selectedProvince.fullName,
+        provinceName: selectedProvince.name,
         wardCode: this.selectedWardCode,
-        wardName: selectedWard.fullName,
+        wardName: selectedWard.name,
         streetAddress: this.streetAddress.trim(),
-        fullAddress: buildFullAddress(this.streetAddress.trim(), selectedWard.fullName, selectedProvince.fullName)
+        fullAddress: `${this.streetAddress.trim()}, ${selectedWard.name}, ${selectedProvince.name}`
       };
       this.bookingState.setAddress(address);
     }

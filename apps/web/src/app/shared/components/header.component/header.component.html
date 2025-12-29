@@ -12,7 +12,7 @@
       <!-- Desktop Navigation -->
       <nav class="nav-desktop">
         @for (link of navLinks; track link.label) {
-          <a class="nav-link" (click)="scrollTo(link.href)">{{ link.label }}</a>
+          <a class="nav-link" [class.active]="isActive(link.href)" (click)="scrollTo(link.href)">{{ link.label }}</a>
         }
       </nav>
       

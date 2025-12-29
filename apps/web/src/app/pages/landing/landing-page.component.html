@@ -1,12 +1,20 @@
 <div class="landing-page">
-  <app-header></app-header>
+  <app-header [activeSection]="activeSection()"></app-header>
   
   <main class="main-content">
     <app-hero-section></app-hero-section>
-    <app-services-section></app-services-section>
-    <app-why-choose-us></app-why-choose-us>
-    <app-booking-process></app-booking-process>
-    <app-team-showcase></app-team-showcase>
+    
+    <!-- Services Section with ID for scroll navigation -->
+    <div id="services">
+      <app-services-section></app-services-section>
+    </div>
+    
+    <!-- Pricing Section with ID for scroll navigation -->
+    <app-pricing-section></app-pricing-section>
+    
+    <!-- About Section with ID for scroll navigation -->
+    <app-about-section></app-about-section>
+    
     <app-cta-section></app-cta-section>
   </main>
   

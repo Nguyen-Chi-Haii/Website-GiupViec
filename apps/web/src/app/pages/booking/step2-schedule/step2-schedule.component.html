@@ -129,36 +129,27 @@
         <div class="form-row">
           <div class="form-group">
             <label for="province">Tỉnh/Thành phố <span class="required">*</span></label>
-            <select 
-              id="province"
-              [(ngModel)]="selectedProvinceCode"
-              name="province"
-              (change)="onProvinceChange()"
-              [class.error]="errors()['province']"
-            >
-              <option value="">-- Chọn Tỉnh/Thành --</option>
-              @for (province of provinces; track province.code) {
-                <option [value]="province.code">{{ province.fullName }}</option>
-              }
-            </select>
+            <app-searchable-dropdown
+              [options]="provinceOptions()"
+              [selectedCode]="selectedProvinceCode"
+              [isLoading]="isLoadingProvinces()"
+              placeholder="Tìm tỉnh/thành phố..."
+              (selectionChange)="onProvinceSelect($event)"
+            ></app-searchable-dropdown>
             @if (errors()['province']) {
               <span class="error-text">{{ errors()['province'] }}</span>
             }
           </div>
           <div class="form-group">
             <label for="ward">Phường/Xã <span class="required">*</span></label>
-            <select 
-              id="ward"
-              [(ngModel)]="selectedWardCode"
-              name="ward"
+            <app-searchable-dropdown
+              [options]="wardOptions()"
+              [selectedCode]="selectedWardCode"
               [disabled]="!selectedProvinceCode"
-              [class.error]="errors()['ward']"
-            >
-              <option value="">-- Chọn Phường/Xã --</option>
-              @for (ward of wards; track ward.code) {
-                <option [value]="ward.code">{{ ward.fullName }}</option>
-              }
-            </select>
+              [isLoading]="isLoadingWards()"
+              placeholder="Tìm phường/xã..."
+              (selectionChange)="onWardSelect($event)"
+            ></app-searchable-dropdown>
             @if (errors()['ward']) {
               <span class="error-text">{{ errors()['ward'] }}</span>
             }

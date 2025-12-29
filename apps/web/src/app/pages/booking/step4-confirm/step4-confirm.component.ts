@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { BookingStateService } from '../../../core/services/booking-state.service';
 import { BookingService } from '../../../core/services/booking.service';
 import { BookingResponseDTO } from '@giupviec/shared';
@@ -9,7 +9,7 @@ import { BookingResponseDTO } from '@giupviec/shared';
 @Component({
   selector: 'app-booking-step4',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   templateUrl: './step4-confirm.component.html',
   styleUrl: './step4-confirm.component.css'
 })

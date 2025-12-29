@@ -1,8 +1,9 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { UserRole } from '@giupviec/shared';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -12,10 +13,11 @@ import { UserRole } from '@giupviec/shared';
   styleUrl: './register.component.css'
 })
 export class RegisterComponent {
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+
   // Form state
-  accountType = signal<'customer' | 'helper'>('customer');
   fullName = signal('');
-  username = signal('');
   email = signal('');
   phone = signal('');
   address = signal('');
@@ -27,12 +29,7 @@ export class RegisterComponent {
   showConfirmPassword = signal(false);
   isLoading = signal(false);
   errorMessage = signal<string | null>(null);
-
-  constructor(private router: Router) {}
-
-  setAccountType(type: 'customer' | 'helper'): void {
-    this.accountType.set(type);
-  }
+  successMessage = signal<string | null>(null);
 
   togglePasswordVisibility(field: 'password' | 'confirm'): void {
     if (field === 'password') {
@@ -45,11 +42,12 @@ export class RegisterComponent {
   onSubmit(event: Event): void {
     event.preventDefault();
     
-    // Reset error
+    // Reset messages
     this.errorMessage.set(null);
+    this.successMessage.set(null);
     
     // Validation
-    if (!this.fullName() || !this.username() || !this.email() || !this.phone() || !this.password() || !this.confirmPassword()) {
+    if (!this.fullName() || !this.email() || !this.phone() || !this.password() || !this.confirmPassword()) {
       this.errorMessage.set('Vui lòng điền đầy đủ các thông tin bắt buộc.');
       return;
     }
@@ -77,7 +75,7 @@ export class RegisterComponent {
     }
 
     // Phone validation
-    const phoneRegex = /^(0|\+84)[0-9]{9}$/;
+    const phoneRegex = /^(0|\+84)[0-9]{9,10}$/;
     if (!phoneRegex.test(this.phone().replace(/\s/g, ''))) {
       this.errorMessage.set('Số điện thoại không hợp lệ.');
       return;
@@ -85,24 +83,33 @@ export class RegisterComponent {
 
     this.isLoading.set(true);
 
-    // TODO: Integrate with AuthService
-    const registerData = {
+    // Call API to register (always as Customer)
+    this.authService.register({
       fullName: this.fullName(),
-      username: this.username(),
       email: this.email(),
       phone: this.phone(),
-      address: this.address(),
+      address: this.address() || undefined,
       password: this.password(),
-      role: this.accountType() === 'helper' ? UserRole.Helper : UserRole.Customer
-    };
-
-    console.log('Register data:', registerData);
-
-    // Simulate API call
-    setTimeout(() => {
-      // Success - navigate to login
-      this.router.navigate(['/login']);
-      this.isLoading.set(false);
-    }, 1500);
+      role: UserRole.Customer,
+      status: 1 // Active
+    }).subscribe({
+      next: () => {
+        // Success - show message and navigate to login
+        this.successMessage.set('Đăng ký thành công! Đang chuyển hướng đến trang đăng nhập...');
+        this.isLoading.set(false);
+        setTimeout(() => {
+          this.router.navigate(['/login']);
+        }, 2000);
+      },
+      error: (error) => {
+        // Handle error
+        if (error.error?.message) {
+          this.errorMessage.set(error.error.message);
+        } else {
+          this.errorMessage.set('Đã xảy ra lỗi. Vui lòng thử lại sau.');
+        }
+        this.isLoading.set(false);
+      }
+    });
   }
 }

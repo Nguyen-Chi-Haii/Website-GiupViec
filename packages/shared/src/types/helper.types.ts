@@ -3,6 +3,7 @@
  */
 
 export interface HelperSuggestion {
+  id: number;
   userId: number;
   fullName: string;
   avatar: string;
@@ -10,6 +11,7 @@ export interface HelperSuggestion {
   experienceYears: number;
   activeArea: string;
   bio: string;
+  hourlyRate: number;
 }
 
 export interface HelperProfileResponse {

@@ -57,15 +57,15 @@
 
         <!-- Form -->
         <form class="login-form" (submit)="onSubmit($event)">
-          <!-- Username Field -->
+          <!-- Email Field -->
           <div class="form-group">
-            <label for="username">Tên đăng nhập</label>
+            <label for="email">Email</label>
             <input 
-              type="text" 
-              id="username" 
-              placeholder="Nhập email hoặc số điện thoại"
-              [value]="username()"
-              (input)="username.set($any($event.target).value)"
+              type="email" 
+              id="email" 
+              placeholder="Nhập email của bạn"
+              [value]="email()"
+              (input)="email.set($any($event.target).value)"
             />
           </div>
 
