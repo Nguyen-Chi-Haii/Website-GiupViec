@@ -1,1 +1,44 @@
-<p>header.component works!</p>
+<header class="navbar">
+  <div class="container">
+    <div class="navbar-content">
+      <!-- Logo -->
+      <a class="logo" routerLink="/">
+        <div class="logo-icon">
+          <span class="material-symbols-outlined">cleaning_services</span>
+        </div>
+        <h2 class="logo-text">Giúp Việc Nhà</h2>
+      </a>
+      
+      <!-- Desktop Navigation -->
+      <nav class="nav-desktop">
+        @for (link of navLinks; track link.label) {
+          <a class="nav-link" (click)="scrollTo(link.href)">{{ link.label }}</a>
+        }
+      </nav>
+      
+      <!-- CTA Button -->
+      <div class="nav-actions">
+        <button class="btn btn-primary">
+          <span>Đặt Dịch Vụ</span>
+        </button>
+        
+        <!-- Mobile Menu Toggle -->
+        <button class="menu-toggle" (click)="toggleMenu()">
+          <span class="material-symbols-outlined">
+            {{ isMenuOpen ? 'close' : 'menu' }}
+          </span>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Mobile Navigation -->
+    @if (isMenuOpen) {
+      <nav class="nav-mobile">
+        @for (link of navLinks; track link.label) {
+          <a class="nav-link-mobile" (click)="scrollTo(link.href)">{{ link.label }}</a>
+        }
+        <button class="btn btn-primary btn-full">Đặt Dịch Vụ</button>
+      </nav>
+    }
+  </div>
+</header>

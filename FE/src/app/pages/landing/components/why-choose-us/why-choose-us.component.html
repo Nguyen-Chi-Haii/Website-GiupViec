@@ -1,0 +1,20 @@
+<section class="why-section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Tại Sao Chọn Chúng Tôi?</h2>
+      <p class="section-description">Cam kết mang lại sự hài lòng tuyệt đối cho khách hàng</p>
+    </div>
+    
+    <div class="features-grid">
+      @for (feature of features; track feature.title) {
+        <div class="feature-card">
+          <div class="feature-icon">
+            <span class="material-symbols-outlined">{{ feature.icon }}</span>
+          </div>
+          <h3 class="feature-title">{{ feature.title }}</h3>
+          <p class="feature-description">{{ feature.description }}</p>
+        </div>
+      }
+    </div>
+  </div>
+</section>

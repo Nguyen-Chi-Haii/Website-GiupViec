@@ -1,1 +1,72 @@
-<p>footer.component works!</p>
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <!-- Brand -->
+      <div class="footer-brand">
+        <div class="brand-logo">
+          <div class="logo-icon">
+            <span class="material-symbols-outlined">cleaning_services</span>
+          </div>
+          <h3 class="logo-text">Giúp Việc Nhà</h3>
+        </div>
+        <p class="brand-description">
+          Mang đến sự tiện lợi và an tâm cho hàng triệu gia đình Việt. Dịch vụ uy tín, chất lượng hàng đầu.
+        </p>
+      </div>
+      
+      <!-- Services -->
+      <div class="footer-section">
+        <h4 class="section-title">Dịch Vụ</h4>
+        <ul class="footer-links">
+          @for (item of services; track item.label) {
+            <li><a [href]="item.href">{{ item.label }}</a></li>
+          }
+        </ul>
+      </div>
+      
+      <!-- Company -->
+      <div class="footer-section">
+        <h4 class="section-title">Công Ty</h4>
+        <ul class="footer-links">
+          @for (item of company; track item.label) {
+            <li><a [href]="item.href">{{ item.label }}</a></li>
+          }
+        </ul>
+      </div>
+      
+      <!-- Contact -->
+      <div class="footer-section">
+        <h4 class="section-title">Liên Hệ</h4>
+        <div class="contact-list">
+          <div class="contact-item">
+            <span class="material-symbols-outlined">location_on</span>
+            <span>{{ contact.address }}</span>
+          </div>
+          <div class="contact-item">
+            <span class="material-symbols-outlined">call</span>
+            <span>{{ contact.phone }}</span>
+          </div>
+          <div class="contact-item">
+            <span class="material-symbols-outlined">mail</span>
+            <span>{{ contact.email }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <p class="copyright">© {{ currentYear }} Giúp Việc Nhà. All rights reserved.</p>
+      <div class="social-links">
+        <a href="#" class="social-link">
+          <span class="material-symbols-outlined">public</span>
+        </a>
+        <a href="#" class="social-link">
+          <span class="social-text">fb</span>
+        </a>
+        <a href="#" class="social-link">
+          <span class="social-text">in</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>

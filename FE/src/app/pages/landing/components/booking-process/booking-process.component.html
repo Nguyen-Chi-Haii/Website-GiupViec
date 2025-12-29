@@ -1,0 +1,47 @@
+<section class="booking-section">
+  <div class="container">
+    <div class="booking-content">
+      <!-- Steps -->
+      <div class="steps-wrapper">
+        <div class="steps-header">
+          <h2 class="section-title">Quy Trình Đặt Dịch Vụ Đơn Giản</h2>
+          <p class="section-description">Chỉ với 4 bước đơn giản, ngôi nhà của bạn sẽ sạch bong sáng bóng.</p>
+        </div>
+        
+        <div class="steps-list">
+          <!-- Connecting Line -->
+          <div class="connecting-line"></div>
+          
+          @for (step of steps; track step.number) {
+            <div class="step-item">
+              <div class="step-number" [class.active]="step.isActive">
+                {{ step.number }}
+              </div>
+              <div class="step-content">
+                <h4 class="step-title">{{ step.title }}</h4>
+                <p class="step-description">{{ step.description }}</p>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+      
+      <!-- App Mockup -->
+      <div class="mockup-wrapper">
+        <div class="mockup-container">
+          <div class="mockup-card">
+            <div class="mockup-header">
+              <div class="mockup-avatar"></div>
+              <div class="mockup-title-bar"></div>
+            </div>
+            <div class="mockup-content">
+              <div class="mockup-item"></div>
+              <div class="mockup-item"></div>
+            </div>
+            <div class="mockup-button"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

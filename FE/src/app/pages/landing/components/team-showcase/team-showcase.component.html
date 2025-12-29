@@ -1,0 +1,25 @@
+<section class="team-section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Đội Ngũ Tận Tâm</h2>
+      <p class="section-description">Những người giúp việc được đánh giá cao nhất tháng</p>
+    </div>
+    
+    <div class="helpers-grid">
+      @for (helper of helpers; track helper.name) {
+        <div class="helper-card">
+          <div class="helper-avatar">
+            <img [src]="helper.avatar" [alt]="'Ảnh đại diện của ' + helper.name">
+          </div>
+          <h3 class="helper-name">{{ helper.name }}</h3>
+          <div class="helper-rating">
+            <span class="material-symbols-outlined star-icon">star</span>
+            <span class="rating-value">{{ helper.rating }}</span>
+          </div>
+          <p class="helper-experience">{{ helper.experience }}</p>
+          <span class="helper-badge">{{ helper.badge }}</span>
+        </div>
+      }
+    </div>
+  </div>
+</section>
