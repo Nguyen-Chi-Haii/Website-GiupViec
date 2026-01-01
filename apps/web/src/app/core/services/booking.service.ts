@@ -4,6 +4,37 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { BookingCreateDTO, BookingResponseDTO } from '@giupviec/shared';
 
+// Guest booking request DTO
+export interface GuestBookingCreateDTO {
+  fullName: string;
+  email: string;
+  phone?: string;
+  serviceId: number;
+  startDate: string;
+  endDate: string;
+  workShiftStart: string;
+  workShiftEnd: string;
+  address: string;
+  notes?: string;
+  captchaToken: string;
+}
+
+// Guest booking response DTO
+export interface GuestBookingResponseDTO {
+  bookingId: number;
+  customerEmail: string;
+  tempPassword: string;
+  serviceName: string;
+  startDate: string;
+  endDate: string;
+  startTime: string;
+  endTime: string;
+  address: string;
+  totalPrice: number;
+  status: string;
+  message: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -17,6 +48,14 @@ export class BookingService {
    */
   create(dto: BookingCreateDTO): Observable<BookingResponseDTO> {
     return this.http.post<BookingResponseDTO>(this.baseUrl, dto);
+  }
+
+  /**
+   * Create a guest booking (no auth required)
+   * POST /api/bookings/guest
+   */
+  createGuestBooking(dto: GuestBookingCreateDTO): Observable<GuestBookingResponseDTO> {
+    return this.http.post<GuestBookingResponseDTO>(`${this.baseUrl}/guest`, dto);
   }
 
   /**

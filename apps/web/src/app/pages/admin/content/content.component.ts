@@ -1,6 +1,7 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { NotificationService } from '../../../core/services/notification.service';
 
 interface LandingContent {
   heroTitle: string;
@@ -314,6 +315,8 @@ interface JDContent {
   `]
 })
 export class AdminContentComponent implements OnInit {
+  private readonly notification = inject(NotificationService);
+  
   activeTab = 'landing';
   savedMessage = signal('');
 
@@ -375,7 +378,7 @@ Giấy xác nhận công việc cũ (nếu có)`;
 
   saveLanding(): void {
     localStorage.setItem('admin_landing_content', JSON.stringify(this.landingContent));
-    this.showSavedMessage('Đã lưu nội dung trang Landing!');
+    this.notification.success('Đã lưu nội dung trang Landing!');
   }
 
   saveJD(): void {
@@ -384,7 +387,7 @@ Giấy xác nhận công việc cũ (nếu có)`;
     this.jdContent.documents = this.documentsText.split('\n').filter(s => s.trim());
     
     localStorage.setItem('admin_jd_content', JSON.stringify(this.jdContent));
-    this.showSavedMessage('Đã lưu nội dung trang Tuyển Dụng!');
+    this.notification.success('Đã lưu nội dung trang Tuyển Dụng!');
   }
 
   showSavedMessage(msg: string): void {

@@ -46,6 +46,19 @@ export interface BookingAssignHelper {
   helperId: number;
 }
 
+// Admin tạo đơn hàng (cần customerId thay vì lấy từ token)
+export interface BookingCreate {
+  customerId: number;      // ID khách hàng
+  serviceId: number;       // ID dịch vụ
+  startDate: string;       // Format: YYYY-MM-DD
+  endDate: string;         // Format: YYYY-MM-DD
+  workShiftStart: string;  // Format: HH:mm:ss
+  workShiftEnd: string;    // Format: HH:mm:ss
+  address: string;         // Địa chỉ đầy đủ
+  notes?: string;          // Ghi chú
+  helperId?: number;       // ID helper (optional)
+}
+
 // ============== Service Types ==============
 export interface ServiceResponse {
   id: number;
@@ -70,7 +83,7 @@ export interface UserResponse {
   id: number;
   email: string;
   fullName: string;
-  phoneNumber: string;
+  phone: string;  // Changed from phoneNumber to match backend UserResponseDTO
   address?: string;
   role: string;
   status: string;
@@ -82,9 +95,10 @@ export interface UserCreate {
   email: string;
   phone?: string;
   password: string;
+  avatar?: string;
   address?: string;
-  role: string;
-  status: number;
+  role: number; // 1=Customer, 2=Helper, 3=Employee, 4=Admin
+  status: number; // 1=Active, 2=Inactive
 }
 
 export interface UserUpdate {
@@ -93,7 +107,8 @@ export interface UserUpdate {
   address?: string;
   password?: string;
   avatar?: string;
-  // Note: role and status cannot be updated via API
+  role?: number;   // 1=Customer, 2=Helper, 3=Employee, 4=Admin
+  status?: number; // 1=Active, 2=Inactive
 }
 
 // ============== Helper Types ==============
@@ -150,6 +165,11 @@ export class AdminService {
     return this.http.put(`${this.apiUrl}/bookings/${id}/payment-confirm`, {});
   }
 
+  // Admin tạo đơn hàng mới
+  createBooking(dto: BookingCreate): Observable<BookingResponse> {
+    return this.http.post<BookingResponse>(`${this.apiUrl}/bookings/admin`, dto);
+  }
+
   // --- Services ---
   getAllServices(): Observable<ServiceResponse[]> {
     return this.http.get<ServiceResponse[]>(`${this.apiUrl}/services`);
@@ -178,6 +198,10 @@ export class AdminService {
 
   updateUser(id: number, dto: UserUpdate): Observable<UserResponse> {
     return this.http.put<UserResponse>(`${this.apiUrl}/users/${id}`, dto);
+  }
+
+  updateUserStatus(id: number, status: number): Observable<any> {
+    return this.http.put(`${this.apiUrl}/users/${id}/status`, { status });
   }
 
   // --- Helpers ---

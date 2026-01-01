@@ -360,7 +360,6 @@ export class AdminLayoutComponent implements OnInit {
     { label: 'Tổng Quan', icon: 'dashboard', route: '/admin' },
     { label: 'Quản Lý Đơn Hàng', icon: 'receipt_long', route: '/admin/bookings' },
     { label: 'Quản Lý Dịch Vụ', icon: 'mop', route: '/admin/services' },
-    { label: 'Người Giúp Việc', icon: 'badge', route: '/admin/helpers' },
     { label: 'Người Dùng', icon: 'group', route: '/admin/users' },
     { label: 'Quản Lý Nội Dung', icon: 'edit_note', route: '/admin/content' }
   ];

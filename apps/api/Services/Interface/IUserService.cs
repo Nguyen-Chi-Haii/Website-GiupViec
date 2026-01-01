@@ -8,7 +8,10 @@ namespace GiupViecAPI.Services.Interface
         // Đổi tên CreateAsync -> RegisterAsync
         Task<UserResponseDTO> RegisterAsync(UserCreateDTO dto);
 
-        Task<string> LoginAsync(LoginDTO loginDto);
+        Task<LoginResponseDTO> LoginAsync(LoginDTO loginDto);
+
+        // Change password (for users who must change password on first login)
+        Task<bool> ChangePasswordAsync(int userId, string currentPassword, string newPassword);
 
         Task<IEnumerable<UserResponseDTO>> GetAllAsync();
 

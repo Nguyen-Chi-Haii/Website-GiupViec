@@ -6,6 +6,17 @@ import { LoginDTO, RegisterDTO, UserResponse, UserRole } from '@giupviec/shared'
 
 export interface LoginResponse {
   token: string;
+  mustChangePassword: boolean;
+  userId: number;
+  email: string;
+  fullName: string;
+  role: string;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
 }
 
 export interface RegisterResponse extends UserResponse {}
@@ -29,6 +40,7 @@ export class AuthService {
   // Current user state
   currentUser = signal<DecodedToken | null>(null);
   isAuthenticated = signal<boolean>(false);
+  mustChangePassword = signal<boolean>(false);
 
   constructor() {
     // Check for existing token on initialization
@@ -43,9 +55,28 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.baseUrl}/login`, dto).pipe(
       tap(response => {
         localStorage.setItem('token', response.token);
+        localStorage.setItem('mustChangePassword', String(response.mustChangePassword));
         const decoded = this.decodeToken(response.token);
         this.currentUser.set(decoded);
         this.isAuthenticated.set(true);
+        this.mustChangePassword.set(response.mustChangePassword);
+      }),
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Change password
+   * POST /api/auth/change-password
+   */
+  changePassword(request: ChangePasswordRequest): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.baseUrl}/change-password`, request).pipe(
+      tap(() => {
+        // Clear the flag after successful password change
+        localStorage.setItem('mustChangePassword', 'false');
+        this.mustChangePassword.set(false);
       }),
       catchError(error => {
         return throwError(() => error);

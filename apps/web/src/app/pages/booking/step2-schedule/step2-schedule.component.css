@@ -144,6 +144,37 @@
   gap: 1rem;
 }
 
+/* Guest Info Section */
+.guest-section {
+  background: linear-gradient(135deg, #fef3c7 0%, #fef9c3 100%);
+  border: 1px solid #fcd34d;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+}
+
+.guest-notice {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: rgba(245, 158, 11, 0.15);
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  color: #92400e;
+}
+
+.guest-notice .material-symbols-outlined {
+  color: #f59e0b;
+  font-size: 1.25rem;
+}
+
+.help-text {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
+
 .section-title {
   display: flex;
   align-items: center;

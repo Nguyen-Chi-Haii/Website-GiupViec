@@ -49,7 +49,7 @@ namespace GiupViecAPI.Services.Repositories
         }
 
         // 2. ĐĂNG NHẬP (Login & Generate JWT)
-        public async Task<string> LoginAsync(LoginDTO loginDto)
+        public async Task<LoginResponseDTO> LoginAsync(LoginDTO loginDto)
         {
             var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == loginDto.Email);
 
@@ -81,7 +81,37 @@ namespace GiupViecAPI.Services.Repositories
                 signingCredentials: creds
             );
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+
+            return new LoginResponseDTO
+            {
+                Token = tokenString,
+                MustChangePassword = user.MustChangePassword,
+                UserId = user.Id,
+                Email = user.Email,
+                FullName = user.FullName,
+                Role = user.Role.ToString()
+            };
+        }
+
+        // 2.5 ĐỔI MẬT KHẨU
+        public async Task<bool> ChangePasswordAsync(int userId, string currentPassword, string newPassword)
+        {
+            var user = await _db.Users.FindAsync(userId);
+            if (user == null) return false;
+
+            // Verify current password
+            var passwordHasher = new PasswordHasher<User>();
+            var verifyResult = passwordHasher.VerifyHashedPassword(user, user.PasswordHash, currentPassword);
+            if (verifyResult == PasswordVerificationResult.Failed) return false;
+
+            // Hash and set new password
+            user.PasswordHash = passwordHasher.HashPassword(user, newPassword);
+            user.MustChangePassword = false; // Clear the flag
+            user.UpdatedAt = DateTime.UtcNow;
+
+            await _db.SaveChangesAsync();
+            return true;
         }
 
         // 3. LẤY DANH SÁCH USER

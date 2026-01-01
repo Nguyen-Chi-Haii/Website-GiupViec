@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { AdminService, BookingResponse, UserResponse } from '../../../core/services/admin.service';
+import { NotificationService } from '../../../core/services/notification.service';
 
 interface AvailableHelper {
   id: number;
@@ -193,6 +194,7 @@ interface AvailableHelper {
 export class EmployeeBookingsComponent implements OnInit {
   private readonly adminService = inject(AdminService);
   private readonly route = inject(ActivatedRoute);
+  private readonly notification = inject(NotificationService);
 
   bookings = signal<BookingResponse[]>([]);
   filteredBookings = signal<BookingResponse[]>([]);
@@ -254,23 +256,24 @@ export class EmployeeBookingsComponent implements OnInit {
     const booking = this.assigningBooking();
     if (!booking || !this.selectedHelperId) return;
     this.adminService.assignHelper({ bookingId: booking.id, helperId: this.selectedHelperId }).subscribe({
-      next: () => { alert('Gán thành công!'); this.closeAssignModal(); this.loadBookings(); },
-      error: (err) => alert('Lỗi: ' + err.error?.message)
+      next: () => { this.notification.success('Gán thành công!'); this.closeAssignModal(); this.loadBookings(); },
+      error: (err) => this.notification.error('Lỗi: ' + (err.error?.message || 'Không thể gán'))
     });
   }
 
   confirmBooking(id: number): void {
     this.adminService.updateBookingStatus(id, { status: 2 }).subscribe({ // 2 = Confirmed
-      next: () => { alert('Đã xác nhận!'); this.loadBookings(); },
-      error: (err) => alert('Lỗi: ' + err.error?.message)
+      next: () => { this.notification.success('Đã xác nhận!'); this.loadBookings(); },
+      error: (err) => this.notification.error('Lỗi: ' + (err.error?.message || 'Không thể xác nhận'))
     });
   }
 
-  rejectBooking(id: number): void {
-    if (confirm('Từ chối đơn này?')) {
+  async rejectBooking(id: number): Promise<void> {
+    const confirmed = await this.notification.confirm('Từ chối đơn này?');
+    if (confirmed) {
       this.adminService.updateBookingStatus(id, { status: 3 }).subscribe({ // 3 = Rejected
-        next: () => { alert('Đã từ chối!'); this.loadBookings(); },
-        error: (err) => alert('Lỗi: ' + err.error?.message)
+        next: () => { this.notification.success('Đã từ chối!'); this.loadBookings(); },
+        error: (err) => this.notification.error('Lỗi: ' + (err.error?.message || 'Không thể từ chối'))
       });
     }
   }

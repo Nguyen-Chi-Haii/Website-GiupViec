@@ -1,11 +1,11 @@
 ﻿// Program.cs
 using GiupViecAPI.Mapping;
 using GiupViecAPI.Data;
-using GiupViecAPI.Mapping;
 using GiupViecAPI.Model.Domain;
-using GiupViecAPI.Services.Interface; // Thêm namespace này
-using GiupViecAPI.Services.Repositories; // Thêm namespace này
-using Microsoft.AspNetCore.Authentication.JwtBearer; // Thêm namespace này
+using GiupViecAPI.Services; // For IRecaptchaService
+using GiupViecAPI.Services.Interface;
+using GiupViecAPI.Services.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -96,6 +96,9 @@ builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IServiceService, ServiceService>(); 
 builder.Services.AddScoped<IHelperProfileService, HelperProfileService>();
 builder.Services.AddScoped<IStatisticsService, StatisticsService>();
+
+// RecaptchaService for guest booking verification
+builder.Services.AddHttpClient<IRecaptchaService, GiupViecAPI.Services.RecaptchaService>();
 
 // 6. ---> ĐĂNG KÝ AUTOMAPPER
 builder.Services.AddAutoMapper(typeof(MappingProfile));

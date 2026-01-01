@@ -5,6 +5,7 @@ using GiupViecAPI.Model.DTO.Booking;
 using GiupViecAPI.Model.DTO.Schedule;
 using GiupViecAPI.Model.Enums;
 using GiupViecAPI.Services.Interface;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace GiupViecAPI.Services.Repositories
@@ -13,11 +14,19 @@ namespace GiupViecAPI.Services.Repositories
     {
         private readonly GiupViecDBContext _db;
         private readonly IMapper _mapper;
+        private readonly UserManager<User> _userManager;
+        private readonly IRecaptchaService _recaptchaService;
 
-        public BookingService(GiupViecDBContext db, IMapper mapper)
+        public BookingService(
+            GiupViecDBContext db, 
+            IMapper mapper,
+            UserManager<User> userManager,
+            IRecaptchaService recaptchaService)
         {
             _db = db;
             _mapper = mapper;
+            _userManager = userManager;
+            _recaptchaService = recaptchaService;
         }
 
         // 1. LẤY DANH SÁCH (Dành cho Admin)
@@ -77,6 +86,71 @@ namespace GiupViecAPI.Services.Repositories
 
             await _db.Entry(booking).Reference(b => b.Service).LoadAsync();
             await _db.Entry(booking).Reference(b => b.Customer).LoadAsync();
+
+            return _mapper.Map<BookingResponseDTO>(booking);
+        }
+
+        // 3.5 ADMIN TẠO ĐƠN (Có customerId trong DTO, có thể gán helper ngay)
+        public async Task<BookingResponseDTO> AdminCreateBookingAsync(AdminBookingCreateDTO dto)
+        {
+            var service = await _db.Services.FindAsync(dto.ServiceId);
+            if (service == null) throw new Exception("Dịch vụ không tồn tại");
+
+            var customer = await _db.Users.FindAsync(dto.CustomerId);
+            if (customer == null) throw new Exception("Khách hàng không tồn tại");
+
+            var booking = new Booking
+            {
+                CustomerId = dto.CustomerId,
+                ServiceId = dto.ServiceId,
+                Address = dto.Address,
+                StartDate = dto.StartDate,
+                EndDate = dto.EndDate,
+                WorkShiftStart = dto.WorkShiftStart,
+                WorkShiftEnd = dto.WorkShiftEnd,
+                Notes = dto.Notes,
+                Status = BookingStatus.Pending
+            };
+
+            // --- LOGIC TÍNH TIỀN ---
+            var days = (booking.EndDate - booking.StartDate).Days + 1;
+            var hours = booking.WorkShiftEnd - booking.WorkShiftStart;
+            double hoursperday = hours.TotalHours;
+
+            if (days <= 0 || hoursperday <= 0) throw new Exception("Thời gian đặt không hợp lệ.");
+
+            booking.TotalPrice = days * (decimal)hoursperday * service.Price;
+
+            // Nếu admin gán helper ngay
+            if (dto.HelperId.HasValue && dto.HelperId.Value > 0)
+            {
+                // Kiểm tra trùng lịch
+                var isConflict = await _db.Bookings.AnyAsync(b =>
+                    b.HelperId == dto.HelperId.Value &&
+                    b.Status != BookingStatus.Cancelled &&
+                    b.Status != BookingStatus.Completed &&
+                    b.StartDate <= booking.EndDate && b.EndDate >= booking.StartDate &&
+                    b.WorkShiftStart < booking.WorkShiftEnd && b.WorkShiftEnd > booking.WorkShiftStart
+                );
+
+                if (isConflict)
+                {
+                    throw new Exception("Người giúp việc đã bận trong khung giờ này.");
+                }
+
+                booking.HelperId = dto.HelperId.Value;
+                booking.Status = BookingStatus.Confirmed; // Đã gán -> Xác nhận luôn
+            }
+
+            await _db.Bookings.AddAsync(booking);
+            await _db.SaveChangesAsync();
+
+            await _db.Entry(booking).Reference(b => b.Service).LoadAsync();
+            await _db.Entry(booking).Reference(b => b.Customer).LoadAsync();
+            if (booking.HelperId.HasValue)
+            {
+                await _db.Entry(booking).Reference(b => b.Helper).LoadAsync();
+            }
 
             return _mapper.Map<BookingResponseDTO>(booking);
         }
@@ -215,6 +289,119 @@ namespace GiupViecAPI.Services.Repositories
                 }
                 await _db.SaveChangesAsync();
             }
+        }
+
+        // 10. TẠO ĐƠN CHO KHÁCH CHƯA ĐĂNG NHẬP (Guest Booking)
+        public async Task<GuestBookingResponseDTO> GuestCreateBookingAsync(GuestBookingCreateDTO dto)
+        {
+            // 1. Verify CAPTCHA
+            var captchaValid = await _recaptchaService.VerifyAsync(dto.CaptchaToken);
+            if (!captchaValid)
+            {
+                throw new Exception("Xác thực CAPTCHA thất bại. Vui lòng thử lại.");
+            }
+
+            // 2. Check if email already exists
+            var existingUser = await _userManager.FindByEmailAsync(dto.Email);
+            if (existingUser != null)
+            {
+                throw new Exception("Email đã được sử dụng. Vui lòng đăng nhập hoặc sử dụng email khác.");
+            }
+
+            // 3. Validate service exists
+            var service = await _db.Services.FindAsync(dto.ServiceId);
+            if (service == null)
+            {
+                throw new Exception("Dịch vụ không tồn tại.");
+            }
+
+            // 4. Generate temporary password
+            var tempPassword = GenerateTemporaryPassword();
+
+            // 5. Create new user account
+            var newUser = new User
+            {
+                UserName = dto.Email,
+                Email = dto.Email,
+                FullName = dto.FullName,
+                PhoneNumber = dto.Phone,
+                Role = UserRoles.Customer,
+                Status = UserStatus.Active,
+                MustChangePassword = true, // Force password change on first login
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            var createResult = await _userManager.CreateAsync(newUser, tempPassword);
+            if (!createResult.Succeeded)
+            {
+                var errors = string.Join(", ", createResult.Errors.Select(e => e.Description));
+                throw new Exception($"Không thể tạo tài khoản: {errors}");
+            }
+
+            // 6. Calculate total price
+            int totalDays = (dto.EndDate - dto.StartDate).Days + 1;
+            decimal hoursPerDay = (decimal)(dto.WorkShiftEnd - dto.WorkShiftStart).TotalHours;
+            decimal totalPrice = totalDays * hoursPerDay * service.Price;
+
+            // 7. Create booking
+            var booking = new Booking
+            {
+                CustomerId = newUser.Id,
+                ServiceId = dto.ServiceId,
+                StartDate = dto.StartDate,
+                EndDate = dto.EndDate,
+                WorkShiftStart = dto.WorkShiftStart,
+                WorkShiftEnd = dto.WorkShiftEnd,
+                Address = dto.Address,
+                Notes = dto.Notes,
+                TotalPrice = totalPrice,
+                Status = BookingStatus.Pending,
+                PaymentStatus = PaymentStatus.Unpaid,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            await _db.Bookings.AddAsync(booking);
+            await _db.SaveChangesAsync();
+
+            // 8. Return response with temp password
+            return new GuestBookingResponseDTO
+            {
+                BookingId = booking.Id,
+                CustomerEmail = dto.Email,
+                TempPassword = tempPassword,
+                ServiceName = service.Name,
+                StartDate = dto.StartDate,
+                EndDate = dto.EndDate,
+                StartTime = dto.WorkShiftStart.ToString(@"hh\:mm"),
+                EndTime = dto.WorkShiftEnd.ToString(@"hh\:mm"),
+                Address = dto.Address,
+                TotalPrice = totalPrice,
+                Status = "Pending",
+                Message = $"Đặt lịch thành công! Mã đơn hàng: #{booking.Id}. " +
+                          $"Tài khoản đã được tạo với email: {dto.Email}. " +
+                          $"Vui lòng đăng nhập và đổi mật khẩu ngay."
+            };
+        }
+
+        private string GenerateTemporaryPassword()
+        {
+            // Generate a secure random password
+            const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+            const string specialChars = "@#$%&*!";
+            var random = new Random();
+            
+            var password = new char[10];
+            for (int i = 0; i < 8; i++)
+            {
+                password[i] = chars[random.Next(chars.Length)];
+            }
+            // Add at least one special char and one number
+            password[8] = specialChars[random.Next(specialChars.Length)];
+            password[9] = "23456789"[random.Next(8)];
+            
+            return new string(password);
         }
     }
 }

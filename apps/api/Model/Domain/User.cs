@@ -20,6 +20,9 @@ namespace GiupViecAPI.Model.Domain
         [Required]
         public UserStatus Status { get; set; }
 
+        // Flag to require password change on first login (for guest-created accounts)
+        public bool MustChangePassword { get; set; } = false;
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 

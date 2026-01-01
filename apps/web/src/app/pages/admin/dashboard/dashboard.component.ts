@@ -15,10 +15,6 @@ import { AdminService, AdminStats, BookingResponse } from '../../../core/service
             <div class="stat-icon blue">
               <span class="material-symbols-outlined">group</span>
             </div>
-            <span class="stat-trend up">
-              <span class="material-symbols-outlined">trending_up</span>
-              12%
-            </span>
           </div>
           <div class="stat-body">
             <p class="stat-label">Tổng người dùng</p>
@@ -31,10 +27,6 @@ import { AdminService, AdminStats, BookingResponse } from '../../../core/service
             <div class="stat-icon orange">
               <span class="material-symbols-outlined">badge</span>
             </div>
-            <span class="stat-trend up">
-              <span class="material-symbols-outlined">trending_up</span>
-              5%
-            </span>
           </div>
           <div class="stat-body">
             <p class="stat-label">Tổng nhân viên</p>
@@ -47,10 +39,6 @@ import { AdminService, AdminStats, BookingResponse } from '../../../core/service
             <div class="stat-icon purple">
               <span class="material-symbols-outlined">person_check</span>
             </div>
-            <span class="stat-trend up">
-              <span class="material-symbols-outlined">trending_up</span>
-              8%
-            </span>
           </div>
           <div class="stat-body">
             <p class="stat-label">Tổng khách hàng</p>
@@ -63,10 +51,6 @@ import { AdminService, AdminStats, BookingResponse } from '../../../core/service
             <div class="stat-icon indigo">
               <span class="material-symbols-outlined">receipt_long</span>
             </div>
-            <span class="stat-trend up">
-              <span class="material-symbols-outlined">trending_up</span>
-              15%
-            </span>
           </div>
           <div class="stat-body">
             <p class="stat-label">Tổng đơn đặt</p>
@@ -79,10 +63,6 @@ import { AdminService, AdminStats, BookingResponse } from '../../../core/service
             <div class="stat-icon primary">
               <span class="material-symbols-outlined">payments</span>
             </div>
-            <span class="stat-trend up">
-              <span class="material-symbols-outlined">trending_up</span>
-              22%
-            </span>
           </div>
           <div class="stat-body">
             <p class="stat-label">Tổng doanh thu</p>

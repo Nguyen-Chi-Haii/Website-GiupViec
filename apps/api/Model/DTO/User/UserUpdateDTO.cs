@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using GiupViecAPI.Model.Enums;
 
 namespace GiupViecAPI.Model.DTO.User
 {
@@ -17,5 +18,9 @@ namespace GiupViecAPI.Model.DTO.User
         public string? Avatar { get; set; }
 
         public string? Address { get; set; }
+
+        // Thêm Role và Status để Admin có thể cập nhật
+        public UserRoles? Role { get; set; }
+        public UserStatus? Status { get; set; }
     }
 }

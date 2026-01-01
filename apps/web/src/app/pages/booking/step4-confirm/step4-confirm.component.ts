@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { BookingStateService } from '../../../core/services/booking-state.service';
-import { BookingService } from '../../../core/services/booking.service';
+import { BookingService, GuestBookingResponseDTO } from '../../../core/services/booking.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { BookingResponseDTO } from '@giupviec/shared';
 
 @Component({
@@ -16,12 +17,16 @@ import { BookingResponseDTO } from '@giupviec/shared';
 export class BookingStep4Component implements OnInit {
   private readonly bookingState = inject(BookingStateService);
   private readonly bookingService = inject(BookingService);
+  private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
   agreeTerms = signal(false);
   isSubmitting = signal(false);
   errorMessage = signal<string | null>(null);
   successMessage = signal<string | null>(null);
+  
+  // Guest booking result
+  guestBookingResult = signal<GuestBookingResponseDTO | null>(null);
 
   ngOnInit(): void {
     this.bookingState.setCurrentStep(4);
@@ -31,6 +36,14 @@ export class BookingStep4Component implements OnInit {
       this.router.navigate(['/booking/step3']);
       return;
     }
+  }
+
+  get isLoggedIn() {
+    return this.authService.isAuthenticated();
+  }
+
+  get guestInfo() {
+    return this.bookingState.guestInfo();
   }
 
   get selectedService() {
@@ -78,6 +91,16 @@ export class BookingStep4Component implements OnInit {
     this.isSubmitting.set(true);
     this.errorMessage.set(null);
 
+    if (this.isLoggedIn) {
+      // Logged-in user booking
+      this.submitAuthenticatedBooking();
+    } else {
+      // Guest booking
+      this.submitGuestBooking();
+    }
+  }
+
+  private submitAuthenticatedBooking(): void {
     const bookingData = this.bookingState.getBookingData();
 
     this.bookingService.create(bookingData).subscribe({
@@ -85,7 +108,7 @@ export class BookingStep4Component implements OnInit {
         this.successMessage.set('Đặt dịch vụ thành công! Mã đơn hàng: #' + response.id);
         this.isSubmitting.set(false);
         
-        // Reset state after 2 seconds and redirect
+        // Reset state after 3 seconds and redirect
         setTimeout(() => {
           this.bookingState.reset();
           this.router.navigate(['/']);
@@ -97,6 +120,29 @@ export class BookingStep4Component implements OnInit {
         this.isSubmitting.set(false);
       }
     });
+  }
+
+  private submitGuestBooking(): void {
+    // For guest booking, we use a placeholder captcha token (backend skips in dev mode)
+    const guestBookingData = this.bookingState.getGuestBookingData('dev-captcha-token');
+
+    this.bookingService.createGuestBooking(guestBookingData).subscribe({
+      next: (response: GuestBookingResponseDTO) => {
+        this.guestBookingResult.set(response);
+        this.successMessage.set(response.message);
+        this.isSubmitting.set(false);
+      },
+      error: (err: { error?: { message?: string } }) => {
+        console.error('Guest booking error:', err);
+        this.errorMessage.set(err.error?.message || 'Đã có lỗi xảy ra. Vui lòng thử lại.');
+        this.isSubmitting.set(false);
+      }
+    });
+  }
+
+  onCloseGuestResult(): void {
+    this.bookingState.reset();
+    this.router.navigate(['/login']);
   }
 
   formatPrice(price: number): string {

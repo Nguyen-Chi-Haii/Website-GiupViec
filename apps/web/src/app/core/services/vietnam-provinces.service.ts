@@ -4,11 +4,13 @@ import { Observable, of, catchError, map, shareReplay } from 'rxjs';
 import { ProvinceResponse, WardResponse } from '../types/vietnam-provinces.types';
 
 /**
- * Vietnam Provinces API v2 (After 2025 Reform)
- * - 34 provinces/cities (after merger)
- * - 2-tier structure: Province → Ward (no district level)
+ * Vietnam Provinces API v2 (2025)
+ * Structure: Province → Ward (2 levels)
+ * 34 provinces after 2025 reform
+ * 
+ * Using proxy to bypass CORS: /api/provinces → provinces.open-api.vn/api/v2
  */
-const API_BASE_URL = 'https://provinces.open-api.vn/api/v2';
+const API_BASE_URL = '/api/provinces';
 
 @Injectable({
   providedIn: 'root'
@@ -23,10 +25,12 @@ export class VietnamProvincesService {
 
   /**
    * Get all provinces (34 provinces after 2025 reform)
+   * Endpoint: GET /p/
    */
   getProvinces(): Observable<ProvinceResponse[]> {
     if (!this.provincesCache$) {
-      this.provincesCache$ = this.http.get<ProvinceResponse[]>(`${API_BASE_URL}/`).pipe(
+      // Sử dụng /p/ thay vì / để tránh lỗi
+      this.provincesCache$ = this.http.get<ProvinceResponse[]>(`${API_BASE_URL}/p/`).pipe(
         shareReplay(1),
         catchError((error) => {
           console.error('Failed to load provinces from API:', error);
@@ -39,6 +43,7 @@ export class VietnamProvincesService {
 
   /**
    * Get province by code with all wards
+   * Endpoint: GET /p/{code}?depth=2
    */
   getProvinceWithWards(code: number): Observable<ProvinceResponse | null> {
     if (!this.provinceDetailsCache.has(code)) {
@@ -61,21 +66,13 @@ export class VietnamProvincesService {
   }
 
   /**
-   * Search provinces
-   */
-  searchProvinces(query: string): Observable<ProvinceResponse[]> {
-    return this.http.get<ProvinceResponse[]>(`${API_BASE_URL}/p/search/?q=${encodeURIComponent(query)}`).pipe(
-      catchError(() => of([]))
-    );
-  }
-
-  /**
-   * Search wards
+   * Search wards with optional province filter
+   * Endpoint: GET /w/?province={code}&search={query}
    */
   searchWards(query: string, provinceCode?: number): Observable<WardResponse[]> {
-    let url = `${API_BASE_URL}/w/search/?q=${encodeURIComponent(query)}`;
+    let url = `${API_BASE_URL}/w/?search=${encodeURIComponent(query)}`;
     if (provinceCode) {
-      url += `&p=${provinceCode}`;
+      url += `&province=${provinceCode}`;
     }
     return this.http.get<WardResponse[]>(url).pipe(
       catchError(() => of([]))

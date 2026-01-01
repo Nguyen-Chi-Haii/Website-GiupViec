@@ -174,8 +174,51 @@
           }
         </button>
       </div>
+    } @else if (guestBookingResult()) {
+      <!-- Guest Booking Success Modal -->
+      <div class="guest-result">
+        <div class="guest-result-icon">
+          <span class="material-symbols-outlined">check_circle</span>
+        </div>
+        <h2>Đặt Lịch Thành Công!</h2>
+        <p class="result-message">{{ guestBookingResult()!.message }}</p>
+        
+        <div class="credentials-box">
+          <h4>🔐 Thông Tin Tài Khoản</h4>
+          <div class="credential-row">
+            <span class="credential-label">Email:</span>
+            <span class="credential-value">{{ guestBookingResult()!.customerEmail }}</span>
+          </div>
+          <div class="credential-row">
+            <span class="credential-label">Mật khẩu tạm:</span>
+            <span class="credential-value password">{{ guestBookingResult()!.tempPassword }}</span>
+          </div>
+          <p class="warning">⚠️ Vui lòng đăng nhập và đổi mật khẩu ngay sau khi nhận được thông tin này!</p>
+        </div>
+
+        <div class="booking-summary-mini">
+          <h4>📋 Thông Tin Đơn Hàng</h4>
+          <div class="summary-row">
+            <span>Mã đơn:</span>
+            <strong>#{{ guestBookingResult()!.bookingId }}</strong>
+          </div>
+          <div class="summary-row">
+            <span>Dịch vụ:</span>
+            <span>{{ guestBookingResult()!.serviceName }}</span>
+          </div>
+          <div class="summary-row">
+            <span>Tổng tiền:</span>
+            <strong class="price">{{ formatPrice(guestBookingResult()!.totalPrice) }}</strong>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" (click)="onCloseGuestResult()">
+          <span class="material-symbols-outlined">login</span>
+          Đăng Nhập Ngay
+        </button>
+      </div>
     } @else {
-      <!-- Success State -->
+      <!-- Success State for logged-in users -->
       <div class="success-state">
         <span class="material-symbols-outlined success-icon">celebration</span>
         <p>Đang chuyển hướng về trang chủ...</p>

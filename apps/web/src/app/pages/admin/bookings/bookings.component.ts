@@ -2,6 +2,8 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminService, BookingResponse, UserResponse } from '../../../core/services/admin.service';
+import { NotificationService } from '../../../core/services/notification.service';
+import { CreateBookingModalComponent } from './create-booking-modal.component';
 
 interface AvailableHelper {
   id: number;
@@ -13,7 +15,7 @@ interface AvailableHelper {
 @Component({
   selector: 'app-admin-bookings',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, CreateBookingModalComponent],
   template: `
     <div class="page">
       <div class="page-header">
@@ -32,6 +34,10 @@ interface AvailableHelper {
             <option value="Unpaid">Chưa thanh toán</option>
             <option value="Paid">Đã thanh toán</option>
           </select>
+          <button class="btn-primary" (click)="openCreateModal()">
+            <span class="material-symbols-outlined">add</span>
+            Tạo đơn hàng
+          </button>
         </div>
       </div>
 
@@ -84,7 +90,7 @@ interface AvailableHelper {
                         <button class="icon-btn" title="Xem chi tiết" (click)="viewBooking(booking)">
                           <span class="material-symbols-outlined">visibility</span>
                         </button>
-                        @if (booking.status === 'Pending') {
+                        @if (isBookingPending(booking.status)) {
                           <button class="icon-btn primary" title="Gán Helper" (click)="openAssignModal(booking)">
                             <span class="material-symbols-outlined">person_add</span>
                           </button>
@@ -95,7 +101,7 @@ interface AvailableHelper {
                             <span class="material-symbols-outlined">close</span>
                           </button>
                         }
-                        @if (booking.paymentStatus === 'Unpaid' && (booking.status === 'Confirmed' || booking.status === 'Completed')) {
+                        @if (isPaymentUnpaid(booking.paymentStatus) && (isBookingConfirmed(booking.status) || isBookingCompleted(booking.status))) {
                           <button class="icon-btn success" title="Xác nhận thanh toán" (click)="confirmPayment(booking.id)">
                             <span class="material-symbols-outlined">payments</span>
                           </button>
@@ -217,6 +223,14 @@ interface AvailableHelper {
           </div>
         </div>
       }
+
+      <!-- Create Booking Modal -->
+      @if (showCreateModal()) {
+        <app-create-booking-modal 
+          (closed)="closeCreateModal()" 
+          (created)="onBookingCreated()">
+        </app-create-booking-modal>
+      }
     </div>
   `,
   styles: [`
@@ -274,6 +288,7 @@ interface AvailableHelper {
 })
 export class AdminBookingsComponent implements OnInit {
   private readonly adminService = inject(AdminService);
+  private readonly notification = inject(NotificationService);
 
   bookings = signal<BookingResponse[]>([]);
   filteredBookings = signal<BookingResponse[]>([]);
@@ -287,6 +302,21 @@ export class AdminBookingsComponent implements OnInit {
   showAssignModal = signal(false);
   assigningBooking = signal<BookingResponse | null>(null);
   selectedHelperId = 0;
+
+  // Create booking modal
+  showCreateModal = signal(false);
+
+  openCreateModal(): void {
+    this.showCreateModal.set(true);
+  }
+
+  closeCreateModal(): void {
+    this.showCreateModal.set(false);
+  }
+
+  onBookingCreated(): void {
+    this.loadBookings();
+  }
 
   ngOnInit(): void {
     this.loadBookings();
@@ -320,10 +350,10 @@ export class AdminBookingsComponent implements OnInit {
   applyFilters(): void {
     let result = this.bookings();
     if (this.statusFilter) {
-      result = result.filter(b => b.status === this.statusFilter);
+      result = result.filter(b => this.normalizeStatus(b.status) === this.statusFilter.toLowerCase());
     }
     if (this.paymentFilter) {
-      result = result.filter(b => b.paymentStatus === this.paymentFilter);
+      result = result.filter(b => this.normalizePayment(b.paymentStatus) === this.paymentFilter.toLowerCase());
     }
     this.filteredBookings.set(result);
   }
@@ -356,44 +386,46 @@ export class AdminBookingsComponent implements OnInit {
       helperId: this.selectedHelperId
     }).subscribe({
       next: () => {
-        alert('Gán người giúp việc thành công!');
+        this.notification.success('Gán người giúp việc thành công!');
         this.closeAssignModal();
         this.loadBookings();
       },
-      error: (err) => alert('Lỗi: ' + (err.error?.message || 'Không thể gán'))
+      error: (err) => this.notification.error('Lỗi: ' + (err.error?.message || 'Không thể gán'))
     });
   }
 
   confirmBooking(id: number): void {
     this.adminService.updateBookingStatus(id, { status: 2 }).subscribe({ // 2 = Confirmed
       next: () => {
-        alert('Đã xác nhận đơn hàng!');
+        this.notification.success('Đã xác nhận đơn hàng!');
         this.loadBookings();
       },
-      error: (err) => alert('Lỗi: ' + err.error?.message)
+      error: (err) => this.notification.error('Lỗi: ' + (err.error?.message || 'Không thể xác nhận'))
     });
   }
 
-  rejectBooking(id: number): void {
-    if (confirm('Bạn có chắc muốn từ chối đơn này?')) {
+  async rejectBooking(id: number): Promise<void> {
+    const confirmed = await this.notification.confirm('Bạn có chắc muốn từ chối đơn này?');
+    if (confirmed) {
       this.adminService.updateBookingStatus(id, { status: 3 }).subscribe({ // 3 = Rejected
         next: () => {
-          alert('Đã từ chối đơn hàng!');
+          this.notification.success('Đã từ chối đơn hàng!');
           this.loadBookings();
         },
-        error: (err) => alert('Lỗi: ' + err.error?.message)
+        error: (err) => this.notification.error('Lỗi: ' + (err.error?.message || 'Không thể từ chối'))
       });
     }
   }
 
-  confirmPayment(id: number): void {
-    if (confirm('Xác nhận đơn này đã được thanh toán?')) {
+  async confirmPayment(id: number): Promise<void> {
+    const confirmed = await this.notification.confirm('Xác nhận đơn này đã được thanh toán?');
+    if (confirmed) {
       this.adminService.confirmPayment(id).subscribe({
         next: () => {
-          alert('Đã xác nhận thanh toán!');
+          this.notification.success('Đã xác nhận thanh toán!');
           this.loadBookings();
         },
-        error: (err) => alert('Lỗi: ' + err.error?.message)
+        error: (err) => this.notification.error('Lỗi: ' + (err.error?.message || 'Không thể xác nhận'))
       });
     }
   }
@@ -417,11 +449,50 @@ export class AdminBookingsComponent implements OnInit {
     return status?.toLowerCase() || 'unpaid';
   }
 
-  getPaymentLabel(status: string): string {
+  getPaymentLabel(status: string | number | null | undefined): string {
     const labels: Record<string, string> = {
       'Unpaid': 'Chưa TT',
-      'Paid': 'Đã TT'
+      'Paid': 'Đã TT',
+      'unpaid': 'Chưa TT',
+      'paid': 'Đã TT',
+      '0': 'Chưa TT',
+      '1': 'Đã TT'
     };
-    return labels[status] || 'Chưa TT';
+    return labels[String(status || '')] || 'Chưa TT';
+  }
+
+  // Helper functions for status checking
+  normalizeStatus(status: string | number | null | undefined): string {
+    const statusStr = String(status || '').toLowerCase();
+    const statusMap: Record<string, string> = {
+      'pending': 'pending', '1': 'pending',
+      'confirmed': 'confirmed', '2': 'confirmed',
+      'rejected': 'rejected', '3': 'rejected',
+      'completed': 'completed', '4': 'completed',
+      'cancelled': 'cancelled', '5': 'cancelled'
+    };
+    return statusMap[statusStr] || statusStr;
+  }
+
+  normalizePayment(status: string | number | null | undefined): string {
+    const statusStr = String(status || '').toLowerCase();
+    if (statusStr === 'paid' || statusStr === '1' || statusStr === 'true') return 'paid';
+    return 'unpaid';
+  }
+
+  isBookingPending(status: string | number | null | undefined): boolean {
+    return this.normalizeStatus(status) === 'pending';
+  }
+
+  isBookingConfirmed(status: string | number | null | undefined): boolean {
+    return this.normalizeStatus(status) === 'confirmed';
+  }
+
+  isBookingCompleted(status: string | number | null | undefined): boolean {
+    return this.normalizeStatus(status) === 'completed';
+  }
+
+  isPaymentUnpaid(status: string | number | null | undefined): boolean {
+    return this.normalizePayment(status) === 'unpaid';
   }
 }

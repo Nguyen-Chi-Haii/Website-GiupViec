@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminService, UserResponse, UserCreate, UserUpdate } from '../../../core/services/admin.service';
+import { NotificationService } from '../../../core/services/notification.service';
 
 @Component({
   selector: 'app-admin-users',
@@ -60,7 +61,7 @@ import { AdminService, UserResponse, UserCreate, UserUpdate } from '../../../cor
                       </div>
                     </td>
                     <td class="text-muted">{{ user.email }}</td>
-                    <td>{{ user.phoneNumber || '-' }}</td>
+                    <td>{{ user.phone || '-' }}</td>
                     <td>
                       <span class="role-badge" [class]="getRoleClass(user.role)">
                         {{ getRoleLabel(user.role) }}
@@ -78,9 +79,7 @@ import { AdminService, UserResponse, UserCreate, UserUpdate } from '../../../cor
                           <span class="material-symbols-outlined">edit</span>
                         </button>
                         <button class="icon-btn" title="Đổi trạng thái" (click)="toggleStatus(user)">
-                          <span class="material-symbols-outlined">
-                            {{ user.status === 'Active' ? 'lock' : 'lock_open' }}
-                          </span>
+                          <span class="material-symbols-outlined">{{ isUserActive(user.status) ? 'lock' : 'lock_open' }}</span>
                         </button>
                       </div>
                     </td>
@@ -149,10 +148,8 @@ import { AdminService, UserResponse, UserCreate, UserUpdate } from '../../../cor
               </div>
             </div>
             <div class="modal-footer">
-              <button class="btn-outline" (click)="closeModal()">Hủy</button>
-              <button class="btn-primary" (click)="saveUser()">
-                {{ isEditing() ? 'Cập nhật' : 'Tạo mới' }}
-              </button>
+              <button type="button" class="btn-outline" (click)="closeModal()">Hủy</button>
+              <button type="button" class="btn-submit" (click)="saveUser()">{{ isEditing() ? 'Cập nhật' : 'Tạo mới' }}</button>
             </div>
           </div>
         </div>
@@ -186,29 +183,37 @@ import { AdminService, UserResponse, UserCreate, UserUpdate } from '../../../cor
     .status-badge.active { background: #dcfce7; color: #16a34a; }
     .status-badge.inactive { background: #f3f4f6; color: #6b7280; }
     .action-buttons { display: flex; gap: 0.5rem; }
-    .icon-btn { width: 32px; height: 32px; border: none; background: #f6f8f8; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #638884; transition: all 0.2s; }
-    .icon-btn:hover { background: #e5e7eb; color: #111817; }
-    .icon-btn .material-symbols-outlined { font-size: 18px; }
+    .icon-btn { min-width: 36px; min-height: 36px; width: 36px; height: 36px; border: 1px solid #e5e7eb; background: #ffffff; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; color: #13b9a5; transition: all 0.2s; padding: 0; }
+    .icon-btn:hover { background: #13b9a5; color: #ffffff; border-color: #13b9a5; }
+    .icon-btn .material-symbols-outlined { font-family: 'Material Symbols Outlined' !important; font-size: 20px !important; width: 20px; height: 20px; line-height: 1; display: inline-block; }
     .loading, .empty-state { padding: 3rem; text-align: center; color: #638884; }
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-    .modal { background: white; border-radius: 16px; width: 90%; max-width: 600px; max-height: 90vh; overflow: auto; }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; border-bottom: 1px solid #e5e7eb; }
-    .modal-header h3 { margin: 0; font-size: 1.25rem; font-weight: 700; }
-    .close-btn { background: none; border: none; cursor: pointer; color: #638884; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+    .modal { background: #1e2a2a; border-radius: 16px; width: 90%; max-width: 600px; max-height: 90vh; overflow: auto; color: #e5e7eb; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; border-bottom: 1px solid #374151; }
+    .modal-header h3 { margin: 0; font-size: 1.25rem; font-weight: 700; color: #ffffff; }
+    .close-btn { background: none; border: none; cursor: pointer; color: #9ca3af; font-size: 1.5rem; }
+    .close-btn:hover { color: #ffffff; }
     .modal-body { padding: 1.5rem; }
-    .modal-footer { display: flex; justify-content: flex-end; gap: 1rem; padding: 1.5rem; border-top: 1px solid #e5e7eb; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 1rem; padding: 1.5rem; border-top: 1px solid #374151; }
+    .modal-footer .btn-outline { padding: 0.75rem 1.5rem; background: transparent; border: 1px solid #4b5563; border-radius: 8px; font-size: 0.9rem; font-weight: 500; cursor: pointer; color: #e5e7eb; }
+    .modal-footer .btn-outline:hover { background: #374151; }
+    .modal-footer .btn-submit { padding: 0.75rem 1.5rem; background: #13b9a5; color: #ffffff; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
+    .modal-footer .btn-submit:hover { background: #0f9685; }
     .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
     .form-group { display: flex; flex-direction: column; }
     .form-group.full-width { grid-column: span 2; }
-    .form-group label { font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem; color: #111817; }
+    .form-group label { font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem; color: #e5e7eb; }
     .required { color: #ef4444; }
-    .form-group input, .form-group select { width: 100%; padding: 0.75rem 1rem; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.9rem; }
+    .form-group input, .form-group select { width: 100%; padding: 0.75rem 1rem; border: 1px solid #374151; border-radius: 8px; font-size: 0.9rem; background: #2d3a3a; color: #e5e7eb; }
+    .form-group input::placeholder { color: #6b7280; }
     .form-group input:focus, .form-group select:focus { outline: none; border-color: #13b9a5; }
-    .form-group input:disabled { background: #f3f4f6; cursor: not-allowed; }
+    .form-group input:disabled { background: #1f2937; cursor: not-allowed; color: #6b7280; }
+    .form-group select option { background: #2d3a3a; color: #e5e7eb; }
   `]
 })
 export class AdminUsersComponent implements OnInit {
   private readonly adminService = inject(AdminService);
+  private readonly notification = inject(NotificationService);
 
   users = signal<UserResponse[]>([]);
   filteredUsers = signal<UserResponse[]>([]);
@@ -251,10 +256,18 @@ export class AdminUsersComponent implements OnInit {
   applyFilters(): void {
     let result = this.users();
     if (this.roleFilter) {
-      result = result.filter(u => u.role === this.roleFilter);
+      result = result.filter(u => {
+        const userRole = String(u.role || '').toLowerCase();
+        const filterRole = this.roleFilter.toLowerCase();
+        return userRole === filterRole || this.getRoleLabel(u.role) === this.getRoleLabel(this.roleFilter);
+      });
     }
     if (this.statusFilter) {
-      result = result.filter(u => u.status === this.statusFilter);
+      result = result.filter(u => {
+        const userStatusClass = this.getStatusClass(u.status);
+        const filterStatusClass = this.statusFilter.toLowerCase();
+        return userStatusClass === filterStatusClass;
+      });
     }
     this.filteredUsers.set(result);
   }
@@ -266,15 +279,41 @@ export class AdminUsersComponent implements OnInit {
   }
 
   openEditModal(user: UserResponse): void {
+    // Debug: Log the raw user data from API
+    console.log('Opening edit modal for user:', user);
+    
+    // Convert role from number/string to role name for dropdown
+    // Backend enum: Admin=1, Employee=2, Helper=3, Customer=4
+    const roleNumberToName: Record<string, string> = {
+      '1': 'Admin', 'Admin': 'Admin',
+      '2': 'Employee', 'Employee': 'Employee',
+      '3': 'Helper', 'Helper': 'Helper',
+      '4': 'Customer', 'Customer': 'Customer'
+    };
+    
+    // Handle phone: API returns 'phone'
+    const phoneValue = user.phone || '';
+    
+    // Handle status: might be number (1/2), string ('Active'/'Inactive'), or 'Hoạt động'/'Khóa'
+    let statusValue = 1;
+    if (typeof user.status === 'number') {
+      statusValue = user.status === 2 ? 2 : 1;
+    } else {
+      statusValue = this.isUserActive(user.status) ? 1 : 2;
+    }
+    
     this.formData = {
-      fullName: user.fullName,
-      email: user.email,
-      phone: user.phoneNumber || '',
+      fullName: user.fullName || '',
+      email: user.email || '',
+      phone: phoneValue,
       address: user.address || '',
       password: '',
-      role: user.role,
-      status: user.status === 'Active' ? 1 : 2
+      role: roleNumberToName[String(user.role)] || 'Customer',
+      status: statusValue
     };
+    
+    console.log('Form data after mapping:', this.formData);
+    
     this.editingId = user.id;
     this.isEditing.set(true);
     this.showModal.set(true);
@@ -286,83 +325,141 @@ export class AdminUsersComponent implements OnInit {
 
   saveUser(): void {
     if (!this.formData.fullName || !this.formData.email) {
-      alert('Vui lòng điền đầy đủ thông tin bắt buộc!');
+      this.notification.warning('Vui lòng điền đầy đủ thông tin bắt buộc!');
       return;
     }
+
+    // Convert role string to number
+    // Backend enum: Admin=1, Employee=2, Helper=3, Customer=4
+    const roleMap: Record<string, number> = {
+      'Admin': 1, 'Employee': 2, 'Helper': 3, 'Customer': 4
+    };
 
     if (this.isEditing()) {
       const dto: UserUpdate = {
         fullName: this.formData.fullName,
-        phone: this.formData.phone || undefined,
-        address: this.formData.address || undefined
-        // Note: role and status cannot be updated via current API
+        phone: this.formData.phone?.trim() ? this.formData.phone.trim() : undefined,
+        address: this.formData.address?.trim() ? this.formData.address.trim() : undefined,
+        role: roleMap[this.formData.role],
+        status: this.formData.status
       };
       if (this.formData.password) {
         dto.password = this.formData.password;
       }
 
+      console.log('Updating user:', this.editingId, dto);
+
       this.adminService.updateUser(this.editingId, dto).subscribe({
-        next: () => {
-          alert('Cập nhật thành công!');
+        next: (response) => {
+          console.log('Update success:', response);
+          this.notification.success('Cập nhật thành công!');
           this.closeModal();
           this.loadUsers();
         },
-        error: (err) => alert('Lỗi: ' + (err.error?.message || 'Không thể cập nhật'))
+        error: (err) => {
+          console.error('Update error:', err);
+          this.notification.error('Lỗi: ' + (err.error?.message || 'Không thể cập nhật'));
+        }
       });
     } else {
       if (!this.formData.password || this.formData.password.length < 6) {
-        alert('Mật khẩu phải có ít nhất 6 ký tự!');
+        this.notification.warning('Mật khẩu phải có ít nhất 6 ký tự!');
         return;
       }
+      
       const dto: UserCreate = {
         fullName: this.formData.fullName,
         email: this.formData.email,
-        phone: this.formData.phone || undefined,
-        address: this.formData.address || undefined,
+        phone: this.formData.phone?.trim() ? this.formData.phone.trim() : undefined,
+        avatar: '', // Required by database - cannot be NULL
+        address: this.formData.address?.trim() ? this.formData.address.trim() : undefined,
         password: this.formData.password,
-        role: this.formData.role,
+        role: roleMap[this.formData.role] || 1,
         status: this.formData.status
       };
 
       this.adminService.createUser(dto).subscribe({
         next: () => {
-          alert('Tạo người dùng thành công!');
+          this.notification.success('Tạo người dùng thành công!');
           this.closeModal();
           this.loadUsers();
         },
-        error: (err) => alert('Lỗi: ' + (err.error?.message || 'Không thể tạo'))
+        error: (err) => this.notification.error('Lỗi: ' + (err.error?.message || 'Không thể tạo'))
       });
     }
   }
 
-  toggleStatus(user: UserResponse): void {
-    // API hiện tại không hỗ trợ thay đổi trạng thái người dùng
-    alert('Tính năng thay đổi trạng thái người dùng chưa được hỗ trợ bởi API.');
+  async toggleStatus(user: UserResponse): Promise<void> {
+    // Toggle: 1 (Active) <-> 2 (Inactive)
+    const currentActive = this.isUserActive(user.status);
+    const newStatus = currentActive ? 2 : 1;
+    const statusText = newStatus === 1 ? 'kích hoạt' : 'khóa';
+    
+    const confirmed = await this.notification.confirm(`Bạn có chắc muốn ${statusText} tài khoản "${user.fullName}"?`);
+    if (confirmed) {
+      this.adminService.updateUser(user.id, { status: newStatus }).subscribe({
+        next: () => {
+          this.notification.success(`Đã ${statusText} tài khoản thành công!`);
+          this.loadUsers();
+        },
+        error: (err) => {
+          console.error('Error updating status:', err);
+          this.notification.error('Lỗi: ' + (err.error?.message || 'Không thể cập nhật trạng thái'));
+        }
+      });
+    }
   }
 
-  getInitials(name: string): string {
+  getInitials(name: string | null | undefined): string {
+    if (!name || typeof name !== 'string') return '??';
     return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
   }
 
-  getRoleClass(role: string): string {
-    return role.toLowerCase();
+  getRoleClass(role: string | number | null | undefined): string {
+    if (!role) return 'customer';
+    // Backend enum: Admin=1, Employee=2, Helper=3, Customer=4
+    const roleClasses: Record<string, string> = {
+      '1': 'admin', 'Admin': 'admin',
+      '2': 'employee', 'Employee': 'employee',
+      '3': 'helper', 'Helper': 'helper',
+      '4': 'customer', 'Customer': 'customer'
+    };
+    return roleClasses[String(role)] || 'customer';
   }
 
-  getRoleLabel(role: string): string {
+  getRoleLabel(role: string | number | null | undefined): string {
+    const roleStr = String(role || '');
+    // Backend enum: Admin=1, Employee=2, Helper=3, Customer=4
     const labels: Record<string, string> = {
       'Customer': 'Khách hàng',
       'Helper': 'Người giúp việc',
       'Employee': 'Nhân viên',
-      'Admin': 'Quản trị viên'
+      'Admin': 'Quản trị viên',
+      '1': 'Quản trị viên',     // Admin = 1
+      '2': 'Nhân viên',         // Employee = 2
+      '3': 'Người giúp việc',   // Helper = 3
+      '4': 'Khách hàng'         // Customer = 4
     };
-    return labels[role] || role;
+    return labels[roleStr] || roleStr || 'Không xác định';
   }
 
-  getStatusClass(status: string): string {
-    return status?.toLowerCase() || 'inactive';
+  getStatusClass(status: string | number | null | undefined): string {
+    if (!status) return 'inactive';
+    const statusStr = String(status).toLowerCase();
+    if (statusStr === 'active' || statusStr === '1' || statusStr === 'true') return 'active';
+    return 'inactive';
   }
 
-  getStatusLabel(status: string): string {
-    return status === 'Active' ? 'Hoạt động' : 'Khóa';
+  getStatusLabel(status: string | number | null | undefined): string {
+    if (!status) return 'Khóa';
+    const statusStr = String(status).toLowerCase();
+    if (statusStr === 'active' || statusStr === '1' || statusStr === 'true') return 'Hoạt động';
+    return 'Khóa';
+  }
+
+  isUserActive(status: string | number | null | undefined): boolean {
+    if (!status) return false;
+    const statusStr = String(status).toLowerCase();
+    return statusStr === 'active' || statusStr === '1' || statusStr === 'true';
   }
 }

@@ -139,3 +139,10 @@
     </div>
   </main>
 </div>
+
+<!-- Change Password Modal -->
+@if (showChangePasswordModal()) {
+  <app-change-password-modal 
+    (passwordChanged)="onPasswordChanged()"
+  ></app-change-password-modal>
+}

@@ -13,13 +13,23 @@ namespace GiupViecAPI.Mapping
         {
             // --- 1. USER MAPPING ---
             CreateMap<UserCreateDTO, User>()
-                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email)); // Identity yêu cầu UserName
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email))
+                .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.Phone)); // Map Phone -> PhoneNumber
 
-            CreateMap<User, UserResponseDTO>();
+            CreateMap<User, UserResponseDTO>()
+                .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.PhoneNumber)); // Map PhoneNumber -> Phone
 
-            // Logic Update: Chỉ map các trường có dữ liệu (không null), tránh ghi đè null vào DB
+            // Logic Update: Chỉ map các trường có dữ liệu (không null và không phải default value cho enum)
             CreateMap<UserUpdateDTO, User>()
-                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+                .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.Phone))
+                .ForMember(dest => dest.FullName, opt => opt.Condition(src => src.FullName != null))
+                .ForMember(dest => dest.PhoneNumber, opt => opt.Condition(src => src.Phone != null))
+                .ForMember(dest => dest.Avatar, opt => opt.Condition(src => src.Avatar != null))
+                .ForMember(dest => dest.Address, opt => opt.Condition(src => src.Address != null))
+                // Chỉ map Role khi có giá trị (không null và khác 0)
+                .ForMember(dest => dest.Role, opt => opt.Condition(src => src.Role.HasValue && (int)src.Role.Value != 0))
+                // Chỉ map Status khi có giá trị (không null và khác 0)
+                .ForMember(dest => dest.Status, opt => opt.Condition(src => src.Status.HasValue && (int)src.Status.Value != 0));
 
 
             // --- 2. BOOKING MAPPING ---
@@ -30,9 +40,14 @@ namespace GiupViecAPI.Mapping
 
             CreateMap<Booking, BookingResponseDTO>()
                 .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer.FullName))
-                .ForMember(dest => dest.ServiceName, opt => opt.MapFrom(src => src.Service.Name));
-            // Nếu BookingResponseDTO có HelperName thì thêm dòng dưới:
-            // .ForMember(dest => dest.HelperName, opt => opt.MapFrom(src => src.Helper != null ? src.Helper.FullName : "Chưa có"));
+                .ForMember(dest => dest.HelperName, opt => opt.MapFrom(src => src.Helper != null ? src.Helper.FullName : null))
+                .ForMember(dest => dest.ServiceId, opt => opt.MapFrom(src => src.ServiceId))
+                .ForMember(dest => dest.ServiceName, opt => opt.MapFrom(src => src.Service.Name))
+                .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.WorkShiftStart.ToString(@"hh\:mm")))
+                .ForMember(dest => dest.EndTime, opt => opt.MapFrom(src => src.WorkShiftEnd.ToString(@"hh\:mm")))
+                .ForMember(dest => dest.IsPaid, opt => opt.MapFrom(src => src.PaymentStatus == GiupViecAPI.Model.Enums.PaymentStatus.Paid))
+                .ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Notes))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt));
 
 
             // --- 3. HELPER PROFILE MAPPING (Đây là phần bạn đang thiếu) ---

@@ -1,0 +1,11 @@
+{
+  "/api/provinces": {
+    "target": "https://provinces.open-api.vn",
+    "secure": true,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/api/provinces": "/api/v2"
+    },
+    "logLevel": "debug"
+  }
+}

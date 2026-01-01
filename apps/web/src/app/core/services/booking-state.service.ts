@@ -17,6 +17,13 @@ export interface BookingAddress {
   fullAddress: string;
 }
 
+// Guest info for users who are not logged in
+export interface GuestInfo {
+  fullName: string;
+  email: string;
+  phone: string;
+}
+
 export interface BookingState {
   currentStep: number;
   selectedService: ServiceResponse | null;
@@ -25,6 +32,7 @@ export interface BookingState {
   notes: string;
   selectedHelper: HelperSuggestion | null;
   autoAssignHelper: boolean;
+  guestInfo: GuestInfo | null;
 }
 
 @Injectable({
@@ -39,6 +47,7 @@ export class BookingStateService {
   private _notes = signal('');
   private _selectedHelper = signal<HelperSuggestion | null>(null);
   private _autoAssignHelper = signal(true);
+  private _guestInfo = signal<GuestInfo | null>(null);
 
   // Public readonly signals
   readonly currentStep = this._currentStep.asReadonly();
@@ -48,6 +57,7 @@ export class BookingStateService {
   readonly notes = this._notes.asReadonly();
   readonly selectedHelper = this._selectedHelper.asReadonly();
   readonly autoAssignHelper = this._autoAssignHelper.asReadonly();
+  readonly guestInfo = this._guestInfo.asReadonly();
 
   // Computed values
   readonly canProceedToStep2 = computed(() => this._selectedService() !== null);
@@ -117,7 +127,11 @@ export class BookingStateService {
     }
   }
 
-  // Get full state for API call
+  setGuestInfo(info: GuestInfo): void {
+    this._guestInfo.set(info);
+  }
+
+  // Get full state for API call (for logged-in users)
   getBookingData() {
     const address = this._address();
     return {
@@ -131,6 +145,28 @@ export class BookingStateService {
     };
   }
 
+  // Get guest booking data (for guests without login)
+  getGuestBookingData(captchaToken: string) {
+    const address = this._address();
+    const guest = this._guestInfo();
+    return {
+      // Guest info
+      fullName: guest?.fullName ?? '',
+      email: guest?.email ?? '',
+      phone: guest?.phone ?? '',
+      // Booking info
+      serviceId: this._selectedService()?.id ?? 0,
+      startDate: this._schedule()?.startDate ?? '',
+      endDate: this._schedule()?.endDate ?? '',
+      workShiftStart: this._schedule()?.workShiftStart ?? '',
+      workShiftEnd: this._schedule()?.workShiftEnd ?? '',
+      address: address?.fullAddress ?? '',
+      notes: this._notes() || undefined,
+      // CAPTCHA
+      captchaToken: captchaToken
+    };
+  }
+
   // Reset state
   reset(): void {
     this._currentStep.set(1);
@@ -140,6 +176,7 @@ export class BookingStateService {
     this._notes.set('');
     this._selectedHelper.set(null);
     this._autoAssignHelper.set(true);
+    this._guestInfo.set(null);
   }
 
   // Helper method to convert time string to minutes

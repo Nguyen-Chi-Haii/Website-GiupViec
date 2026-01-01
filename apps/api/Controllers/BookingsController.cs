@@ -44,6 +44,39 @@ namespace GiupViecAPI.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        // Admin tạo đơn hàng - có customerId trong body, không cần lấy từ token
+        [HttpPost("admin")]
+        [Authorize(Roles = "Admin,Employee")]
+        public async Task<IActionResult> AdminCreate([FromBody] AdminBookingCreateDTO dto)
+        {
+            try
+            {
+                var result = await _service.AdminCreateBookingAsync(dto);
+                return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        // Guest tạo đơn hàng - không cần đăng nhập, tự động tạo user
+        [HttpPost("guest")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GuestCreate([FromBody] GuestBookingCreateDTO dto)
+        {
+            try
+            {
+                var result = await _service.GuestCreateBookingAsync(dto);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {

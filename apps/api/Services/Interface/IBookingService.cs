@@ -7,6 +7,13 @@ namespace GiupViecAPI.Services.Interface
     public interface IBookingService
     {
         Task<BookingResponseDTO> CreateBookingAsync(BookingCreateDTO dto, int customerId);
+        
+        // Admin tạo đơn hàng - có customerId trong DTO
+        Task<BookingResponseDTO> AdminCreateBookingAsync(AdminBookingCreateDTO dto);
+        
+        // Guest tạo đơn hàng - tự động tạo user account
+        Task<GuestBookingResponseDTO> GuestCreateBookingAsync(GuestBookingCreateDTO dto);
+        
         Task<IEnumerable<BookingResponseDTO>> GetAllAsync();
         Task<BookingResponseDTO> GetByIdAsync(int id);
 

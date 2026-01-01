@@ -389,3 +389,126 @@
   color: #638884;
   margin: 0;
 }
+
+/* Guest Booking Result */
+.guest-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 1.5rem;
+}
+
+.guest-result-icon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.guest-result-icon .material-symbols-outlined {
+  font-size: 2.5rem;
+  color: white;
+}
+
+.guest-result h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0 0 0.5rem;
+}
+
+.result-message {
+  color: #638884;
+  margin: 0 0 1.5rem;
+  font-size: 0.9rem;
+}
+
+.credentials-box {
+  width: 100%;
+  background: linear-gradient(135deg, #fef3c7 0%, #fef9c3 100%);
+  border: 1px solid #fcd34d;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.credentials-box h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0 0 1rem;
+}
+
+.credential-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
+}
+
+.credential-row:last-of-type {
+  border-bottom: none;
+}
+
+.credential-label {
+  font-size: 0.875rem;
+  color: #638884;
+}
+
+.credential-value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.credential-value.password {
+  font-family: monospace;
+  background: rgba(0, 0, 0, 0.1);
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.25rem;
+  letter-spacing: 1px;
+}
+
+.credentials-box .warning {
+  font-size: 0.75rem;
+  color: #92400e;
+  background: rgba(245, 158, 11, 0.2);
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  margin: 1rem 0 0;
+}
+
+.booking-summary-mini {
+  width: 100%;
+  background: #f9fafb;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.booking-summary-mini h4 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0 0 0.75rem;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.35rem 0;
+  font-size: 0.875rem;
+}
+
+.summary-row .price {
+  color: var(--primary);
+}
+

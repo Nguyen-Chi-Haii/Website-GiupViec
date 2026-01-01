@@ -97,7 +97,7 @@ interface Booking {
                 }
               </div>
               <div class="booking-footer">
-                <span class="payment-badge" [class]="booking.paymentStatus?.toLowerCase() || 'unpaid'">
+                <span class="payment-badge" [class]="booking.paymentStatus.toLowerCase()">
                   {{ booking.paymentStatus === 'Paid' ? 'Đã thanh toán' : 'Chưa thanh toán' }}
                 </span>
                 <span class="price">{{ booking.totalPrice | number }}₫</span>

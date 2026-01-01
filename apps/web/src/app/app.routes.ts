@@ -12,7 +12,6 @@ import { AdminLayoutComponent } from './pages/admin/admin-layout.component';
 import { AdminDashboardComponent } from './pages/admin/dashboard/dashboard.component';
 import { AdminBookingsComponent } from './pages/admin/bookings/bookings.component';
 import { AdminServicesComponent } from './pages/admin/services/services.component';
-import { AdminHelpersComponent } from './pages/admin/helpers/helpers.component';
 import { AdminUsersComponent } from './pages/admin/users/users.component';
 import { AdminContentComponent } from './pages/admin/content/content.component';
 // Helper imports
@@ -99,11 +98,6 @@ export const routes: Routes = [
         path: 'services',
         component: AdminServicesComponent,
         title: 'Quản Lý Dịch Vụ - Admin'
-      },
-      {
-        path: 'helpers',
-        component: AdminHelpersComponent,
-        title: 'Người Giúp Việc - Admin'
       },
       {
         path: 'users',

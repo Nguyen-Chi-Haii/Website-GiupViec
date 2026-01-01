@@ -2,10 +2,11 @@ import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { BookingStateService, BookingSchedule, BookingAddress } from '../../../core/services/booking-state.service';
+import { BookingStateService, BookingSchedule, BookingAddress, GuestInfo } from '../../../core/services/booking-state.service';
 import { VietnamProvincesService } from '../../../core/services/vietnam-provinces.service';
 import { ProvinceResponse, WardResponse } from '../../../core/types/vietnam-provinces.types';
 import { SearchableDropdownComponent, DropdownOption } from '../../../shared/components/searchable-dropdown/searchable-dropdown.component';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-booking-step2',
@@ -18,6 +19,7 @@ export class BookingStep2Component implements OnInit {
   private readonly bookingState = inject(BookingStateService);
   private readonly provincesService = inject(VietnamProvincesService);
   private readonly router = inject(Router);
+  readonly authService = inject(AuthService);
 
   // Form data
   startDate = '';
@@ -28,6 +30,11 @@ export class BookingStep2Component implements OnInit {
   selectedWardCode = '';
   streetAddress = '';
   notes = '';
+
+  // Guest info (for non-logged-in users)
+  guestFullName = '';
+  guestEmail = '';
+  guestPhone = '';
 
   // Dropdown data from API v2 (2-tier: Province → Ward)
   provinces = signal<ProvinceResponse[]>([]);
@@ -69,7 +76,7 @@ export class BookingStep2Component implements OnInit {
     this.startDate = this.formatDate(today);
     this.endDate = this.formatDate(today);
 
-    // Load provinces from API v2 (34 provinces after 2025 reform)
+    // Load provinces from API v2
     this.loadProvinces();
 
     // Restore previous data if exists
@@ -222,6 +229,23 @@ export class BookingStep2Component implements OnInit {
       errors['streetAddress'] = 'Vui lòng nhập địa chỉ chi tiết (tối thiểu 5 ký tự)';
     }
 
+    // Validate guest info if user is not logged in
+    if (!this.authService.isAuthenticated()) {
+      if (!this.guestFullName || this.guestFullName.trim().length < 2) {
+        errors['guestFullName'] = 'Vui lòng nhập họ tên (tối thiểu 2 ký tự)';
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!this.guestEmail || !emailRegex.test(this.guestEmail)) {
+        errors['guestEmail'] = 'Vui lòng nhập email hợp lệ';
+      }
+
+      const phoneRegex = /^(0|\+84)[0-9]{9,10}$/;
+      if (!this.guestPhone || !phoneRegex.test(this.guestPhone.replace(/\s/g, ''))) {
+        errors['guestPhone'] = 'Vui lòng nhập số điện thoại hợp lệ';
+      }
+    }
+
     this.errors.set(errors);
     return Object.keys(errors).length === 0;
   }
@@ -263,6 +287,16 @@ export class BookingStep2Component implements OnInit {
     }
 
     this.bookingState.setNotes(this.notes.trim());
+
+    // Save guest info if user is not logged in
+    if (!this.authService.isAuthenticated() && this.guestFullName && this.guestEmail) {
+      const guestInfo: GuestInfo = {
+        fullName: this.guestFullName.trim(),
+        email: this.guestEmail.trim(),
+        phone: this.guestPhone.trim()
+      };
+      this.bookingState.setGuestInfo(guestInfo);
+    }
   }
 
   formatPrice(price: number): string {

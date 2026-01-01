@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminService, ServiceResponse, ServiceCreate } from '../../../core/services/admin.service';
+import { NotificationService } from '../../../core/services/notification.service';
 
 @Component({
   selector: 'app-admin-services',
@@ -293,6 +294,7 @@ import { AdminService, ServiceResponse, ServiceCreate } from '../../../core/serv
 })
 export class AdminServicesComponent implements OnInit {
   private readonly adminService = inject(AdminService);
+  private readonly notification = inject(NotificationService);
 
   services = signal<ServiceResponse[]>([]);
   isLoading = signal(true);
@@ -338,35 +340,46 @@ export class AdminServicesComponent implements OnInit {
 
   saveService(): void {
     if (!this.formData.name || !this.formData.price) {
-      alert('Vui lòng điền đầy đủ thông tin!');
+      this.notification.warning('Vui lòng điền đầy đủ thông tin!');
       return;
     }
 
     if (this.isEditing()) {
       this.adminService.updateService(this.editingId, this.formData).subscribe({
         next: () => {
-          alert('Cập nhật thành công!');
+          this.notification.success('Cập nhật thành công!');
           this.closeModal();
           this.loadServices();
         },
-        error: (err) => alert('Lỗi: ' + err.error?.message)
+        error: (err) => this.notification.error('Lỗi: ' + (err.error?.message || 'Không thể cập nhật'))
       });
     } else {
       this.adminService.createService(this.formData).subscribe({
         next: () => {
-          alert('Tạo dịch vụ thành công!');
+          this.notification.success('Tạo dịch vụ thành công!');
           this.closeModal();
           this.loadServices();
         },
-        error: (err) => alert('Lỗi: ' + err.error?.message)
+        error: (err) => this.notification.error('Lỗi: ' + (err.error?.message || 'Không thể tạo'))
       });
     }
   }
 
-  toggleStatus(service: ServiceResponse): void {
-    this.adminService.updateService(service.id, { isActive: !service.isActive }).subscribe({
-      next: () => this.loadServices(),
-      error: (err) => alert('Lỗi: ' + err.error?.message)
-    });
+  async toggleStatus(service: ServiceResponse): Promise<void> {
+    const statusText = service.isActive ? 'tắt' : 'bật';
+    const confirmed = await this.notification.confirm(`Bạn có chắc muốn ${statusText} dịch vụ "${service.name}"?`);
+    if (confirmed) {
+      this.adminService.updateService(service.id, {
+        name: service.name,
+        price: service.price,
+        isActive: !service.isActive
+      }).subscribe({
+        next: () => {
+          this.notification.success(`Đã ${statusText} dịch vụ thành công!`);
+          this.loadServices();
+        },
+        error: (err) => this.notification.error('Lỗi: ' + (err.error?.message || 'Không thể cập nhật'))
+      });
+    }
   }
 }
