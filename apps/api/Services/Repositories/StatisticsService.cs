@@ -68,7 +68,8 @@ namespace GiupViecAPI.Services.Repositories
                 TotalEarnings = totalEarnings,
                 TotalCompletedJobs = completedJobs,
                 TotalUpcomingJobs = upcomingJobs,
-                AverageRating = profile != null ? profile.RatingAverage : 0
+                AverageRating = profile != null ? profile.RatingAverage : 0,
+                RatingCount = profile != null ? profile.RatingCount : 0
             };
         }
     }

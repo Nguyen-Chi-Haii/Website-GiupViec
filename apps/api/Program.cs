@@ -96,6 +96,7 @@ builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IServiceService, ServiceService>(); 
 builder.Services.AddScoped<IHelperProfileService, HelperProfileService>();
 builder.Services.AddScoped<IStatisticsService, StatisticsService>();
+builder.Services.AddScoped<IRatingService, RatingService>();
 
 // RecaptchaService for guest booking verification
 builder.Services.AddHttpClient<IRecaptchaService, GiupViecAPI.Services.RecaptchaService>();

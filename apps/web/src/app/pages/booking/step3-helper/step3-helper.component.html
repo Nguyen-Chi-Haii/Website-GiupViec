@@ -74,7 +74,8 @@
               <h3 class="helper-name">{{ helper.fullName }}</h3>
               <div class="helper-rating">
                 <span class="material-symbols-outlined star">star</span>
-                <span>{{ helper.ratingAverage }}</span>
+                <span class="rating-value">{{ helper.ratingAverage | number:'1.1-1' }}</span>
+                <span class="rating-count">({{ helper.ratingCount || 0 }} đánh giá)</span>
               </div>
               <div class="helper-details">
                 <span>{{ helper.experienceYears }} năm KN</span>

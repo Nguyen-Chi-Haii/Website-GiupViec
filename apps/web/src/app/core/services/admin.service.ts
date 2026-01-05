@@ -15,6 +15,15 @@ export interface AdminStats {
   cancelledBookings: number;
 }
 
+export interface HelperDashboardStats {
+  totalJobs: number;
+  totalEarnings: number;
+  totalCompletedJobs: number;
+  totalUpcomingJobs: number;
+  averageRating: number;
+  ratingCount: number;
+}
+
 // ============== Booking Types ==============
 export interface BookingResponse {
   id: number;
@@ -121,6 +130,7 @@ export interface HelperProfile {
   bio?: string;
   careerStartDate: string;
   ratingAverage: number;
+  ratingCount: number;
   activeArea: string;
   experienceYears: number;
   hourlyRate: number;
@@ -171,6 +181,10 @@ export class AdminService {
 
   getEmployeeStats(): Observable<AdminStats> {
     return this.http.get<AdminStats>(`${this.apiUrl}/statistics/employee`);
+  }
+
+  getHelperStats(): Observable<HelperDashboardStats> {
+    return this.http.get<HelperDashboardStats>(`${this.apiUrl}/statistics/helper`);
   }
 
   // --- Bookings ---

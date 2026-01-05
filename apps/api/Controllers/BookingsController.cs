@@ -3,7 +3,6 @@ using GiupViecAPI.Model.Enums;
 using GiupViecAPI.Services.Interface;
 using GiupViecAPI.Services.Repositories;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 

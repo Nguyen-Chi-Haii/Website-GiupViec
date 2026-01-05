@@ -4,6 +4,7 @@ using GiupViecAPI.Model.DTO.Booking;
 using GiupViecAPI.Model.DTO.HelperProfile; // <-- Bổ sung namespace này
 using GiupViecAPI.Model.DTO.Service;       // <-- Bổ sung namespace này
 using GiupViecAPI.Model.DTO.User;
+using GiupViecAPI.Model.DTO.Rating;
 
 namespace GiupViecAPI.Mapping
 {
@@ -11,6 +12,11 @@ namespace GiupViecAPI.Mapping
     {
         public MappingProfile()
         {
+            // --- 0. RATING MAPPING ---
+            CreateMap<Rating, RatingResponseDTO>()
+                .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer.FullName))
+                .ForMember(dest => dest.HelperName, opt => opt.MapFrom(src => src.Helper.FullName));
+
             // --- 1. USER MAPPING ---
             CreateMap<UserCreateDTO, User>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email))
@@ -63,9 +69,6 @@ namespace GiupViecAPI.Mapping
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             CreateMap<Service, ServiceResponseDTO>();
-            CreateMap<HelperProfile, HelperSuggestionDTO>()
-                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.User.FullName))
-                .ForMember(dest => dest.Avatar, opt => opt.MapFrom(src => src.User.Avatar));
             CreateMap<HelperProfileUpdateDTO, HelperProfile>()
                 .ForMember(dest => dest.CareerStartDate,
                            opt => opt.MapFrom(src => src.ExperienceYears.HasValue
@@ -83,7 +86,9 @@ namespace GiupViecAPI.Mapping
                            opt => opt.MapFrom(src => (src.CareerStartDate.Year > 1 && src.CareerStartDate <= DateTime.Now) 
                                 ? DateTime.Now.Year - src.CareerStartDate.Year : 0))
                 .ForMember(dest => dest.HourlyRate, opt => opt.MapFrom(src => src.HourlyRate))
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.User != null ? src.User.Status : 0));
+                .ForMember(dest => dest.RatingAverage, opt => opt.MapFrom(src => src.RatingAverage))
+                .ForMember(dest => dest.RatingCount, opt => opt.MapFrom(src => src.RatingCount))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.User != null ? src.User.Status : GiupViecAPI.Model.Enums.UserStatus.Inactive));
 
             // Logic cho Suggestion DTO
             CreateMap<HelperProfile, HelperSuggestionDTO>()
@@ -93,7 +98,9 @@ namespace GiupViecAPI.Mapping
                            opt => opt.MapFrom(src => (src.CareerStartDate.Year > 1 && src.CareerStartDate <= DateTime.Now) 
                                 ? DateTime.Now.Year - src.CareerStartDate.Year : 0))
                 .ForMember(dest => dest.HourlyRate, opt => opt.MapFrom(src => src.HourlyRate))
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.User != null ? src.User.Status : 0));
+                .ForMember(dest => dest.RatingAverage, opt => opt.MapFrom(src => src.RatingAverage))
+                .ForMember(dest => dest.RatingCount, opt => opt.MapFrom(src => src.RatingCount))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.User != null ? src.User.Status : GiupViecAPI.Model.Enums.UserStatus.Inactive));
         }
     }
     

@@ -7,5 +7,6 @@
         public int TotalCompletedJobs { get; internal set; }
         public int TotalUpcomingJobs { get; internal set; }
         public decimal AverageRating { get; internal set; }
+        public int RatingCount { get; internal set; }
     }
 }

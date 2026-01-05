@@ -41,15 +41,19 @@ export interface BookingResponseDTO {
   helperId?: number;
   customerName: string;
   helperName?: string;
+  serviceId: number;
   serviceName: string;
   address: string;
   startDate: string;
   endDate: string;
-  workShiftStart: string;
-  workShiftEnd: string;
+  startTime: string;
+  endTime: string;
   totalPrice: number;
   status: string;
   paymentStatus: string;
+  isRated: boolean;
+  notes?: string;
+  createdAt?: string;
 }
 
 export interface BookingAssignHelperDTO {

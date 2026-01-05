@@ -7,6 +7,7 @@
         public string FullName { get; set; }
         public string Avatar { get; set; }
         public decimal RatingAverage { get; set; }
+        public int RatingCount { get; set; }
         public int ExperienceYears { get; set; }
         public string ActiveArea { get; set; }
         public string Bio { get; set; }

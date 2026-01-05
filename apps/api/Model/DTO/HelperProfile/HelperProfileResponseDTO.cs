@@ -8,6 +8,7 @@
         public string Avatar { get; set; }   // Ảnh lấy từ bảng User
 
         public decimal RatingAverage { get; set; }
+        public int RatingCount { get; set; }
         public string ActiveArea { get; set; }
 
         // --- BỔ SUNG ---

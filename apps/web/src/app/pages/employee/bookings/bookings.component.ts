@@ -110,6 +110,11 @@ interface AvailableHelper {
                             <span class="material-symbols-outlined">payments</span>
                           </button>
                         }
+                        @if (isBookingConfirmed(booking.status)) {
+                          <button class="icon-btn success" title="Hoàn thành công việc" (click)="completeBooking(booking.id)">
+                            <span class="material-symbols-outlined">done_all</span>
+                          </button>
+                        }
                       </div>
                     </td>
                   </tr>
@@ -430,6 +435,19 @@ export class EmployeeBookingsComponent implements OnInit {
           this.loadBookings();
         },
         error: (err) => this.notification.error('Lỗi: ' + (err.error?.message || 'Không thể xác nhận'))
+      });
+    }
+  }
+
+  async completeBooking(id: number): Promise<void> {
+    const confirmed = await this.notification.confirm('Xác nhận công việc đã hoàn thành?');
+    if (confirmed) {
+      this.adminService.updateBookingStatus(id, { status: 4 }).subscribe({ // 4 = Completed
+        next: () => {
+          this.notification.success('Đã hoàn thành đơn hàng!');
+          this.loadBookings();
+        },
+        error: (err) => this.notification.error('Lỗi: ' + (err.error?.message || 'Không thể cập nhật'))
       });
     }
   }

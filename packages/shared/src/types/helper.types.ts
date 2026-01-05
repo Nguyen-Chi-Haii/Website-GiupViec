@@ -12,6 +12,7 @@ export interface HelperSuggestion {
   activeArea: string;
   bio: string;
   hourlyRate: number;
+  ratingCount: number;
 }
 
 export interface HelperProfileResponse {
@@ -23,6 +24,26 @@ export interface HelperProfileResponse {
   activeArea: string;
   bio: string;
   experienceYears: number;
+  ratingCount: number;
+  hourlyRate: number;
+}
+
+export interface RatingResponse {
+  id: number;
+  bookingId: number;
+  customerId: number;
+  customerName: string;
+  helperId: number;
+  helperName: string;
+  score: number;
+  comment: string;
+  createdAt: string;
+}
+
+export interface RatingCreateDTO {
+  bookingId: number;
+  score: number;
+  comment?: string;
 }
 
 export interface HelperProfileCreateDTO {

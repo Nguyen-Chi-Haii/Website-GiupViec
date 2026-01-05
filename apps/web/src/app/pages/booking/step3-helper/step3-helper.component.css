@@ -283,10 +283,16 @@
   font-size: 1rem;
 }
 
-.helper-rating span {
+.helper-rating .rating-value {
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-dark);
+}
+
+.helper-rating .rating-count {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #638884;
 }
 
 .helper-details {

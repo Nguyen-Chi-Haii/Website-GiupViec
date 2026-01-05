@@ -23,6 +23,8 @@ namespace GiupViecAPI.Model.Domain
 
         public decimal RatingAverage { get; set; } = 0;
 
+        public int RatingCount { get; set; } = 0;
+
         [MaxLength(255)]
         public string ActiveArea { get; set; }
 

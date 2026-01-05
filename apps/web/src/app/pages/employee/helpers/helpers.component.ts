@@ -62,6 +62,7 @@ import { AddressSelectorComponent, AddressResult } from '../../../shared/compone
                     <td>{{ helper.experienceYears }} năm</td>
                     <td>
                        <span class="rating">⭐ {{ helper.ratingAverage | number:'1.1-1' }}</span>
+                       <small class="text-muted" style="display: block; font-size: 0.7rem;">({{ helper.ratingCount || 0 }} đánh giá)</small>
                     </td>
                     <td>
                       <span class="status-badge" [class]="getStatusClass(helper.status)">

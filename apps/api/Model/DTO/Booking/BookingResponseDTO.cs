@@ -26,6 +26,7 @@
         public string Status { get; set; }
         public string PaymentStatus { get; set; }
         public bool IsPaid { get; set; }
+        public bool IsRated { get; set; }
 
         // Metadata
         public string? Notes { get; set; }
