@@ -37,6 +37,26 @@ namespace GiupViecAPI.Services.Repositories
 
             var user = _mapper.Map<User>(dto);
 
+            // Fix NULL constraints & Identity fields
+            user.Address ??= "Chưa cập nhật";
+            user.Avatar ??= "";
+            user.UserName = dto.Email;
+            user.NormalizedUserName = dto.Email.ToUpper();
+            user.NormalizedEmail = dto.Email.ToUpper();
+            user.SecurityStamp = System.Guid.NewGuid().ToString();
+            user.ConcurrencyStamp = System.Guid.NewGuid().ToString();
+
+
+            // Fix NULL constraints & Identity fields
+            user.Address ??= "Chưa cập nhật";
+            user.Avatar ??= "";
+            user.UserName = dto.Email;
+            user.NormalizedUserName = dto.Email.ToUpper();
+            user.NormalizedEmail = dto.Email.ToUpper();
+            user.SecurityStamp = System.Guid.NewGuid().ToString();
+            user.ConcurrencyStamp = System.Guid.NewGuid().ToString();
+
+
             // --- Băm mật khẩu (Hashing) ---
             var passwordHasher = new PasswordHasher<User>();
             user.PasswordHash = passwordHasher.HashPassword(user, dto.Password);

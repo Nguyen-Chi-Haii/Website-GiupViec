@@ -1,0 +1,19 @@
+{
+  "name": "giupviec-api-tests",
+  "version": "1.0.0",
+  "description": "Comprehensive automated API tests for GiupViec system",
+  "scripts": {
+    "test:auth": "node api/auth.test.js",
+    "test:services": "node api/services.test.js",
+    "test:helpers": "node api/helpers.test.js",
+    "test:booking": "node api/booking.test.js",
+    "test:rating": "node api/rating.test.js",
+    "test:statistics": "node api/statistics.test.js",
+    "test:integration": "node api/integration.test.js",
+    "test:all": "npm run test:auth && npm run test:services && npm run test:helpers && npm run test:booking && npm run test:rating && npm run test:statistics && npm run test:integration",
+    "test:quick": "npm run test:auth && npm run test:booking && npm run test:rating"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  }
+}
