@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { ServiceService } from '../../../core/services/service.service';
 import { BookingStateService } from '../../../core/services/booking-state.service';
 import { ServiceResponse } from '@giupviec/shared';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-booking-step1',
@@ -16,10 +17,15 @@ export class BookingStep1Component implements OnInit {
   private readonly serviceService = inject(ServiceService);
   private readonly bookingState = inject(BookingStateService);
   private readonly router = inject(Router);
+  readonly authService = inject(AuthService);
 
   services: ServiceResponse[] = [];
   isLoading = true;
   selectedServiceId: number | null = null;
+
+  get backLink(): string {
+    return this.authService.isAuthenticated() ? '/customer' : '/';
+  }
 
   ngOnInit(): void {
     this.bookingState.setCurrentStep(1);

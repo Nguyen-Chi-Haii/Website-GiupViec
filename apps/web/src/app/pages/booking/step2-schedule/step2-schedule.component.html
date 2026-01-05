@@ -185,49 +185,19 @@
           <span class="material-symbols-outlined">location_on</span>
           Địa Chỉ Làm Việc
         </h3>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="province">Tỉnh/Thành phố <span class="required">*</span></label>
-            <app-searchable-dropdown
-              [options]="provinceOptions()"
-              [selectedCode]="selectedProvinceCode"
-              [isLoading]="isLoadingProvinces()"
-              placeholder="Tìm tỉnh/thành phố..."
-              (selectionChange)="onProvinceSelect($event)"
-            ></app-searchable-dropdown>
-            @if (errors()['province']) {
-              <span class="error-text">{{ errors()['province'] }}</span>
-            }
+        
+        <app-address-selector 
+          [initialAddress]="initialAddressFromUser || currentAddressResult?.fullAddress || ''"
+          (addressChange)="onAddressChange($event)"
+        ></app-address-selector>
+
+        @if (errors()['province'] || errors()['ward'] || errors()['streetAddress']) {
+          <div class="error-text-container">
+            @if (errors()['province']) { <span class="error-text">{{ errors()['province'] }}</span> }
+            @if (errors()['ward']) { <span class="error-text">{{ errors()['ward'] }}</span> }
+            @if (errors()['streetAddress']) { <span class="error-text">{{ errors()['streetAddress'] }}</span> }
           </div>
-          <div class="form-group">
-            <label for="ward">Phường/Xã <span class="required">*</span></label>
-            <app-searchable-dropdown
-              [options]="wardOptions()"
-              [selectedCode]="selectedWardCode"
-              [disabled]="!selectedProvinceCode"
-              [isLoading]="isLoadingWards()"
-              placeholder="Tìm phường/xã..."
-              (selectionChange)="onWardSelect($event)"
-            ></app-searchable-dropdown>
-            @if (errors()['ward']) {
-              <span class="error-text">{{ errors()['ward'] }}</span>
-            }
-          </div>
-        </div>
-        <div class="form-group full-width">
-          <label for="streetAddress">Số nhà, Tên đường <span class="required">*</span></label>
-          <input 
-            type="text" 
-            id="streetAddress"
-            [(ngModel)]="streetAddress"
-            name="streetAddress"
-            placeholder="VD: 123 Nguyễn Huệ"
-            [class.error]="errors()['streetAddress']"
-          />
-          @if (errors()['streetAddress']) {
-            <span class="error-text">{{ errors()['streetAddress'] }}</span>
-          }
-        </div>
+        }
       </div>
 
       <!-- Notes Section -->

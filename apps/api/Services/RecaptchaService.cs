@@ -30,10 +30,10 @@ namespace GiupViecAPI.Services
 
             var secretKey = _configuration["Recaptcha:SecretKey"];
             
-            // If no secret key configured, skip verification in development
-            if (string.IsNullOrEmpty(secretKey))
+            // If no secret key configured or using placeholder, skip verification in development
+            if (string.IsNullOrEmpty(secretKey) || secretKey.StartsWith("YOUR_"))
             {
-                _logger.LogWarning("Recaptcha SecretKey not configured - skipping verification");
+                _logger.LogWarning("Recaptcha SecretKey not configured or using placeholder - skipping verification (dev mode)");
                 return true; // Allow in development
             }
 

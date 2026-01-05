@@ -30,6 +30,23 @@ namespace GiupViecAPI.Controllers
             return Ok(profile);
         }
 
+        // POST: api/helperprofiles/admin/create
+        // Admin tạo Helper mới (bao gồm cả User + HelperProfile)
+        [HttpPost("admin/create")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AdminCreateHelper([FromBody] AdminHelperCreateDTO dto)
+        {
+            try
+            {
+                var result = await _service.CreateHelperWithUserAsync(dto);
+                return CreatedAtAction(nameof(GetByUserId), new { userId = result.UserId }, result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         // POST: api/helperprofiles
         // Tạo hồ sơ mới (Chỉ dành cho người có Token)
         [HttpPost]
@@ -64,6 +81,7 @@ namespace GiupViecAPI.Controllers
 
             return Ok(result);
         }
+
         [HttpPost("available")]
         public async Task<IActionResult> GetAvailableHelpers([FromBody] AvailableHelperFilterDTO filter)
         {
@@ -82,6 +100,27 @@ namespace GiupViecAPI.Controllers
             }
 
             return Ok(result);
+        }
+
+        // GET: api/helperprofiles
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var results = await _service.GetAllAsync();
+            return Ok(results);
+        }
+
+        // DELETE: api/helperprofiles/5
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var success = await _service.SoftDeleteAsync(id);
+            if (!success)
+            {
+                return NotFound(new { message = "Không tìm thấy hồ sơ để xóa." });
+            }
+            return Ok(new { message = "Xóa hồ sơ thành công." });
         }
     }
 }

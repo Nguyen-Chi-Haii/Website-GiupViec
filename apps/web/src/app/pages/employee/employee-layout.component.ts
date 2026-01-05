@@ -38,6 +38,22 @@ import { AuthService } from '../../core/services/auth.service';
             <span class="material-symbols-outlined">receipt_long</span>
             @if (!sidebarCollapsed()) { <span>Quản Lý Đơn</span> }
           </a>
+          <a routerLink="/employee/helpers" routerLinkActive="active" class="nav-item">
+            <span class="material-symbols-outlined">engineering</span>
+            @if (!sidebarCollapsed()) { <span>Nguời Giúp Việc</span> }
+          </a>
+          <a routerLink="/employee/customers" routerLinkActive="active" class="nav-item">
+            <span class="material-symbols-outlined">person</span>
+            @if (!sidebarCollapsed()) { <span>Khách Hàng</span> }
+          </a>
+          <a routerLink="/employee/calendar" routerLinkActive="active" class="nav-item">
+            <span class="material-symbols-outlined">calendar_month</span>
+            @if (!sidebarCollapsed()) { <span>Lịch Vận Hành</span> }
+          </a>
+          <a routerLink="/employee/services" routerLinkActive="active" class="nav-item">
+            <span class="material-symbols-outlined">service_toolbox</span>
+            @if (!sidebarCollapsed()) { <span>Dịch Vụ</span> }
+          </a>
         </nav>
 
         <div class="sidebar-footer">
@@ -64,21 +80,21 @@ import { AuthService } from '../../core/services/auth.service';
     </div>
   `,
   styles: [`
-    .layout { display: flex; min-height: 100vh; background: #f6f8f8; }
-    .sidebar { width: 260px; background: white; border-right: 1px solid #e5e7eb; display: flex; flex-direction: column; transition: width 0.3s; }
+    .layout { display: flex; height: 100vh; overflow: hidden; background: #f6f8f8; }
+    .sidebar { width: 260px; background: white; border-right: 1px solid #e5e7eb; display: flex; flex-direction: column; transition: width 0.3s; height: 100%; }
     .sidebar.collapsed { width: 72px; }
-    .sidebar-header { display: flex; align-items: center; justify-content: space-between; padding: 1rem; border-bottom: 1px solid #e5e7eb; }
+    .sidebar-header { display: flex; align-items: center; justify-content: space-between; padding: 1rem; border-bottom: 1px solid #e5e7eb; flex-shrink: 0; }
     .logo { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
     .logo-icon { width: 32px; height: 32px; color: #13b9a5; }
     .logo-text { font-size: 1.1rem; font-weight: 700; color: #111817; }
     .toggle-btn { background: none; border: none; cursor: pointer; color: #638884; padding: 0.25rem; border-radius: 4px; }
     .toggle-btn:hover { background: #f6f8f8; }
-    .sidebar-nav { flex: 1; padding: 1rem 0.75rem; display: flex; flex-direction: column; gap: 0.25rem; }
+    .sidebar-nav { flex: 1; padding: 1rem 0.75rem; display: flex; flex-direction: column; gap: 0.25rem; overflow-y: auto; }
     .nav-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 8px; color: #638884; text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: all 0.2s; }
     .nav-item:hover { background: #f6f8f8; color: #111817; }
     .nav-item.active { background: rgba(19, 185, 165, 0.1); color: #13b9a5; }
     .nav-item .material-symbols-outlined { font-size: 22px; }
-    .sidebar-footer { padding: 1rem; border-top: 1px solid #e5e7eb; }
+    .sidebar-footer { padding: 1rem; border-top: 1px solid #e5e7eb; flex-shrink: 0; }
     .user-info { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
     .user-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.8rem; }
     .user-details { display: flex; flex-direction: column; }
@@ -86,7 +102,7 @@ import { AuthService } from '../../core/services/auth.service';
     .user-role { font-size: 0.7rem; color: #638884; }
     .logout-btn { display: flex; align-items: center; gap: 0.75rem; width: 100%; padding: 0.75rem 1rem; background: transparent; border: 1px solid #e5e7eb; border-radius: 8px; color: #638884; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; }
     .logout-btn:hover { background: #fef2f2; border-color: #fecaca; color: #dc2626; }
-    .main-content { flex: 1; padding: 2rem; overflow-y: auto; }
+    .main-content { flex: 1; padding: 2rem; overflow-y: auto; display: flex; flex-direction: column; }
     .sidebar.collapsed .nav-item { justify-content: center; padding: 0.75rem; }
     .sidebar.collapsed .user-info { justify-content: center; }
     .sidebar.collapsed .logout-btn { justify-content: center; padding: 0.75rem; }

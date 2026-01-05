@@ -91,11 +91,17 @@ export class BookingStep4Component implements OnInit {
     this.isSubmitting.set(true);
     this.errorMessage.set(null);
 
+    console.log('[Booking Submit] isLoggedIn:', this.isLoggedIn);
+    console.log('[Booking Submit] authService.isAuthenticated():', this.authService.isAuthenticated());
+    console.log('[Booking Submit] currentUser:', this.authService.currentUser());
+
     if (this.isLoggedIn) {
       // Logged-in user booking
+      console.log('[Booking Submit] Using AUTHENTICATED booking flow');
       this.submitAuthenticatedBooking();
     } else {
       // Guest booking
+      console.log('[Booking Submit] Using GUEST booking flow');
       this.submitGuestBooking();
     }
   }
@@ -108,10 +114,10 @@ export class BookingStep4Component implements OnInit {
         this.successMessage.set('Đặt dịch vụ thành công! Mã đơn hàng: #' + response.id);
         this.isSubmitting.set(false);
         
-        // Reset state after 3 seconds and redirect
+        // Reset state after 3 seconds and redirect to dashboard
         setTimeout(() => {
           this.bookingState.reset();
-          this.router.navigate(['/']);
+          this.router.navigate(['/customer']);
         }, 3000);
       },
       error: (err: { error?: { message?: string } }) => {

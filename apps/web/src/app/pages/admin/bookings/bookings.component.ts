@@ -53,7 +53,8 @@ interface AvailableHelper {
                   <th>Khách hàng</th>
                   <th>Dịch vụ</th>
                   <th>Người giúp việc</th>
-                  <th>Ngày làm</th>
+                  <th>Ngày bắt đầu</th>
+                  <th>Ngày kết thúc</th>
                   <th>Trạng thái</th>
                   <th>Thanh toán</th>
                   <th>Tổng tiền</th>
@@ -74,6 +75,7 @@ interface AvailableHelper {
                       }
                     </td>
                     <td class="text-muted">{{ booking.startDate | date:'dd/MM/yyyy' }}</td>
+                    <td class="text-muted">{{ booking.endDate | date:'dd/MM/yyyy' }}</td>
                     <td>
                       <span class="status-badge" [class]="getStatusClass(booking.status)">
                         {{ getStatusLabel(booking.status) }}
@@ -91,9 +93,11 @@ interface AvailableHelper {
                           <span class="material-symbols-outlined">visibility</span>
                         </button>
                         @if (isBookingPending(booking.status)) {
-                          <button class="icon-btn primary" title="Gán Helper" (click)="openAssignModal(booking)">
-                            <span class="material-symbols-outlined">person_add</span>
-                          </button>
+                          @if (!booking.helperId) {
+                            <button class="icon-btn primary" title="Gán Helper" (click)="openAssignModal(booking)">
+                              <span class="material-symbols-outlined">person_add</span>
+                            </button>
+                          }
                           <button class="icon-btn success" title="Xác nhận" (click)="confirmBooking(booking.id)">
                             <span class="material-symbols-outlined">check</span>
                           </button>
@@ -111,7 +115,7 @@ interface AvailableHelper {
                   </tr>
                 } @empty {
                   <tr>
-                    <td colspan="9" class="empty-state">Không có đơn hàng nào</td>
+                    <td colspan="10" class="empty-state">Không có đơn hàng nào</td>
                   </tr>
                 }
               </tbody>

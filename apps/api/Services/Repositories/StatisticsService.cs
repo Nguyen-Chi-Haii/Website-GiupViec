@@ -42,6 +42,11 @@ namespace GiupViecAPI.Services.Repositories
             };
         }
 
+        public async Task<AdminDashboardDTO> GetEmployeeDashboardAsync()
+        {
+            return await GetAdminDashboardAsync();
+        }
+
         public async Task<HelperDashboardDTO> GetHelperDashboardAsync(int userId)
         {
             // (Giữ nguyên logic cũ)

@@ -15,6 +15,7 @@ namespace GiupViecAPI.Services.Interface
         Task<GuestBookingResponseDTO> GuestCreateBookingAsync(GuestBookingCreateDTO dto);
         
         Task<IEnumerable<BookingResponseDTO>> GetAllAsync();
+        Task<IEnumerable<BookingResponseDTO>> GetByCustomerIdAsync(int customerId);
         Task<BookingResponseDTO> GetByIdAsync(int id);
 
         // Sửa thông tin chung
@@ -29,6 +30,7 @@ namespace GiupViecAPI.Services.Interface
         Task<bool> ConfirmPaymentAsync(int id);
 
         Task<List<BookingScheduleDTO>> GetHelperScheduleAsync(int helperId, DateTime fromDate, DateTime toDate);
+        Task<List<BookingScheduleDTO>> GetAllSchedulesAsync(DateTime fromDate, DateTime toDate);
 
         Task CleanExpiredBookingsAsync();
     }

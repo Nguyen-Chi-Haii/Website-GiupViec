@@ -105,6 +105,11 @@ export const routes: Routes = [
         title: 'Người Dùng - Admin'
       },
       {
+        path: 'helpers',
+        loadComponent: () => import('./pages/admin/helpers/helpers.component').then(m => m.AdminHelpersComponent),
+        title: 'Người Giúp Việc - Admin'
+      },
+      {
         path: 'content',
         component: AdminContentComponent,
         title: 'Quản Lý Nội Dung - Admin'
@@ -164,6 +169,26 @@ export const routes: Routes = [
         path: 'bookings',
         component: EmployeeBookingsComponent,
         title: 'Quản Lý Đơn - Nhân Viên'
+      },
+      {
+        path: 'helpers',
+        loadComponent: () => import('./pages/employee/helpers/helpers.component').then(m => m.EmployeeHelpersComponent),
+        title: 'Người Giúp Việc - Nhân Viên'
+      },
+      {
+        path: 'customers',
+        loadComponent: () => import('./pages/employee/customers/customers.component').then(m => m.EmployeeCustomersComponent),
+        title: 'Khách Hàng - Nhân Viên'
+      },
+      {
+        path: 'calendar',
+        loadComponent: () => import('./pages/employee/calendar/calendar.component').then(m => m.EmployeeCalendarComponent),
+        title: 'Lịch Vận Hành - Nhân Viên'
+      },
+      {
+        path: 'services',
+        loadComponent: () => import('./pages/employee/services/services.component').then(m => m.EmployeeServicesComponent),
+        title: 'Dịch Vụ - Nhân Viên'
       }
     ]
   },

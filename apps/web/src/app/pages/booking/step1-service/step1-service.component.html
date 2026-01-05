@@ -65,9 +65,9 @@
 
     <!-- Navigation -->
     <div class="card-footer">
-      <a routerLink="/" class="btn btn-outline">
+      <a [routerLink]="backLink" class="btn btn-outline">
         <span class="material-symbols-outlined">arrow_back</span>
-        Về Trang Chủ
+        {{ authService.isAuthenticated() ? 'Về Dashboard' : 'Về Trang Chủ' }}
       </a>
       <button 
         class="btn btn-primary" 

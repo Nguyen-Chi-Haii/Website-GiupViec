@@ -73,7 +73,11 @@ namespace GiupViecAPI.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                // Log full exception details for debugging
+                var innerMessage = ex.InnerException?.Message ?? "No inner exception";
+                Console.WriteLine($"[GuestBooking Error] {ex.Message}");
+                Console.WriteLine($"[GuestBooking InnerException] {innerMessage}");
+                return BadRequest(new { message = ex.Message, innerError = innerMessage });
             }
         }
 
@@ -84,7 +88,19 @@ namespace GiupViecAPI.Controllers
             return Ok(result);
         }
 
-        [HttpGet("{id}")]
+        // GET: api/bookings/my - Lấy đơn hàng của user hiện tại (PHẢI ĐẶT TRƯỚC /{id})
+        [HttpGet("my")]
+        public async Task<IActionResult> GetMyBookings()
+        {
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+            if (userIdClaim == null) return Unauthorized("Không tìm thấy thông tin người dùng.");
+
+            int customerId = int.Parse(userIdClaim.Value);
+            var result = await _service.GetByCustomerIdAsync(customerId);
+            return Ok(result);
+        }
+
+        [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
             var result = await _service.GetByIdAsync(id);
@@ -159,13 +175,20 @@ namespace GiupViecAPI.Controllers
             return Ok(new { message = message, newStatus = dto.Status.ToString() });
         }
         [HttpPut("{id}/payment-confirm")]
-        [Authorize(Roles = "Admin,Helper")] // Chỉ Admin hoặc Helper được xác nhận tiền
+        [Authorize(Roles = "Admin,Employee,Helper,Customer")] // Cho phép Customer tự xác nhận thanh toán (giả lập)
         public async Task<IActionResult> ConfirmPayment(int id)
         {
-            var success = await _service.ConfirmPaymentAsync(id);
-            if (!success) return NotFound(new { message = "Không tìm thấy đơn hàng" });
+            try
+            {
+                var success = await _service.ConfirmPaymentAsync(id);
+                if (!success) return NotFound(new { message = "Không tìm thấy đơn hàng" });
 
-            return Ok(new { message = "Đã xác nhận thanh toán thành công" });
+                return Ok(new { message = "Đã xác nhận thanh toán thành công" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
         [HttpGet("my-schedule")]
         [Authorize(Roles = "Helper")] // Chỉ Helper mới gọi được
@@ -183,6 +206,17 @@ namespace GiupViecAPI.Controllers
             // 3. Gọi Service
             var schedule = await _service.GetHelperScheduleAsync(helperId, from, to);
             return Ok(schedule);
+        }
+
+        [HttpGet("all-schedules")]
+        [Authorize(Roles = "Admin,Employee")] 
+        public async Task<IActionResult> GetAllSchedules([FromQuery] DateTime from, [FromQuery] DateTime to)
+        {
+            if (from == default) from = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            if (to == default) to = from.AddMonths(1).AddDays(-1);
+
+            var schedules = await _service.GetAllSchedulesAsync(from, to);
+            return Ok(schedules);
         }
     }
 }

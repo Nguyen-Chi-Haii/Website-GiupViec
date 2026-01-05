@@ -103,17 +103,7 @@
 
             <!-- Address (Full Width) -->
             <div class="form-group full-width">
-              <label for="address">Địa chỉ</label>
-              <div class="input-with-icon">
-                <span class="material-symbols-outlined input-icon">location_on</span>
-                <input 
-                  type="text" 
-                  id="address" 
-                  placeholder="Số nhà, Tên đường, Quận/Huyện, Thành phố"
-                  [value]="address()"
-                  (input)="address.set($any($event.target).value)"
-                />
-              </div>
+              <app-address-selector (addressChange)="onAddressChange($event)"></app-address-selector>
             </div>
 
             <!-- Password -->

@@ -56,6 +56,20 @@ namespace GiupViecAPI.Services.Repositories
             return _mapper.Map<BookingResponseDTO>(booking);
         }
 
+        // 2.5 LẤY DANH SÁCH THEO CUSTOMER ID
+        public async Task<IEnumerable<BookingResponseDTO>> GetByCustomerIdAsync(int customerId)
+        {
+            var list = await _db.Bookings
+                .Where(b => b.CustomerId == customerId)
+                .Include(b => b.Service)
+                .Include(b => b.Helper)
+                .Include(b => b.Customer)
+                .OrderByDescending(b => b.CreatedAt)
+                .ToListAsync();
+
+            return _mapper.Map<IEnumerable<BookingResponseDTO>>(list);
+        }
+
         // 3. TẠO ĐƠN MỚI (Tính tiền ngay tại đây thay vì Trigger)
         public async Task<BookingResponseDTO> CreateBookingAsync(BookingCreateDTO dto, int customerId)
         {
@@ -71,8 +85,7 @@ namespace GiupViecAPI.Services.Repositories
             var days = (booking.EndDate - booking.StartDate).Days + 1;
             // Số giờ mỗi ngày
             var hours = booking.WorkShiftEnd - booking.WorkShiftStart;
-
-            double hoursperday = hours.TotalDays;
+            double hoursperday = hours.TotalHours;
 
             if (days <= 0 || hoursperday <= 0) throw new Exception("Thời gian đặt không hợp lệ.");
 
@@ -80,12 +93,37 @@ namespace GiupViecAPI.Services.Repositories
             booking.TotalPrice = days * (decimal)hoursperday * service.Price;
             // -----------------------
 
+            // Nếu user chọn helper sẵn từ frontend
+            if (dto.HelperId.HasValue && dto.HelperId.Value > 0)
+            {
+                // Kiểm tra trùng lịch
+                var isConflict = await _db.Bookings.AnyAsync(b =>
+                    b.HelperId == dto.HelperId.Value &&
+                    b.Status != BookingStatus.Cancelled &&
+                    b.Status != BookingStatus.Completed &&
+                    b.StartDate <= booking.EndDate && b.EndDate >= booking.StartDate &&
+                    b.WorkShiftStart < booking.WorkShiftEnd && b.WorkShiftEnd > booking.WorkShiftStart
+                );
+
+                if (isConflict)
+                {
+                    throw new Exception("Người giúp việc đã bận trong khung giờ này.");
+                }
+
+                booking.HelperId = dto.HelperId.Value;
+                // Bỏ dòng chuyển sang Confirmed, giữ nguyên Pending
+            }
+
             await _db.Bookings.AddAsync(booking);
             await _db.SaveChangesAsync();
 
 
             await _db.Entry(booking).Reference(b => b.Service).LoadAsync();
             await _db.Entry(booking).Reference(b => b.Customer).LoadAsync();
+            if (booking.HelperId.HasValue)
+            {
+                await _db.Entry(booking).Reference(b => b.Helper).LoadAsync();
+            }
 
             return _mapper.Map<BookingResponseDTO>(booking);
         }
@@ -178,7 +216,7 @@ namespace GiupViecAPI.Services.Repositories
             // --- TÍNH LẠI TIỀN ---
             var days = (booking.EndDate - booking.StartDate).Days + 1;
             var hours = booking.WorkShiftEnd - booking.WorkShiftStart;
-            double hoursperday = hours.TotalDays;
+            double hoursperday = hours.TotalHours;
             if (days > 0 && hoursperday > 0)
             {
                 booking.TotalPrice = days * (decimal)hoursperday * booking.Service.Price;
@@ -252,24 +290,58 @@ namespace GiupViecAPI.Services.Repositories
         {
             var bookings = await _db.Bookings
                 .Include(b => b.Service)
+                .Include(b => b.Customer)
                 .Where(b => b.HelperId == helperId
                             && b.Status != BookingStatus.Cancelled
-                            && b.StartDate <= toDate && b.EndDate >= fromDate) // Logic check khoảng giao nhau
+                            && b.StartDate <= toDate && b.EndDate >= fromDate)
                 .OrderBy(b => b.StartDate)
                 .Select(b => new BookingScheduleDTO
                 {
                     Id = b.Id,
                     StartDate = b.StartDate,
                     EndDate = b.EndDate,
+                    StartTime = b.WorkShiftStart.ToString(@"hh\:mm"),
+                    EndTime = b.WorkShiftEnd.ToString(@"hh\:mm"),
                     WorkShiftStart = b.WorkShiftStart,
                     WorkShiftEnd = b.WorkShiftEnd,
                     ServiceName = b.Service.Name,
+                    CustomerName = b.Customer != null ? b.Customer.FullName : "Khách vãng lai",
                     Address = b.Address,
-                    Status = b.Status
+                    TotalPrice = b.TotalPrice,
+                    HelperName = b.Helper != null ? b.Helper.FullName : "Chưa gán",
+                    Status = b.Status.ToString()
                 })
                 .ToListAsync();
 
             return bookings;
+        }
+
+        public async Task<List<BookingScheduleDTO>> GetAllSchedulesAsync(DateTime fromDate, DateTime toDate)
+        {
+            return await _db.Bookings
+                .Include(b => b.Service)
+                .Include(b => b.Helper)
+                .Include(b => b.Customer) // Added to include customer information
+                .Where(b => b.Status != BookingStatus.Cancelled
+                            && b.Status != BookingStatus.Rejected
+                            && b.StartDate <= toDate && b.EndDate >= fromDate)
+                .OrderBy(b => b.StartDate)
+                .Select(b => new BookingScheduleDTO
+                {
+                    Id = b.Id,
+                    StartDate = b.StartDate,
+                    EndDate = b.EndDate,
+                    StartTime = b.WorkShiftStart.ToString(@"hh\:mm"),
+                    EndTime = b.WorkShiftEnd.ToString(@"hh\:mm"),
+                    WorkShiftStart = b.WorkShiftStart,
+                    WorkShiftEnd = b.WorkShiftEnd,
+                    ServiceName = b.Service.Name,
+                    CustomerName = b.Customer != null ? b.Customer.FullName : "Khách vãng lai",
+                    Address = b.Address,
+                    TotalPrice = b.TotalPrice,
+                    HelperName = b.Helper != null ? b.Helper.FullName : "Chưa gán",
+                    Status = b.Status.ToString()
+                }).ToListAsync();
         }
 
         // 9. QUÉT ĐƠN QUÁ HẠN (Thay thế Stored Procedure)
@@ -325,6 +397,8 @@ namespace GiupViecAPI.Services.Repositories
                 Email = dto.Email,
                 FullName = dto.FullName,
                 PhoneNumber = dto.Phone,
+                Address = dto.Address, // Use booking address as user's default address
+                Avatar = "", // Default empty avatar for guest users
                 Role = UserRoles.Customer,
                 Status = UserStatus.Active,
                 MustChangePassword = true, // Force password change on first login
@@ -362,11 +436,30 @@ namespace GiupViecAPI.Services.Repositories
                 UpdatedAt = DateTime.UtcNow
             };
 
+            // Nếu khách chọn helper sẵn từ frontend
+            if (dto.HelperId.HasValue && dto.HelperId.Value > 0)
+            {
+                // Kiểm tra trùng lịch
+                var isConflict = await _db.Bookings.AnyAsync(b =>
+                    b.HelperId == dto.HelperId.Value &&
+                    b.Status != BookingStatus.Cancelled &&
+                    b.Status != BookingStatus.Completed &&
+                    b.StartDate <= booking.EndDate && b.EndDate >= booking.StartDate &&
+                    b.WorkShiftStart < booking.WorkShiftEnd && b.WorkShiftEnd > booking.WorkShiftStart
+                );
+
+                if (!isConflict)
+                {
+                    booking.HelperId = dto.HelperId.Value;
+                    // Bỏ dòng chuyển sang Confirmed, giữ nguyên Pending
+                }
+            }
+
             await _db.Bookings.AddAsync(booking);
             await _db.SaveChangesAsync();
 
             // 8. Return response with temp password
-            return new GuestBookingResponseDTO
+            var response = new GuestBookingResponseDTO
             {
                 BookingId = booking.Id,
                 CustomerEmail = dto.Email,
@@ -378,11 +471,20 @@ namespace GiupViecAPI.Services.Repositories
                 EndTime = dto.WorkShiftEnd.ToString(@"hh\:mm"),
                 Address = dto.Address,
                 TotalPrice = totalPrice,
-                Status = "Pending",
+                HelperId = booking.HelperId,
+                Status = booking.Status.ToString(),
                 Message = $"Đặt lịch thành công! Mã đơn hàng: #{booking.Id}. " +
                           $"Tài khoản đã được tạo với email: {dto.Email}. " +
                           $"Vui lòng đăng nhập và đổi mật khẩu ngay."
             };
+
+            if (booking.HelperId.HasValue)
+            {
+                await _db.Entry(booking).Reference(b => b.Helper).LoadAsync();
+                response.HelperName = booking.Helper.FullName;
+            }
+
+            return response;
         }
 
         private string GenerateTemporaryPassword()

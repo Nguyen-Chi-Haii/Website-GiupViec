@@ -50,15 +50,10 @@ namespace GiupViecAPI.Mapping
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt));
 
 
-            // --- 3. HELPER PROFILE MAPPING (Đây là phần bạn đang thiếu) ---
-            CreateMap<HelperProfileCreateDTO, HelperProfile>();
-
-            CreateMap<HelperProfileUpdateDTO, HelperProfile>()
-                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-
-            CreateMap<HelperProfile, HelperProfileResponseDTO>()
-                // Ví dụ: Muốn lấy tên thật từ bảng User để hiển thị trong Profile
-                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.FullName));
+            // --- 3. HELPER PROFILE MAPPING ---
+            CreateMap<HelperProfileCreateDTO, HelperProfile>()
+                .ForMember(dest => dest.CareerStartDate,
+                           opt => opt.MapFrom(src => DateTime.Now.AddYears(-src.ExperienceYears)));
 
 
             // --- 4. SERVICE MAPPING (Cũng cần thêm vì ServiceService có dùng) ---
@@ -71,11 +66,6 @@ namespace GiupViecAPI.Mapping
             CreateMap<HelperProfile, HelperSuggestionDTO>()
                 .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.User.FullName))
                 .ForMember(dest => dest.Avatar, opt => opt.MapFrom(src => src.User.Avatar));
-            CreateMap<HelperProfileCreateDTO, HelperProfile>()
-                .ForMember(dest => dest.CareerStartDate,
-                           opt => opt.MapFrom(src => DateTime.Now.AddYears(-src.ExperienceYears)));
-
-            // Update cũng tương tự
             CreateMap<HelperProfileUpdateDTO, HelperProfile>()
                 .ForMember(dest => dest.CareerStartDate,
                            opt => opt.MapFrom(src => src.ExperienceYears.HasValue
@@ -84,20 +74,26 @@ namespace GiupViecAPI.Mapping
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             // 2. OUTPUT: Từ Ngày bắt đầu (Entity) -> Tính ra Số năm (DTO)
-            // Ví dụ: DB lưu 2020 -> Nay 2025 -> Trả về 5 năm
             CreateMap<HelperProfile, HelperProfileResponseDTO>()
-                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.FullName))
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.User.FullName))
                 .ForMember(dest => dest.Avatar, opt => opt.MapFrom(src => src.User.Avatar))
-                // Logic tính toán tự động cập nhật theo thời gian thực
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.User.Email))
+                .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.User.PhoneNumber))
                 .ForMember(dest => dest.ExperienceYears,
-                           opt => opt.MapFrom(src => DateTime.Now.Year - src.CareerStartDate.Year));
+                           opt => opt.MapFrom(src => (src.CareerStartDate.Year > 1 && src.CareerStartDate <= DateTime.Now) 
+                                ? DateTime.Now.Year - src.CareerStartDate.Year : 0))
+                .ForMember(dest => dest.HourlyRate, opt => opt.MapFrom(src => src.HourlyRate))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.User != null ? src.User.Status : 0));
 
-            // Logic cho Suggestion DTO (Tính năng tìm kiếm)
+            // Logic cho Suggestion DTO
             CreateMap<HelperProfile, HelperSuggestionDTO>()
                 .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.User.FullName))
                 .ForMember(dest => dest.Avatar, opt => opt.MapFrom(src => src.User.Avatar))
                 .ForMember(dest => dest.ExperienceYears,
-                           opt => opt.MapFrom(src => DateTime.Now.Year - src.CareerStartDate.Year));
+                           opt => opt.MapFrom(src => (src.CareerStartDate.Year > 1 && src.CareerStartDate <= DateTime.Now) 
+                                ? DateTime.Now.Year - src.CareerStartDate.Year : 0))
+                .ForMember(dest => dest.HourlyRate, opt => opt.MapFrom(src => src.HourlyRate))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.User != null ? src.User.Status : 0));
         }
     }
     

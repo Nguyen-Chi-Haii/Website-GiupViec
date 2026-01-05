@@ -48,6 +48,63 @@ namespace GiupViecAPI.Services.Repositories
             return _mapper.Map<HelperProfileResponseDTO>(newProfile);
         }
 
+        // Admin creates helper with user data in one go
+        public async Task<HelperProfileResponseDTO> CreateHelperWithUserAsync(AdminHelperCreateDTO dto)
+        {
+            // Bước 1: Kiểm tra email đã tồn tại chưa
+            if (await _db.Users.AnyAsync(u => u.Email == dto.Email))
+            {
+                throw new Exception("Email này đã được sử dụng.");
+            }
+
+            // Bước 2: Tạo User entity
+            var user = new User
+            {
+                UserName = dto.Email, // IdentityUser requires UserName
+                Email = dto.Email,
+                NormalizedEmail = dto.Email.ToUpper(),
+                NormalizedUserName = dto.Email.ToUpper(),
+                PhoneNumber = dto.Phone, // IdentityUser uses PhoneNumber, not Phone
+                SecurityStamp = Guid.NewGuid().ToString(), // Required by IdentityUser
+                FullName = dto.FullName,
+                Avatar = dto.Avatar ?? "",
+                Address = dto.Address ?? "",
+                Role = Model.Enums.UserRoles.Helper, // Always Helper role
+                Status = Model.Enums.UserStatus.Active, // Default to Active
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            // Băm mật khẩu
+            var passwordHasher = new Microsoft.AspNetCore.Identity.PasswordHasher<User>();
+            user.PasswordHash = passwordHasher.HashPassword(user, dto.Password);
+
+            // Bước 3: Lưu User vào DB
+            await _db.Users.AddAsync(user);
+            await _db.SaveChangesAsync(); // Save để có user.Id
+
+            // Bước 4: Tạo HelperProfile liên kết với User vừa tạo
+            var helperProfile = new HelperProfile
+            {
+                UserId = user.Id,
+                ActiveArea = dto.ActiveArea,
+                Bio = dto.Bio ?? "",
+                CareerStartDate = DateTime.UtcNow.AddYears(-dto.ExperienceYears), // Calculate from experience years
+                RatingAverage = 0,
+                HourlyRate = dto.HourlyRate ?? 0
+            };
+
+            await _db.HelperProfiles.AddAsync(helperProfile);
+            await _db.SaveChangesAsync();
+
+            // Bước 5: Load lại profile với User để map đầy đủ
+            var createdProfile = await _db.HelperProfiles
+                .Include(h => h.User)
+                .FirstOrDefaultAsync(h => h.Id == helperProfile.Id);
+
+            return _mapper.Map<HelperProfileResponseDTO>(createdProfile);
+        }
+
         // 2. Logic lấy hồ sơ theo UserId
         public async Task<HelperProfileResponseDTO> GetByUserIdAsync(int userId)
         {
@@ -65,6 +122,7 @@ namespace GiupViecAPI.Services.Repositories
         {
             // Tìm hồ sơ cũ
             var existingProfile = await _db.HelperProfiles
+                .Include(h => h.User)
                 .FirstOrDefaultAsync(x => x.UserId == userId);
 
             if (existingProfile == null) return null;
@@ -103,6 +161,37 @@ namespace GiupViecAPI.Services.Repositories
 
             // BƯỚC 3: Map sang DTO để trả về
             return _mapper.Map<IEnumerable<HelperSuggestionDTO>>(availableHelpers);
+        }
+
+        public async Task<IEnumerable<HelperProfileResponseDTO>> GetAllAsync()
+        {
+            var profiles = await _db.HelperProfiles
+                .Include(h => h.User)
+                .AsNoTracking()
+                .ToListAsync();
+
+            return _mapper.Map<IEnumerable<HelperProfileResponseDTO>>(profiles);
+        }
+
+        public async Task<bool> SoftDeleteAsync(int id)
+        {
+            var profile = await _db.HelperProfiles
+                .Include(h => h.User)
+                .FirstOrDefaultAsync(h => h.Id == id);
+                
+            if (profile == null) return false;
+
+            var user = profile.User;
+
+            // Xóa cả Profile và User (Vì admin tạo Helper thường là tạo cặp này)
+            _db.HelperProfiles.Remove(profile);
+            if (user != null)
+            {
+                _db.Users.Remove(user);
+            }
+
+            await _db.SaveChangesAsync();
+            return true;
         }
     }
 }

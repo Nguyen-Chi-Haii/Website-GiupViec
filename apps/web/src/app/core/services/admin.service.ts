@@ -122,6 +122,9 @@ export interface HelperProfile {
   careerStartDate: string;
   ratingAverage: number;
   activeArea: string;
+  experienceYears: number;
+  hourlyRate: number;
+  status: any;
 }
 
 export interface AvailableHelper {
@@ -129,6 +132,28 @@ export interface AvailableHelper {
   fullName: string;
   email: string;
   ratingAverage: number;
+  experienceYears: number;
+  hourlyRate: number;
+}
+
+export interface AdminHelperCreate {
+  fullName: string;
+  email: string;
+  phone: string;
+  password: string;
+  avatar?: string;
+  address?: string;
+  activeArea: string;
+  bio?: string;
+  experienceYears: number;
+  hourlyRate?: number;
+}
+
+export interface HelperProfileUpdate {
+  activeArea?: string;
+  bio?: string;
+  experienceYears?: number;
+  hourlyRate?: number;
 }
 
 // ============== Admin Service ==============
@@ -142,6 +167,10 @@ export class AdminService {
   // --- Statistics ---
   getAdminStats(): Observable<AdminStats> {
     return this.http.get<AdminStats>(`${this.apiUrl}/statistics/admin`);
+  }
+
+  getEmployeeStats(): Observable<AdminStats> {
+    return this.http.get<AdminStats>(`${this.apiUrl}/statistics/employee`);
   }
 
   // --- Bookings ---
@@ -163,6 +192,11 @@ export class AdminService {
 
   confirmPayment(id: number): Observable<any> {
     return this.http.put(`${this.apiUrl}/bookings/${id}/payment-confirm`, {});
+  }
+
+  // Lấy tất cả lịch làm việc (Dành cho Admin/Employee)
+  getAllSchedules(from: string, to: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/bookings/all-schedules?from=${from}&to=${to}`);
   }
 
   // Admin tạo đơn hàng mới
@@ -211,6 +245,24 @@ export class AdminService {
 
   getHelperProfile(userId: number): Observable<HelperProfile> {
     return this.http.get<HelperProfile>(`${this.apiUrl}/helperprofiles/user/${userId}`);
+  }
+
+  deleteHelperProfile(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/helperprofiles/${id}`);
+  }
+
+  // Admin creates helper with user data in one go (NEW combined endpoint)
+  adminCreateHelper(dto: AdminHelperCreate): Observable<HelperProfile> {
+    return this.http.post<HelperProfile>(`${this.apiUrl}/helperprofiles/admin/create`, dto);
+  }
+
+  // Update helper profile
+  updateHelperProfile(userId: number, dto: HelperProfileUpdate): Observable<HelperProfile> {
+    return this.http.put<HelperProfile>(`${this.apiUrl}/helperprofiles/user/${userId}`, dto);
+  }
+
+  createHelperProfile(dto: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/helperprofiles`, dto);
   }
 
   // Note: For available helpers in booking, use HelperService.getAvailableHelpers() with filters

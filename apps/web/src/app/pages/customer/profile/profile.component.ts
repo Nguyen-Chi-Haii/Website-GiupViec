@@ -3,20 +3,21 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../../core/services/auth.service';
+import { AddressSelectorComponent, AddressResult } from '../../../shared/components/address-selector/address-selector.component';
 import { environment } from '../../../../environments/environment';
 
 interface UserProfile {
   id: number;
   fullName: string;
   email: string;
-  phoneNumber: string;
+  phone: string;  // API returns 'phone' not 'phoneNumber'
   address: string;
 }
 
 @Component({
   selector: 'app-customer-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AddressSelectorComponent],
   template: `
     <div class="page">
       <div class="page-header">
@@ -45,9 +46,13 @@ interface UserProfile {
                 <label>Số điện thoại</label>
                 <input type="tel" [(ngModel)]="formData.phoneNumber" name="phoneNumber" placeholder="0912345678" />
               </div>
+              
+              <!-- Address Selector -->
               <div class="form-group full-width">
-                <label>Địa chỉ</label>
-                <input type="text" [(ngModel)]="formData.address" name="address" placeholder="Số nhà, đường, quận, thành phố" />
+                <app-address-selector 
+                  [initialAddress]="profile()?.address || ''"
+                  (addressChange)="onAddressChange($event)"
+                ></app-address-selector>
               </div>
             </div>
 
@@ -85,14 +90,19 @@ interface UserProfile {
     .form-group { display: flex; flex-direction: column; }
     .form-group.full-width { grid-column: span 2; }
     .form-group label { font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem; color: #111817; }
-    .form-group input { padding: 0.75rem 1rem; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.9rem; }
-    .form-group input:focus { outline: none; border-color: #13b9a5; }
+    .form-group input, .form-group select { padding: 0.75rem 1rem; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.9rem; background: white; }
+    .form-group input:focus, .form-group select:focus { outline: none; border-color: #13b9a5; }
+    .form-group select:disabled { background: #f3f4f6; cursor: not-allowed; }
     .form-actions { margin-top: 1.5rem; }
     .btn-primary { padding: 0.75rem 1.5rem; background: #13b9a5; color: white; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
     .btn-primary:hover:not(:disabled) { background: #0f9685; }
     .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
     .success-message { margin-top: 1rem; padding: 0.75rem; background: #dcfce7; color: #16a34a; border-radius: 8px; }
     .error-message { margin-top: 1rem; padding: 0.75rem; background: #fef2f2; color: #dc2626; border-radius: 8px; }
+    @media (max-width: 600px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .form-group.full-width { grid-column: span 1; }
+    }
   `]
 })
 export class CustomerProfileComponent implements OnInit {
@@ -107,8 +117,7 @@ export class CustomerProfileComponent implements OnInit {
 
   formData = {
     fullName: '',
-    phoneNumber: '',
-    address: ''
+    phoneNumber: ''
   };
 
   ngOnInit(): void {
@@ -118,6 +127,10 @@ export class CustomerProfileComponent implements OnInit {
   getInitials(): string {
     const name = this.profile()?.fullName || this.profile()?.email || '';
     return name.charAt(0).toUpperCase();
+  }
+
+  onAddressChange(result: AddressResult): void {
+    this.currentFullAddress = result.fullAddress;
   }
 
   loadProfile(): void {
@@ -130,11 +143,9 @@ export class CustomerProfileComponent implements OnInit {
     this.http.get<UserProfile>(`${environment.apiUrl}/users/${userId}`).subscribe({
       next: (data) => {
         this.profile.set(data);
-        this.formData = {
-          fullName: data.fullName || '',
-          phoneNumber: data.phoneNumber || '',
-          address: data.address || ''
-        };
+        this.formData.fullName = data.fullName || '';
+        this.formData.phoneNumber = data.phone || '';
+        this.currentFullAddress = data.address || '';
         this.isLoading.set(false);
       },
       error: () => {
@@ -142,6 +153,8 @@ export class CustomerProfileComponent implements OnInit {
       }
     });
   }
+
+  currentFullAddress = '';
 
   saveProfile(): void {
     const userId = this.authService.currentUser()?.nameid;
@@ -154,7 +167,7 @@ export class CustomerProfileComponent implements OnInit {
     this.http.put(`${environment.apiUrl}/users/${userId}`, {
       fullName: this.formData.fullName,
       phone: this.formData.phoneNumber,
-      address: this.formData.address
+      address: this.currentFullAddress
     }).subscribe({
       next: () => {
         this.successMessage.set('Cập nhật hồ sơ thành công!');

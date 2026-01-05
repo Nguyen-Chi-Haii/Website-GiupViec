@@ -10,7 +10,6 @@ export type VietNamDivisionType =
   | 'tỉnh' 
   | 'thành phố trung ương' 
   | 'xã' 
-  | 'thị trấn' 
   | 'phường'
   | 'đặc khu';
 

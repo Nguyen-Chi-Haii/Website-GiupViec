@@ -116,6 +116,7 @@ interface NavItem {
       align-items: center;
       padding: 0 1.5rem;
       border-bottom: 1px solid #e5e7eb;
+      flex-shrink: 0;
     }
 
     .logo {
@@ -181,6 +182,7 @@ interface NavItem {
     .sidebar-footer {
       padding: 1rem;
       border-top: 1px solid #e5e7eb;
+      flex-shrink: 0;
     }
 
     .user-info {
@@ -361,6 +363,7 @@ export class AdminLayoutComponent implements OnInit {
     { label: 'Quản Lý Đơn Hàng', icon: 'receipt_long', route: '/admin/bookings' },
     { label: 'Quản Lý Dịch Vụ', icon: 'mop', route: '/admin/services' },
     { label: 'Người Dùng', icon: 'group', route: '/admin/users' },
+    { label: 'Người Giúp Việc', icon: 'handyman', route: '/admin/helpers' },
     { label: 'Quản Lý Nội Dung', icon: 'edit_note', route: '/admin/content' }
   ];
 

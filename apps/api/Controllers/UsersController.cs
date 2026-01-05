@@ -22,9 +22,9 @@ namespace GiupViecAPI.Controllers
         // POST: /api/Auth/register
 
         // GET: api/users
-        // Chỉ Admin mới được xem danh sách User
+        // Admin và Employee được xem danh sách User
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Employee")]
         public async Task<IActionResult> GetAll()
         {
             var users = await _service.GetAllAsync();
@@ -32,16 +32,16 @@ namespace GiupViecAPI.Controllers
         }
 
         // GET: api/users/5
-        // Admin xem được tất cả, User thường chỉ xem được chính mình
+        // Admin, Employee xem được tất cả, User thường chỉ xem được chính mình
         [HttpGet("{id}")]
         [Authorize]
         public async Task<IActionResult> GetById(int id)
         {
-            // Logic kiểm tra quyền: Nếu không phải Admin thì ID phải trùng với ID của người đang login
+            // Logic kiểm tra quyền: Nếu không phải Admin/Employee thì ID phải trùng với ID của người đang login
             var role = User.FindFirst(ClaimTypes.Role)?.Value;
             var currentUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
-            if (role != "Admin" && currentUserId != id)
+            if (role != "Admin" && role != "Employee" && currentUserId != id)
             {
                 return Forbid(); // Trả về lỗi 403 Forbidden
             }
@@ -53,7 +53,7 @@ namespace GiupViecAPI.Controllers
         }
 
         // PUT: api/users/5
-        // Cập nhật thông tin cá nhân
+        // Cập nhật thông tin cá nhân hoặc Admin/Employee cập nhật hộ
         [HttpPut("{id}")]
         [Authorize]
         public async Task<IActionResult> Update(int id, [FromBody] UserUpdateDTO dto)
@@ -61,8 +61,8 @@ namespace GiupViecAPI.Controllers
             var role = User.FindFirst(ClaimTypes.Role)?.Value;
             var currentUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
-            // Chỉ cho phép tự sửa chính mình (trừ khi bạn muốn Admin sửa hộ)
-            if (currentUserId != id && role != "Admin")
+            // Chỉ cho phép tự sửa chính mình hoặc Admin/Employee sửa
+            if (currentUserId != id && role != "Admin" && role != "Employee")
             {
                 return Forbid();
             }

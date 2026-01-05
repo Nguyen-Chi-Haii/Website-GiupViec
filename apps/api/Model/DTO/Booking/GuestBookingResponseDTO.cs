@@ -16,6 +16,8 @@ namespace GiupViecAPI.Model.DTO.Booking
         public string EndTime { get; set; }
         public string Address { get; set; }
         public decimal TotalPrice { get; set; }
+        public int? HelperId { get; set; }
+        public string? HelperName { get; set; }
         public string Status { get; set; }
         public string Message { get; set; }
     }

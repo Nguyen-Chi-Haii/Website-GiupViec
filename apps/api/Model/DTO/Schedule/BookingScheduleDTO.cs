@@ -7,10 +7,17 @@ namespace GiupViecAPI.Model.DTO.Schedule
         public int Id { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public string ServiceName { get; set; } // Tên dịch vụ (vd: Dọn nhà)
+        public string StartTime { get; set; } // Format: "HH:mm"
+        public string EndTime { get; set; }   // Format: "HH:mm"
+        public string ServiceName { get; set; }
+        public string CustomerName { get; set; }
         public string Address { get; set; }
+        public decimal TotalPrice { get; set; }
+        public string HelperName { get; set; }
+        public string Status { get; set; }
+        
+        // Keep these for backward compatibility if needed, though we should migrate to HH:mm strings
         public TimeSpan WorkShiftStart { get; set; }
-        public TimeSpan WorkShiftEnd { get; set; }// Địa chỉ làm
-        public BookingStatus Status { get; set; }
+        public TimeSpan WorkShiftEnd { get; set; }
     }
 }

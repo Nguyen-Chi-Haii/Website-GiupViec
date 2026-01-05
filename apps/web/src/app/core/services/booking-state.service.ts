@@ -141,6 +141,7 @@ export class BookingStateService {
       workShiftStart: this._schedule()?.workShiftStart ?? '',
       workShiftEnd: this._schedule()?.workShiftEnd ?? '',
       address: address?.fullAddress ?? '',
+      helperId: this._selectedHelper()?.userId,
       notes: this._notes() || undefined
     };
   }
@@ -161,6 +162,7 @@ export class BookingStateService {
       workShiftStart: this._schedule()?.workShiftStart ?? '',
       workShiftEnd: this._schedule()?.workShiftEnd ?? '',
       address: address?.fullAddress ?? '',
+      helperId: this._selectedHelper()?.userId,
       notes: this._notes() || undefined,
       // CAPTCHA
       captchaToken: captchaToken
@@ -177,6 +179,49 @@ export class BookingStateService {
     this._selectedHelper.set(null);
     this._autoAssignHelper.set(true);
     this._guestInfo.set(null);
+  }
+
+  // Set data from a previous booking for re-ordering
+  setReorderData(booking: {
+    serviceId: number;
+    serviceName: string;
+    startDate: string;
+    endDate: string;
+    workShiftStart: string;
+    workShiftEnd: string;
+    address: string;
+    notes?: string;
+  }): void {
+    // Set service (minimal data for display)
+    this._selectedService.set({
+      id: booking.serviceId,
+      name: booking.serviceName,
+      price: 0, // Will be recalculated
+      isActive: true
+    });
+
+    // Set schedule with new dates (today as default)
+    const today = new Date().toISOString().split('T')[0];
+    this._schedule.set({
+      startDate: today,
+      endDate: today,
+      workShiftStart: booking.workShiftStart,
+      workShiftEnd: booking.workShiftEnd
+    });
+
+    // Parse address and set it
+    const addressParts = booking.address.split(',').map(p => p.trim());
+    this._address.set({
+      provinceCode: '',
+      provinceName: addressParts.length > 2 ? addressParts[addressParts.length - 1] : '',
+      wardCode: '',
+      wardName: addressParts.length > 1 ? addressParts[addressParts.length - 2] : '',
+      streetAddress: addressParts[0] || '',
+      fullAddress: booking.address
+    });
+
+    // Set notes
+    this._notes.set(booking.notes || '');
   }
 
   // Helper method to convert time string to minutes

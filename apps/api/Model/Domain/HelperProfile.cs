@@ -25,5 +25,7 @@ namespace GiupViecAPI.Model.Domain
 
         [MaxLength(255)]
         public string ActiveArea { get; set; }
+
+        public decimal HourlyRate { get; set; } = 0;
     }
 }

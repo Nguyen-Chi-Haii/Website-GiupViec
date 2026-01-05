@@ -11,8 +11,8 @@ interface ScheduleItem {
   address: string;
   startDate: string;
   endDate: string;
-  workShiftStart: string;
-  workShiftEnd: string;
+  startTime: string;
+  endTime: string;
   status: string;
   totalPrice: number;
 }
@@ -63,16 +63,16 @@ interface ScheduleItem {
             </div>
           </div>
 
-          <!-- Selected Day Jobs -->
+           <!-- Selected Day Jobs -->
           <div class="day-jobs">
             <h3>{{ selectedDateLabel() }}</h3>
             @if (selectedDayJobs().length === 0) {
               <div class="empty">Không có công việc</div>
             } @else {
               @for (job of selectedDayJobs(); track job.id) {
-                <div class="job-card">
+                <div class="job-card" (click)="viewJob(job)">
                   <div class="job-header">
-                    <span class="job-time">{{ job.workShiftStart }} - {{ job.workShiftEnd }}</span>
+                    <span class="job-time">{{ job.startTime }} - {{ job.endTime }}</span>
                     <span class="job-status" [class]="job.status.toLowerCase()">{{ getStatusLabel(job.status) }}</span>
                   </div>
                   <h4>{{ job.serviceName }}</h4>
@@ -82,6 +82,60 @@ interface ScheduleItem {
                 </div>
               }
             }
+          </div>
+        </div>
+      }
+
+      <!-- Detail Modal -->
+      @if (selectedJob()) {
+        <div class="modal-overlay" (click)="closeJobModal()">
+          <div class="modal" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+              <h3>Chi Tiết Công Việc #{{ selectedJob()!.id }}</h3>
+              <button class="close-btn" (click)="closeJobModal()">
+                <span class="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="detail-grid">
+                <div class="detail-item">
+                  <label>Dịch vụ</label>
+                  <p class="font-bold">{{ selectedJob()!.serviceName }}</p>
+                </div>
+                <div class="detail-item">
+                  <label>Khách hàng</label>
+                  <p>{{ selectedJob()!.customerName }}</p>
+                </div>
+                <div class="detail-item full-width">
+                  <label>Địa chỉ</label>
+                  <p>{{ selectedJob()!.address }}</p>
+                </div>
+                <div class="detail-item">
+                  <label>Ngày bắt đầu</label>
+                  <p>{{ selectedJob()!.startDate | date:'dd/MM/yyyy' }}</p>
+                </div>
+                <div class="detail-item">
+                  <label>Ngày kết thúc</label>
+                  <p>{{ selectedJob()!.endDate | date:'dd/MM/yyyy' }}</p>
+                </div>
+                <div class="detail-item">
+                  <label>Thời gian</label>
+                  <p>{{ selectedJob()!.startTime }} - {{ selectedJob()!.endTime }}</p>
+                </div>
+                <div class="detail-item">
+                  <label>Trạng thái</label>
+                  <p>
+                    <span class="status-badge" [class]="selectedJob()!.status.toLowerCase()">
+                      {{ getStatusLabel(selectedJob()!.status) }}
+                    </span>
+                  </p>
+                </div>
+                <div class="detail-item">
+                  <label>Thanh toán</label>
+                  <p class="price">{{ selectedJob()!.totalPrice | number }}₫</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       }
@@ -125,6 +179,27 @@ interface ScheduleItem {
     .job-card p { margin: 0.25rem 0; font-size: 0.85rem; color: #638884; display: flex; align-items: center; gap: 0.25rem; }
     .job-card p .material-symbols-outlined { font-size: 16px; }
     .job-price { margin-top: 0.75rem; font-weight: 700; color: #13b9a5; }
+
+    /* Modal Styles */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
+    .modal { background: white; border-radius: 16px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; border-bottom: 1px solid #f3f4f6; color: #111817; }
+    .modal-header h3 { margin: 0; font-size: 1.25rem; font-weight: 700; }
+    .close-btn { background: none; border: none; color: #6b7280; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: color 0.2s; }
+    .close-btn:hover { color: #111817; }
+    .modal-body { padding: 1.5rem; text-align: left; }
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    .detail-item label { display: block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: #638884; margin-bottom: 0.25rem; }
+    .detail-item p { margin: 0; color: #111817; font-size: 1rem; }
+    .detail-item.full-width { grid-column: span 2; }
+    .font-bold { font-weight: 700; }
+    .price { font-size: 1.25rem !important; font-weight: 800; color: #13b9a5; }
+    .job-card { cursor: pointer; transition: transform 0.2s; }
+    .job-card:hover { transform: translateX(4px); background: #f0f4f4; }
+    .status-badge { font-size: 0.75rem; padding: 0.25rem 0.5rem; border-radius: 4px; font-weight: 500; }
+    .status-badge.confirmed { background: #dbeafe; color: #1d4ed8; }
+    .status-badge.completed { background: #dcfce7; color: #16a34a; }
+    .status-badge.pending { background: #fef3c7; color: #b45309; }
   `]
 })
 export class HelperScheduleComponent implements OnInit {
@@ -137,6 +212,7 @@ export class HelperScheduleComponent implements OnInit {
   scheduleData = signal<ScheduleItem[]>([]);
   calendarDays = signal<{day: number, date: Date, isCurrentMonth: boolean, jobs: ScheduleItem[]}[]>([]);
   selectedDayJobs = signal<ScheduleItem[]>([]);
+  selectedJob = signal<ScheduleItem | null>(null);
 
   ngOnInit(): void {
     this.loadMonth();
@@ -198,11 +274,21 @@ export class HelperScheduleComponent implements OnInit {
       days.push({ day: d, date: new Date(year, month - 1, d), isCurrentMonth: false, jobs: [] });
     }
 
-    // Current month days
+     // Current month days
     for (let d = 1; d <= lastDay.getDate(); d++) {
       const date = new Date(year, month, d);
-      const dateStr = date.toISOString().split('T')[0];
-      const jobs = data.filter(j => j.startDate.split('T')[0] === dateStr);
+      const jobs = data.filter(j => {
+        const start = new Date(j.startDate);
+        const end = new Date(j.endDate);
+        const current = new Date(date);
+        
+        // Zero out times for date comparison
+        start.setHours(0,0,0,0);
+        end.setHours(0,0,0,0);
+        current.setHours(0,0,0,0);
+        
+        return current >= start && current <= end;
+      });
       days.push({ day: d, date, isCurrentMonth: true, jobs });
     }
 
@@ -217,9 +303,24 @@ export class HelperScheduleComponent implements OnInit {
 
   selectDate(date: Date): void {
     this.selectedDate.set(date);
-    const dateStr = date.toISOString().split('T')[0];
-    const jobs = this.scheduleData().filter(j => j.startDate.split('T')[0] === dateStr);
+    const jobs = this.scheduleData().filter(j => {
+      const start = new Date(j.startDate);
+      const end = new Date(j.endDate);
+      const current = new Date(date);
+      start.setHours(0,0,0,0);
+      end.setHours(0,0,0,0);
+      current.setHours(0,0,0,0);
+      return current >= start && current <= end;
+    });
     this.selectedDayJobs.set(jobs);
+  }
+
+  viewJob(job: ScheduleItem): void {
+    this.selectedJob.set(job);
+  }
+
+  closeJobModal(): void {
+    this.selectedJob.set(null);
   }
 
   isSelectedDate(date: Date): boolean {

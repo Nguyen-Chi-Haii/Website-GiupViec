@@ -33,6 +33,21 @@ namespace GiupViecAPI.Controllers
             }
         }
 
+        [HttpGet("employee")]
+        [Authorize(Roles = "Employee")]
+        public async Task<IActionResult> GetEmployeeStats()
+        {
+            try
+            {
+                var stats = await _service.GetEmployeeDashboardAsync();
+                return Ok(stats);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Lỗi server: " + ex.Message });
+            }
+        }
+
         [HttpGet("helper")]
         [Authorize(Roles = "Helper")]
         public async Task<IActionResult> GetHelperStats()

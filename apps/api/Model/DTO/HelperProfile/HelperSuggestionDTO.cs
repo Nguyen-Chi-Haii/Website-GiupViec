@@ -11,5 +11,6 @@
         public string ActiveArea { get; set; }
         public string Bio { get; set; }
         public decimal HourlyRate { get; set; }
+        public GiupViecAPI.Model.Enums.UserStatus Status { get; set; }
     }
 }

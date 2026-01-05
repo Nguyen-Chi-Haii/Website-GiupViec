@@ -40,7 +40,8 @@ export interface HelperProfileUpdateDTO {
 
 export interface AvailableHelperFilter {
   serviceId: number;
-  startDate: Date | string;
-  startTime: string;
-  durationHours: number;
+  startDate: string;
+  endDate: string;
+  workShiftStart: string;
+  workShiftEnd: string;
 }

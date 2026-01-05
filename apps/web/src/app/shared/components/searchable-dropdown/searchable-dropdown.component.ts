@@ -56,18 +56,21 @@ export interface DropdownOption {
     }
     
     .dropdown-input {
+      position: relative;
       display: flex;
       align-items: center;
-      border: 1px solid var(--border-color, #e0e0e0);
-      border-radius: 8px;
+      height: 3rem;
+      border: 1px solid var(--border-color, #dce5e4);
+      border-radius: 0.5rem;
       background: var(--bg-input, #fff);
       cursor: pointer;
       transition: all 0.2s ease;
+      box-sizing: border-box;
     }
     
     .searchable-dropdown.open .dropdown-input {
-      border-color: var(--primary-color, #00bfa5);
-      box-shadow: 0 0 0 3px rgba(0, 191, 165, 0.1);
+      border-color: var(--primary-color, #13b9a5);
+      box-shadow: 0 0 0 1px var(--primary-color, #13b9a5);
     }
     
     .searchable-dropdown.disabled .dropdown-input {
@@ -77,12 +80,18 @@ export interface DropdownOption {
     
     .dropdown-input input {
       flex: 1;
+      height: 100%;
       border: none;
       outline: none;
-      padding: 12px 16px;
-      font-size: 0.95rem;
+      padding: 0 40px 0 1rem;
+      font-size: 1rem;
       background: transparent;
       cursor: inherit;
+      color: var(--text-dark, #111817);
+    }
+    
+    .dropdown-input input::placeholder {
+      color: #638884;
     }
     
     .dropdown-input input:disabled {
@@ -90,9 +99,17 @@ export interface DropdownOption {
     }
     
     .dropdown-icon {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
       padding: 0 12px;
-      color: #666;
+      color: #638884;
       font-size: 20px;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     
     .searchable-dropdown.open .dropdown-icon.sync {
@@ -130,8 +147,8 @@ export interface DropdownOption {
     }
     
     .dropdown-item.selected {
-      background: var(--primary-light, #e0f7f4);
-      color: var(--primary-color, #00bfa5);
+      background: var(--primary-light, rgba(19, 185, 165, 0.1));
+      color: var(--primary-color, #13b9a5);
       font-weight: 500;
     }
     
@@ -157,6 +174,9 @@ export class SearchableDropdownComponent implements OnChanges {
 
   searchText = '';
   isOpen = signal(false);
+  
+  // Track mouse position to detect text selection vs click
+  private mouseDownPos: { x: number; y: number } | null = null;
   
   // Filtered options as getter (recalculated on each access)
   get filteredOptions(): DropdownOption[] {
@@ -187,11 +207,39 @@ export class SearchableDropdownComponent implements OnChanges {
     }
   }
 
+  @HostListener('document:mousedown', ['$event'])
+  onMouseDown(event: MouseEvent): void {
+    this.mouseDownPos = { x: event.clientX, y: event.clientY };
+  }
+
   @HostListener('document:click', ['$event'])
-  onClickOutside(event: Event): void {
+  onClickOutside(event: MouseEvent): void {
+    // Check if user has selected any text (result of dragging)
+    const selection = window.getSelection();
+    const hasSelection = selection && selection.toString().length > 0;
+    
+    // Check if this was a drag (text selection) vs a click
+    if (this.mouseDownPos) {
+      const deltaX = Math.abs(event.clientX - this.mouseDownPos.x);
+      const deltaY = Math.abs(event.clientY - this.mouseDownPos.y);
+      
+      // If mouse moved more than 3px OR there's text selected, it's a drag, not a click
+      if (deltaX > 3 || deltaY > 3 || hasSelection) {
+        this.mouseDownPos = null;
+        return; // Don't close dropdown
+      }
+    }
+    
+    // Also check for text selection even without mouseDownPos tracking
+    if (hasSelection) {
+      return; // Don't close if user just selected text
+    }
+    
     if (!this.elementRef.nativeElement.contains(event.target)) {
       this.close();
     }
+    
+    this.mouseDownPos = null;
   }
 
   toggle(): void {

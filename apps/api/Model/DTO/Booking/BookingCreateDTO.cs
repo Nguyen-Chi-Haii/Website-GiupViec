@@ -23,6 +23,8 @@ namespace GiupViecAPI.Model.DTO.Booking
         [MaxLength(255)]
         public string Address { get; set; }
 
+        public int? HelperId { get; set; }
+
         public string? Notes { get; set; }
     }
 }

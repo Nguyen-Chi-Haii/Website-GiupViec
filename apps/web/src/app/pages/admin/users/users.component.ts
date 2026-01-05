@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminService, UserResponse, UserCreate, UserUpdate } from '../../../core/services/admin.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { AddressSelectorComponent, AddressResult } from '../../../shared/components/address-selector/address-selector.component';
 
 @Component({
   selector: 'app-admin-users',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AddressSelectorComponent],
   template: `
     <div class="page">
       <div class="page-header">
@@ -16,7 +17,6 @@ import { NotificationService } from '../../../core/services/notification.service
           <select [(ngModel)]="roleFilter" (change)="applyFilters()" class="filter-select">
             <option value="">Tất cả vai trò</option>
             <option value="Customer">Khách hàng</option>
-            <option value="Helper">Người giúp việc</option>
             <option value="Employee">Nhân viên</option>
             <option value="Admin">Admin</option>
           </select>
@@ -120,8 +120,10 @@ import { NotificationService } from '../../../core/services/notification.service
                   <input type="tel" [(ngModel)]="formData.phone" placeholder="0912345678" />
                 </div>
                 <div class="form-group full-width">
-                  <label>Địa chỉ</label>
-                  <input type="text" [(ngModel)]="formData.address" placeholder="Số nhà, đường, quận, thành phố" />
+                  <app-address-selector 
+                    [initialAddress]="formData.address"
+                    (addressChange)="onAddressChange($event)"
+                  ></app-address-selector>
                 </div>
                 @if (!isEditing()) {
                   <div class="form-group full-width">
@@ -133,7 +135,6 @@ import { NotificationService } from '../../../core/services/notification.service
                   <label>Vai trò <span class="required">*</span></label>
                   <select [(ngModel)]="formData.role">
                     <option value="Customer">Khách hàng</option>
-                    <option value="Helper">Người giúp việc</option>
                     <option value="Employee">Nhân viên</option>
                     <option value="Admin">Quản trị viên</option>
                   </select>
@@ -242,8 +243,10 @@ export class AdminUsersComponent implements OnInit {
   loadUsers(): void {
     this.adminService.getAllUsers().subscribe({
       next: (data) => {
-        this.users.set(data);
-        this.filteredUsers.set(data);
+        // Lọc bỏ Helper ra khỏi danh sách User chung
+        const nonHelpers = data.filter(u => this.normalizeRole(u.role) !== 'helper');
+        this.users.set(nonHelpers);
+        this.filteredUsers.set(nonHelpers);
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -321,6 +324,10 @@ export class AdminUsersComponent implements OnInit {
 
   closeModal(): void {
     this.showModal.set(false);
+  }
+
+  onAddressChange(result: AddressResult): void {
+    this.formData.address = result.fullAddress;
   }
 
   saveUser(): void {
@@ -461,5 +468,16 @@ export class AdminUsersComponent implements OnInit {
     if (!status) return false;
     const statusStr = String(status).toLowerCase();
     return statusStr === 'active' || statusStr === '1' || statusStr === 'true';
+  }
+
+  normalizeRole(role: string | number | null | undefined): string {
+    const roleStr = String(role || '').toLowerCase();
+    const roleMap: Record<string, string> = {
+      '1': 'admin', 'admin': 'admin',
+      '2': 'employee', 'employee': 'employee',
+      '3': 'helper', 'helper': 'helper',
+      '4': 'customer', 'customer': 'customer'
+    };
+    return roleMap[roleStr] || roleStr;
   }
 }

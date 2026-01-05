@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { UserRole } from '@giupviec/shared';
 import { AuthService } from '../../../core/services/auth.service';
+import { AddressSelectorComponent, AddressResult } from '../../../shared/components/address-selector/address-selector.component';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, AddressSelectorComponent],
   templateUrl: './register.component.html',
   styleUrl: './register.component.css'
 })
@@ -37,6 +38,10 @@ export class RegisterComponent {
     } else {
       this.showConfirmPassword.update(v => !v);
     }
+  }
+
+  onAddressChange(result: AddressResult): void {
+    this.address.set(result.fullAddress);
   }
 
   onSubmit(event: Event): void {

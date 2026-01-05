@@ -56,8 +56,9 @@ export class BookingStep3Component implements OnInit {
     this.helperService.getAvailableHelpers({
       serviceId: this.bookingState.selectedService()?.id ?? 0,
       startDate: schedule.startDate,
-      startTime: schedule.workShiftStart,
-      durationHours: 2
+      endDate: schedule.endDate,
+      workShiftStart: schedule.workShiftStart,
+      workShiftEnd: schedule.workShiftEnd
     }).subscribe({
       next: (helpers: HelperSuggestion[]) => {
         this.helpers.set(helpers);
