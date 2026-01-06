@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminService, ServiceResponse, ServiceCreate } from '../../../core/services/admin.service';
@@ -81,11 +81,31 @@ import { NotificationService } from '../../../core/services/notification.service
             <div class="modal-body">
               <div class="form-group">
                 <label>Tên dịch vụ</label>
-                <input type="text" [(ngModel)]="formData.name" placeholder="VD: Dọn dẹp nhà cửa" />
+                <input 
+                  type="text" 
+                  [value]="formData.name()" 
+                  (input)="formData.name.set($any($event.target).value); markTouched('name')"
+                  (blur)="markTouched('name')"
+                  placeholder="VD: Dọn dẹp nhà cửa" 
+                  [class.error]="(touchedFields().has('name') || isSubmitted()) && errors()['name']" 
+                />
+                @if ((touchedFields().has('name') || isSubmitted()) && errors()['name']) {
+                  <span class="error-text">{{ errors()['name'] }}</span>
+                }
               </div>
               <div class="form-group">
                 <label>Giá (VNĐ/giờ)</label>
-                <input type="number" [(ngModel)]="formData.price" placeholder="VD: 50000" />
+                <input 
+                  type="number" 
+                  [value]="formData.price()" 
+                  (input)="formData.price.set($any($event.target).value ? +$any($event.target).value : null); markTouched('price')"
+                  (blur)="markTouched('price')"
+                  placeholder="VD: 50000" 
+                  [class.error]="(touchedFields().has('price') || isSubmitted()) && errors()['price']" 
+                />
+                @if ((touchedFields().has('price') || isSubmitted()) && errors()['price']) {
+                  <span class="error-text">{{ errors()['price'] }}</span>
+                }
               </div>
             </div>
             <div class="modal-footer">
@@ -290,6 +310,17 @@ import { NotificationService } from '../../../core/services/notification.service
       outline: none;
       border-color: #13b9a5;
     }
+
+    .form-group input.error {
+      border-color: #ef4444;
+    }
+
+    .error-text {
+      color: #ef4444;
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+      display: block;
+    }
   `]
 })
 export class AdminServicesComponent implements OnInit {
@@ -301,8 +332,32 @@ export class AdminServicesComponent implements OnInit {
   showModal = signal(false);
   isEditing = signal(false);
   editingId = 0;
+  
+  // Touched state for real-time feedback
+  touchedFields = signal<Set<string>>(new Set());
+  isSubmitted = signal(false);
 
-  formData: ServiceCreate = { name: '', price: 0 };
+  formData = {
+    name: signal(''),
+    price: signal<number | null>(null)
+  };
+
+  // Computed validation errors
+  errors = computed(() => {
+    const errors: Record<string, string> = {};
+    const name = this.formData.name().trim();
+    const price = this.formData.price();
+
+    if (!name || name.length < 3) {
+      errors['name'] = 'Tên dịch vụ phải có ít nhất 3 ký tự';
+    }
+
+    if (price === null || price === undefined || price <= 0) {
+      errors['price'] = 'Giá phải lớn hơn 0';
+    }
+
+    return errors;
+  });
 
   ngOnInit(): void {
     this.loadServices();
@@ -322,30 +377,47 @@ export class AdminServicesComponent implements OnInit {
   }
 
   openCreateModal(): void {
-    this.formData = { name: '', price: 0 };
+    this.formData.name.set('');
+    this.formData.price.set(null);
     this.isEditing.set(false);
     this.showModal.set(true);
+    this.touchedFields.set(new Set());
+    this.isSubmitted.set(false);
   }
 
   openEditModal(service: ServiceResponse): void {
-    this.formData = { name: service.name, price: service.price };
+    this.formData.name.set(service.name);
+    this.formData.price.set(service.price);
     this.editingId = service.id;
     this.isEditing.set(true);
     this.showModal.set(true);
+    this.touchedFields.set(new Set());
+    this.isSubmitted.set(false);
   }
 
   closeModal(): void {
     this.showModal.set(false);
   }
 
+  markTouched(field: string): void {
+    if (!this.touchedFields().has(field)) {
+      this.touchedFields.update(prev => new Set(prev).add(field));
+    }
+  }
+
   saveService(): void {
-    if (!this.formData.name || !this.formData.price) {
-      this.notification.warning('Vui lòng điền đầy đủ thông tin!');
+    this.isSubmitted.set(true);
+    if (Object.keys(this.errors()).length > 0) {
       return;
     }
 
+    const serviceData: ServiceCreate = {
+      name: this.formData.name(),
+      price: this.formData.price() || 0
+    };
+
     if (this.isEditing()) {
-      this.adminService.updateService(this.editingId, this.formData).subscribe({
+      this.adminService.updateService(this.editingId, serviceData).subscribe({
         next: () => {
           this.notification.success('Cập nhật thành công!');
           this.closeModal();
@@ -354,7 +426,7 @@ export class AdminServicesComponent implements OnInit {
         error: (err) => this.notification.error('Lỗi: ' + (err.error?.message || 'Không thể cập nhật'))
       });
     } else {
-      this.adminService.createService(this.formData).subscribe({
+      this.adminService.createService(serviceData).subscribe({
         next: () => {
           this.notification.success('Tạo dịch vụ thành công!');
           this.closeModal();

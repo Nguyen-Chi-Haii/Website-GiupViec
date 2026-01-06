@@ -1,4 +1,4 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -23,6 +23,28 @@ export class LoginComponent {
   isLoading = signal(false);
   errorMessage = signal<string | null>(null);
   
+  // Touched state for real-time feedback
+  touchedFields = signal<Set<string>>(new Set());
+  isSubmitted = signal(false);
+
+  // Computed validation errors
+  errors = computed(() => {
+    const errors: Record<string, string> = {};
+    const email = this.email().trim();
+    const password = this.password();
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+      errors['email'] = 'Email không hợp lệ';
+    }
+
+    if (!password) {
+      errors['password'] = 'Vui lòng nhập mật khẩu';
+    }
+
+    return errors;
+  });
+  
   // Password change modal state
   showChangePasswordModal = signal(false);
 
@@ -30,22 +52,20 @@ export class LoginComponent {
     this.showPassword.update(v => !v);
   }
 
+  markTouched(field: string): void {
+    if (!this.touchedFields().has(field)) {
+      this.touchedFields.update(prev => new Set(prev).add(field));
+    }
+  }
+
   onSubmit(event: Event): void {
     event.preventDefault();
+    this.isSubmitted.set(true);
     
     // Reset error
     this.errorMessage.set(null);
     
-    // Basic validation
-    if (!this.email() || !this.password()) {
-      this.errorMessage.set('Vui lòng nhập đầy đủ thông tin.');
-      return;
-    }
-
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(this.email())) {
-      this.errorMessage.set('Email không hợp lệ.');
+    if (Object.keys(this.errors()).length > 0) {
       return;
     }
 

@@ -64,9 +64,14 @@
                 id="fullName" 
                 placeholder="Nguyễn Văn A"
                 [value]="fullName()"
-                (input)="fullName.set($any($event.target).value)"
+                (input)="fullName.set($any($event.target).value); markTouched('fullName')"
+                (blur)="markTouched('fullName')"
+                [class.error]="(touchedFields().has('fullName') || isSubmitted()) && errors()['fullName']"
                 required
               />
+              @if ((touchedFields().has('fullName') || isSubmitted()) && errors()['fullName']) {
+                <span class="error-text">{{ errors()['fullName'] }}</span>
+              }
             </div>
 
             <!-- Email -->
@@ -79,10 +84,15 @@
                   id="email" 
                   placeholder="example@email.com"
                   [value]="email()"
-                  (input)="email.set($any($event.target).value)"
+                  (input)="email.set($any($event.target).value); markTouched('email')"
+                  (blur)="markTouched('email')"
+                  [class.error]="(touchedFields().has('email') || isSubmitted()) && errors()['email']"
                   required
                 />
               </div>
+              @if ((touchedFields().has('email') || isSubmitted()) && errors()['email']) {
+                <span class="error-text">{{ errors()['email'] }}</span>
+              }
             </div>
 
             <!-- Phone -->
@@ -95,10 +105,15 @@
                   id="phone" 
                   placeholder="0912 345 678"
                   [value]="phone()"
-                  (input)="phone.set($any($event.target).value)"
+                  (input)="phone.set($any($event.target).value); markTouched('phone')"
+                  (blur)="markTouched('phone')"
+                  [class.error]="(touchedFields().has('phone') || isSubmitted()) && errors()['phone']"
                   required
                 />
               </div>
+              @if ((touchedFields().has('phone') || isSubmitted()) && errors()['phone']) {
+                <span class="error-text">{{ errors()['phone'] }}</span>
+              }
             </div>
 
             <!-- Address (Full Width) -->
@@ -115,7 +130,9 @@
                   id="password" 
                   placeholder="••••••••"
                   [value]="password()"
-                  (input)="password.set($any($event.target).value)"
+                  (input)="password.set($any($event.target).value); markTouched('password')"
+                  (blur)="markTouched('password')"
+                  [class.error]="(touchedFields().has('password') || isSubmitted()) && errors()['password']"
                   required
                 />
                 <button type="button" class="toggle-password" (click)="togglePasswordVisibility('password')">
@@ -124,6 +141,9 @@
                   </span>
                 </button>
               </div>
+              @if ((touchedFields().has('password') || isSubmitted()) && errors()['password']) {
+                <span class="error-text">{{ errors()['password'] }}</span>
+              }
             </div>
 
             <!-- Confirm Password -->
@@ -135,7 +155,9 @@
                   id="confirmPassword" 
                   placeholder="••••••••"
                   [value]="confirmPassword()"
-                  (input)="confirmPassword.set($any($event.target).value)"
+                  (input)="confirmPassword.set($any($event.target).value); markTouched('confirmPassword')"
+                  (blur)="markTouched('confirmPassword')"
+                  [class.error]="(touchedFields().has('confirmPassword') || isSubmitted()) && errors()['confirmPassword']"
                   required
                 />
                 <button type="button" class="toggle-password" (click)="togglePasswordVisibility('confirm')">
@@ -144,6 +166,9 @@
                   </span>
                 </button>
               </div>
+              @if ((touchedFields().has('confirmPassword') || isSubmitted()) && errors()['confirmPassword']) {
+                <span class="error-text">{{ errors()['confirmPassword'] }}</span>
+              }
             </div>
           </div>
 
@@ -153,11 +178,15 @@
               type="checkbox" 
               id="terms" 
               [checked]="agreeTerms()"
-              (change)="agreeTerms.set($any($event.target).checked)"
+              (change)="agreeTerms.set($any($event.target).checked); markTouched('terms')"
+              [class.error]="(touchedFields().has('terms') || isSubmitted()) && errors()['terms']"
             />
             <label for="terms">
               Tôi đồng ý với <a href="#">Điều khoản sử dụng</a> và <a href="#">Chính sách bảo mật</a> của Giúp Việc Nhà.
             </label>
+            @if ((touchedFields().has('terms') || isSubmitted()) && errors()['terms']) {
+              <div class="error-text w-full" style="margin-top: 0.25rem;">{{ errors()['terms'] }}</div>
+            }
           </div>
 
           <!-- Submit Button -->

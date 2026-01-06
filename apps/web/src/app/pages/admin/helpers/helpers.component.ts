@@ -110,39 +110,107 @@ import { AddressSelectorComponent, AddressResult } from '../../../shared/compone
                 @if (!isEditMode()) {
                   <div class="form-group full-width">
                     <label>Họ và tên <span class="required">*</span></label>
-                    <input type="text" [(ngModel)]="formData.fullName" placeholder="Nguyễn Văn A" />
+                    <input 
+                      type="text" 
+                      [value]="formData.fullName()" 
+                      (input)="formData.fullName.set($any($event.target).value); markTouched('fullName')"
+                      (blur)="markTouched('fullName')"
+                      placeholder="Nguyễn Văn A" 
+                      [class.error]="(touchedFields().has('fullName') || isSubmitted()) && errors()['fullName']" 
+                    />
+                    @if ((touchedFields().has('fullName') || isSubmitted()) && errors()['fullName']) {
+                      <span class="error-text">{{ errors()['fullName'] }}</span>
+                    }
                   </div>
                   <div class="form-group">
                     <label>Email <span class="required">*</span></label>
-                    <input type="email" [(ngModel)]="formData.email" placeholder="helper@email.com" />
+                    <input 
+                      type="email" 
+                      [value]="formData.email()" 
+                      (input)="formData.email.set($any($event.target).value); markTouched('email')"
+                      (blur)="markTouched('email')"
+                      placeholder="helper@email.com" 
+                      [class.error]="(touchedFields().has('email') || isSubmitted()) && errors()['email']" 
+                    />
+                    @if ((touchedFields().has('email') || isSubmitted()) && errors()['email']) {
+                      <span class="error-text">{{ errors()['email'] }}</span>
+                    }
                   </div>
                   <div class="form-group">
                     <label>Mật khẩu <span class="required">*</span></label>
-                    <input type="password" [(ngModel)]="formData.password" placeholder="Tối thiểu 6 ký tự" />
+                    <input 
+                      type="password" 
+                      [value]="formData.password()" 
+                      (input)="formData.password.set($any($event.target).value); markTouched('password')"
+                      (blur)="markTouched('password')"
+                      placeholder="Tối thiểu 6 ký tự" 
+                      [class.error]="(touchedFields().has('password') || isSubmitted()) && errors()['password']" 
+                    />
+                    @if ((touchedFields().has('password') || isSubmitted()) && errors()['password']) {
+                      <span class="error-text">{{ errors()['password'] }}</span>
+                    }
                   </div>
                   <div class="form-group">
                     <label>Số điện thoại</label>
-                    <input type="tel" [(ngModel)]="formData.phone" placeholder="0912345678" />
+                    <input 
+                      type="tel" 
+                      [value]="formData.phone()" 
+                      (input)="formData.phone.set($any($event.target).value); markTouched('phone')"
+                      (blur)="markTouched('phone')"
+                      placeholder="0912345678" 
+                      [class.error]="(touchedFields().has('phone') || isSubmitted()) && errors()['phone']" 
+                    />
+                    @if ((touchedFields().has('phone') || isSubmitted()) && errors()['phone']) {
+                      <span class="error-text">{{ errors()['phone'] }}</span>
+                    }
                   </div>
                 }
                 <div class="form-group">
                   <label>Số năm kinh nghiệm <span class="required">*</span></label>
-                  <input type="number" [(ngModel)]="formData.experienceYears" min="0" max="50" placeholder="0" />
+                  <input 
+                    type="number" 
+                    [value]="formData.experienceYears()" 
+                    (input)="formData.experienceYears.set($any($event.target).value ? +$any($event.target).value : 0); markTouched('experienceYears')"
+                    (blur)="markTouched('experienceYears')"
+                    min="0" max="50" placeholder="0" 
+                    [class.error]="(touchedFields().has('experienceYears') || isSubmitted()) && errors()['experienceYears']" 
+                  />
+                  @if ((touchedFields().has('experienceYears') || isSubmitted()) && errors()['experienceYears']) {
+                    <span class="error-text">{{ errors()['experienceYears'] }}</span>
+                  }
                 </div>
                 <div class="form-group">
                   <label>Giá mỗi giờ (VNĐ)</label>
-                  <input type="number" [(ngModel)]="formData.hourlyRate" min="0" placeholder="50000" />
+                  <input 
+                    type="number" 
+                    [value]="formData.hourlyRate()" 
+                    (input)="formData.hourlyRate.set($any($event.target).value ? +$any($event.target).value : 0); markTouched('hourlyRate')"
+                    (blur)="markTouched('hourlyRate')"
+                    min="0" placeholder="50000" 
+                    [class.error]="(touchedFields().has('hourlyRate') || isSubmitted()) && errors()['hourlyRate']" 
+                  />
+                  @if ((touchedFields().has('hourlyRate') || isSubmitted()) && errors()['hourlyRate']) {
+                    <span class="error-text">{{ errors()['hourlyRate'] }}</span>
+                  }
                 </div>
                 <div class="form-group full-width">
                   <label>Khu vực hoạt động <span class="required">*</span></label>
                   <app-address-selector 
-                    [initialAddress]="formData.activeArea"
+                    [initialAddress]="formData.activeArea()"
                     (addressChange)="onAddressChange($event)"
                   ></app-address-selector>
+                  @if ((touchedFields().has('activeArea') || isSubmitted()) && errors()['activeArea']) {
+                    <span class="error-text">{{ errors()['activeArea'] }}</span>
+                  }
                 </div>
                 <div class="form-group full-width">
                   <label>Giới thiệu (Bio)</label>
-                  <textarea [(ngModel)]="formData.bio" rows="3" placeholder="Mô tả kinh nghiệm, kỹ năng..."></textarea>
+                  <textarea 
+                    [value]="formData.bio()" 
+                    (input)="formData.bio.set($any($event.target).value)"
+                    rows="3" 
+                    placeholder="Mô tả kinh nghiệm, kỹ năng..."
+                  ></textarea>
                 </div>
               </div>
             </div>
@@ -206,6 +274,8 @@ import { AddressSelectorComponent, AddressResult } from '../../../shared/compone
     .form-group input, .form-group textarea { width: 100%; padding: 0.75rem 1rem; border: 1px solid #374151; border-radius: 8px; font-size: 0.9rem; background: #2d3a3a; color: #e5e7eb; }
     .form-group textarea { resize: none; }
     .form-group input:focus, .form-group textarea:focus { outline: none; border-color: #13b9a5; }
+    .form-group input.error { border-color: #ef4444; }
+    .error-text { color: #ef4444; font-size: 0.75rem; margin-top: 0.25rem; }
     .form-group input:disabled { background: #1f2937; cursor: not-allowed; color: #6b7280; }
     .subtitle { color: #9ca3af; font-size: 0.875rem; margin-bottom: 1.5rem; }
   `]
@@ -220,17 +290,65 @@ export class AdminHelpersComponent implements OnInit {
   showModal = signal(false);
   searchQuery = '';
   statusFilter = '';
+  
+  // Touched state for real-time feedback
+  touchedFields = signal<Set<string>>(new Set());
+  isSubmitted = signal(false);
 
   formData = {
-    fullName: '',
-    email: '',
-    phone: '',
-    password: '',
-    activeArea: '',
-    bio: '',
-    experienceYears: 0,
-    hourlyRate: 0
+    fullName: signal(''),
+    email: signal(''),
+    phone: signal(''),
+    password: signal(''),
+    activeArea: signal(''),
+    bio: signal(''),
+    experienceYears: signal(0),
+    hourlyRate: signal(0)
   };
+
+  // Computed validation errors
+  errors = computed(() => {
+    const errors: Record<string, string> = {};
+    
+    if (!this.isEditMode()) {
+      const fullName = this.formData.fullName().trim();
+      const email = this.formData.email().trim();
+      const password = this.formData.password();
+      const phone = this.formData.phone().trim().replace(/\s/g, '');
+
+      if (!fullName || fullName.length < 2) {
+        errors['fullName'] = 'Họ tên phải có ít nhất 2 ký tự';
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!email || !emailRegex.test(email)) {
+        errors['email'] = 'Email không hợp lệ';
+      }
+
+      if (!password || password.length < 6) {
+        errors['password'] = 'Mật khẩu phải có ít nhất 6 ký tự';
+      }
+
+      const phoneRegex = /^(0|\+84)[0-9]{9,10}$/;
+      if (phone && !phoneRegex.test(phone)) {
+        errors['phone'] = 'Số điện thoại không hợp lệ (10 số)';
+      }
+    }
+
+    if (this.formData.experienceYears() < 0) {
+      errors['experienceYears'] = 'Kinh nghiệm không thể âm';
+    }
+
+    if (this.formData.hourlyRate() < 0) {
+      errors['hourlyRate'] = 'Giá không thể âm';
+    }
+
+    if (!this.formData.activeArea()) {
+      errors['activeArea'] = 'Vui lòng chọn khu vực hoạt động';
+    }
+
+    return errors;
+  });
 
   ngOnInit(): void {
     this.loadHelpers();
@@ -275,43 +393,55 @@ export class AdminHelpersComponent implements OnInit {
 
   openCreateModal(): void {
       this.editingHelper.set(null); 
-    this.formData = {
-      fullName: '',
-      email: '',
-      phone: '',
-      password: '',
-      activeArea: '',
-      bio: '',
-      experienceYears: 0,
-      hourlyRate: 0
-    };
+    this.formData.fullName.set('');
+    this.formData.email.set('');
+    this.formData.phone.set('');
+    this.formData.password.set('');
+    this.formData.activeArea.set('');
+    this.formData.bio.set('');
+    this.formData.experienceYears.set(0);
+    this.formData.hourlyRate.set(0);
+    
+    this.touchedFields.set(new Set());
+    this.isSubmitted.set(false);
     this.showModal.set(true);
   }
 
   closeModal(): void {
   this.showModal.set(false);
   this.editingHelper.set(null); // Clear edit state
+  this.touchedFields.set(new Set());
+  this.isSubmitted.set(false);
 }
 
   onAddressChange(result: AddressResult): void {
-    this.formData.activeArea = result.fullAddress;
+    this.formData.activeArea.set(result.fullAddress);
+    this.markTouched('activeArea');
   }
 
+  markTouched(field: string): void {
+    if (!this.touchedFields().has(field)) {
+      this.touchedFields.update(prev => new Set(prev).add(field));
+    }
+  }
+
+
+
   saveHelper(): void {
-  // Validation for required fields
-  if (!this.formData.activeArea) {
-    this.notification.warning('Vui lòng điền khu vực hoạt động!');
+  this.isSubmitted.set(true);
+  if (Object.keys(this.errors()).length > 0) {
     return;
   }
+
   if (this.isEditMode()) {
     // UPDATE MODE
     const helper = this.editingHelper();
     if (!helper) return;
     const updateDto = {
-      activeArea: this.formData.activeArea,
-      bio: this.formData.bio || '',
-      experienceYears: this.formData.experienceYears || 0,
-      hourlyRate: this.formData.hourlyRate || 0
+      activeArea: this.formData.activeArea(),
+      bio: this.formData.bio() || '',
+      experienceYears: this.formData.experienceYears() || 0,
+      hourlyRate: this.formData.hourlyRate() || 0
     };
     this.adminService.updateHelperProfile(helper.userId, updateDto).subscribe({
       next: () => {
@@ -323,19 +453,15 @@ export class AdminHelpersComponent implements OnInit {
     });
   } else {
     // CREATE MODE
-    if (!this.formData.fullName || !this.formData.email || !this.formData.password) {
-      this.notification.warning('Vui lòng điền các trường bắt buộc!');
-      return;
-    }
     const dto = {
-      fullName: this.formData.fullName,
-      email: this.formData.email,
-      phone: this.formData.phone,
-      password: this.formData.password,
-      activeArea: this.formData.activeArea,
-      bio: this.formData.bio,
-      experienceYears: this.formData.experienceYears || 0,
-      hourlyRate: this.formData.hourlyRate || 0
+      fullName: this.formData.fullName(),
+      email: this.formData.email(),
+      phone: this.formData.phone(),
+      password: this.formData.password(),
+      activeArea: this.formData.activeArea(),
+      bio: this.formData.bio(),
+      experienceYears: this.formData.experienceYears() || 0,
+      hourlyRate: this.formData.hourlyRate() || 0
     };
     this.adminService.adminCreateHelper(dto).subscribe({
       next: () => {
@@ -352,13 +478,20 @@ isEditMode = computed(() => this.editingHelper() !== null);
 
 openEditModal(helper: HelperProfile): void {
   this.editingHelper.set(helper);
-  this.formData = {
-    fullName: '', email: '', password: '', phone: '',
-    activeArea: helper.activeArea,
-    bio: helper.bio || '',
-    experienceYears: helper.experienceYears || 0,
-    hourlyRate: helper.hourlyRate || 0
-  };
+  
+  // Basic info cannot be edited in this modal via this formData structure usually
+  this.formData.fullName.set(''); 
+  this.formData.email.set('');
+  this.formData.password.set('');
+  this.formData.phone.set('');
+  
+  this.formData.activeArea.set(helper.activeArea);
+  this.formData.bio.set(helper.bio || '');
+  this.formData.experienceYears.set(helper.experienceYears || 0);
+  this.formData.hourlyRate.set(helper.hourlyRate || 0);
+  
+  this.touchedFields.set(new Set());
+  this.isSubmitted.set(false);
   this.showModal.set(true);
 }
 

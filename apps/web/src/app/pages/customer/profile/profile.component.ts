@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -40,11 +40,31 @@ interface UserProfile {
             <div class="form-grid">
               <div class="form-group">
                 <label>Họ và tên</label>
-                <input type="text" [(ngModel)]="formData.fullName" name="fullName" placeholder="Nguyễn Văn A" />
+                <input 
+                  type="text" 
+                  [value]="formData.fullName()" 
+                  (input)="formData.fullName.set($any($event.target).value); markTouched('fullName')"
+                  (blur)="markTouched('fullName')"
+                  placeholder="Nguyễn Văn A" 
+                  [class.error]="(touchedFields().has('fullName') || isSubmitted()) && errors()['fullName']" 
+                />
+                @if ((touchedFields().has('fullName') || isSubmitted()) && errors()['fullName']) {
+                  <span class="error-text">{{ errors()['fullName'] }}</span>
+                }
               </div>
               <div class="form-group">
                 <label>Số điện thoại</label>
-                <input type="tel" [(ngModel)]="formData.phoneNumber" name="phoneNumber" placeholder="0912345678" />
+                <input 
+                  type="tel" 
+                  [value]="formData.phoneNumber()" 
+                  (input)="formData.phoneNumber.set($any($event.target).value); markTouched('phone')"
+                  (blur)="markTouched('phone')"
+                  placeholder="0912345678" 
+                  [class.error]="(touchedFields().has('phone') || isSubmitted()) && errors()['phone']" 
+                />
+                @if ((touchedFields().has('phone') || isSubmitted()) && errors()['phone']) {
+                  <span class="error-text">{{ errors()['phone'] }}</span>
+                }
               </div>
               
               <!-- Address Selector -->
@@ -53,6 +73,9 @@ interface UserProfile {
                   [initialAddress]="profile()?.address || ''"
                   (addressChange)="onAddressChange($event)"
                 ></app-address-selector>
+                @if ((touchedFields().has('address') || isSubmitted()) && errors()['address']) {
+                  <span class="error-text">{{ errors()['address'] }}</span>
+                }
               </div>
             </div>
 
@@ -92,6 +115,8 @@ interface UserProfile {
     .form-group label { font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem; color: #111817; }
     .form-group input, .form-group select { padding: 0.75rem 1rem; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.9rem; background: white; }
     .form-group input:focus, .form-group select:focus { outline: none; border-color: #13b9a5; }
+    .form-group input.error { border-color: #ef4444; }
+    .error-text { color: #ef4444; font-size: 0.75rem; margin-top: 0.25rem; }
     .form-group select:disabled { background: #f3f4f6; cursor: not-allowed; }
     .form-actions { margin-top: 1.5rem; }
     .btn-primary { padding: 0.75rem 1.5rem; background: #13b9a5; color: white; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
@@ -114,11 +139,37 @@ export class CustomerProfileComponent implements OnInit {
   profile = signal<UserProfile | null>(null);
   successMessage = signal('');
   errorMessage = signal('');
+  
+  // Touched state for real-time feedback
+  touchedFields = signal<Set<string>>(new Set());
+  isSubmitted = signal(false);
 
   formData = {
-    fullName: '',
-    phoneNumber: ''
+    fullName: signal(''),
+    phoneNumber: signal('')
   };
+
+  // Computed validation errors
+  errors = computed(() => {
+    const errors: Record<string, string> = {};
+    const fullName = this.formData.fullName().trim();
+    const phone = this.formData.phoneNumber().trim().replace(/\s/g, '');
+
+    if (!fullName || fullName.length < 2) {
+      errors['fullName'] = 'Họ tên phải có ít nhất 2 ký tự';
+    }
+
+    const phoneRegex = /^(0|\+84)[0-9]{9,10}$/;
+    if (!phone || !phoneRegex.test(phone)) {
+      errors['phone'] = 'Số điện thoại không hợp lệ (10 số)';
+    }
+
+    if (!this.currentFullAddress) {
+      errors['address'] = 'Vui lòng chọn địa chỉ';
+    }
+
+    return errors;
+  });
 
   ngOnInit(): void {
     this.loadProfile();
@@ -131,6 +182,13 @@ export class CustomerProfileComponent implements OnInit {
 
   onAddressChange(result: AddressResult): void {
     this.currentFullAddress = result.fullAddress;
+    this.markTouched('address');
+  }
+
+  markTouched(field: string): void {
+    if (!this.touchedFields().has(field)) {
+      this.touchedFields.update(prev => new Set(prev).add(field));
+    }
   }
 
   loadProfile(): void {
@@ -143,8 +201,8 @@ export class CustomerProfileComponent implements OnInit {
     this.http.get<UserProfile>(`${environment.apiUrl}/users/${userId}`).subscribe({
       next: (data) => {
         this.profile.set(data);
-        this.formData.fullName = data.fullName || '';
-        this.formData.phoneNumber = data.phone || '';
+        this.formData.fullName.set(data.fullName || '');
+        this.formData.phoneNumber.set(data.phone || '');
         this.currentFullAddress = data.address || '';
         this.isLoading.set(false);
       },
@@ -156,17 +214,25 @@ export class CustomerProfileComponent implements OnInit {
 
   currentFullAddress = '';
 
+
+
   saveProfile(): void {
     const userId = this.authService.currentUser()?.nameid;
     if (!userId) return;
 
-    this.isSaving.set(true);
+    this.isSubmitted.set(true);
     this.successMessage.set('');
     this.errorMessage.set('');
 
+    if (Object.keys(this.errors()).length > 0) {
+      return;
+    }
+
+    this.isSaving.set(true);
+
     this.http.put(`${environment.apiUrl}/users/${userId}`, {
-      fullName: this.formData.fullName,
-      phone: this.formData.phoneNumber,
+      fullName: this.formData.fullName(),
+      phone: this.formData.phoneNumber(),
       address: this.currentFullAddress
     }).subscribe({
       next: () => {

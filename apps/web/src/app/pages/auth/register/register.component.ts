@@ -1,4 +1,4 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -17,6 +17,9 @@ export class RegisterComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
+  errorMessage = signal<string | null>(null);
+  successMessage = signal<string | null>(null);
+  
   // Form state
   fullName = signal('');
   email = signal('');
@@ -29,8 +32,53 @@ export class RegisterComponent {
   showPassword = signal(false);
   showConfirmPassword = signal(false);
   isLoading = signal(false);
-  errorMessage = signal<string | null>(null);
-  successMessage = signal<string | null>(null);
+  
+  // Touched state for real-time feedback
+  touchedFields = signal<Set<string>>(new Set());
+  isSubmitted = signal(false);
+
+  // Computed validation errors
+  errors = computed(() => {
+    const errors: Record<string, string> = {};
+    const fullName = this.fullName().trim();
+    const email = this.email().trim();
+    const phone = this.phone().trim().replace(/\s/g, '');
+    const password = this.password();
+    const confirmPassword = this.confirmPassword();
+    const agreeTerms = this.agreeTerms();
+
+    if (!fullName || fullName.length < 2) {
+      errors['fullName'] = 'Họ tên phải có ít nhất 2 ký tự';
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+      errors['email'] = 'Email không hợp lệ';
+    }
+
+    const phoneRegex = /^(0|\+84)[0-9]{9,10}$/;
+    if (!phone || !phoneRegex.test(phone)) {
+      errors['phone'] = 'Số điện thoại phải có 10 số (VD: 0912345678)';
+    }
+
+    if (!password || password.length < 6) {
+      errors['password'] = 'Mật khẩu phải có ít nhất 6 ký tự';
+    }
+
+    if (password !== confirmPassword) {
+      errors['confirmPassword'] = 'Mật khẩu nhập lại không khớp';
+    }
+
+    if (!agreeTerms) {
+      errors['terms'] = 'Bạn phải đồng ý với điều khoản sử dụng';
+    }
+
+    if (!this.address()) {
+      errors['address'] = 'Vui lòng chọn địa chỉ';
+    }
+
+    return errors;
+  });
 
   togglePasswordVisibility(field: 'password' | 'confirm'): void {
     if (field === 'password') {
@@ -40,49 +88,26 @@ export class RegisterComponent {
     }
   }
 
+  markTouched(field: string): void {
+    if (!this.touchedFields().has(field)) {
+      this.touchedFields.update(prev => new Set(prev).add(field));
+    }
+  }
+
   onAddressChange(result: AddressResult): void {
     this.address.set(result.fullAddress);
+    this.markTouched('address');
   }
 
   onSubmit(event: Event): void {
     event.preventDefault();
+    this.isSubmitted.set(true);
     
     // Reset messages
     this.errorMessage.set(null);
     this.successMessage.set(null);
     
-    // Validation
-    if (!this.fullName() || !this.email() || !this.phone() || !this.password() || !this.confirmPassword()) {
-      this.errorMessage.set('Vui lòng điền đầy đủ các thông tin bắt buộc.');
-      return;
-    }
-
-    if (this.password() !== this.confirmPassword()) {
-      this.errorMessage.set('Mật khẩu nhập lại không khớp.');
-      return;
-    }
-
-    if (this.password().length < 6) {
-      this.errorMessage.set('Mật khẩu phải có ít nhất 6 ký tự.');
-      return;
-    }
-
-    if (!this.agreeTerms()) {
-      this.errorMessage.set('Vui lòng đồng ý với điều khoản sử dụng.');
-      return;
-    }
-
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(this.email())) {
-      this.errorMessage.set('Email không hợp lệ.');
-      return;
-    }
-
-    // Phone validation
-    const phoneRegex = /^(0|\+84)[0-9]{9,10}$/;
-    if (!phoneRegex.test(this.phone().replace(/\s/g, ''))) {
-      this.errorMessage.set('Số điện thoại không hợp lệ.');
+    if (Object.keys(this.errors()).length > 0) {
       return;
     }
 
