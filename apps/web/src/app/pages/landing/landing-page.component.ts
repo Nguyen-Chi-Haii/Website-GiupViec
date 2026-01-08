@@ -3,7 +3,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HeaderComponent } from '../../shared/components/header.component/header.component';
 import { FooterComponent } from '../../shared/components/footer.component/footer.component';
 import { HeroSectionComponent } from './components/hero-section/hero-section.component';
-import { ServicesSectionComponent } from './components/services-section/services-section.component';
+// import { ServicesSectionComponent } from './components/services-section/services-section.component';
 import { PricingSectionComponent } from './components/pricing-section/pricing-section.component';
 import { AboutSectionComponent } from './components/about-section/about-section.component';
 import { CtaSectionComponent } from './components/cta-section/cta-section.component';
@@ -16,7 +16,7 @@ import { CtaSectionComponent } from './components/cta-section/cta-section.compon
     HeaderComponent,
     FooterComponent,
     HeroSectionComponent,
-    ServicesSectionComponent,
+    // ServicesSectionComponent,
     PricingSectionComponent,
     AboutSectionComponent,
     CtaSectionComponent

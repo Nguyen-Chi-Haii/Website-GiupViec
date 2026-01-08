@@ -1,0 +1,36 @@
+<div class="searchable-dropdown" [class.open]="isOpen()" [class.disabled]="disabled">
+  <div class="dropdown-input" (click)="toggle()">
+    <input
+      type="text"
+      [placeholder]="placeholder"
+      [(ngModel)]="searchText"
+      (input)="onSearch()"
+      (focus)="open()"
+      [disabled]="disabled"
+      autocomplete="off"
+    />
+    <span class="dropdown-icon material-symbols-outlined">
+      {{ isLoading ? 'sync' : (isOpen() ? 'expand_less' : 'expand_more') }}
+    </span>
+  </div>
+  
+  @if (isOpen()) {
+    <div class="dropdown-menu">
+      @if (filteredOptions.length === 0) {
+        <div class="dropdown-empty">
+          {{ isLoading ? 'Đang tải...' : 'Không tìm thấy kết quả' }}
+        </div>
+      } @else {
+        @for (option of filteredOptions; track option.code) {
+          <div 
+            class="dropdown-item" 
+            [class.selected]="isSelected(option)"
+            (click)="selectOption(option)"
+          >
+            {{ option.name }}
+          </div>
+        }
+      }
+    </div>
+  }
+</div>

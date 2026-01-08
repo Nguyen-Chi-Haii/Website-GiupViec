@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { ServiceService } from '../../../core/services/service.service';
 import { BookingStateService } from '../../../core/services/booking-state.service';
 import { ServiceResponse } from '@giupviec/shared';
@@ -17,6 +17,7 @@ export class BookingStep1Component implements OnInit {
   private readonly serviceService = inject(ServiceService);
   private readonly bookingState = inject(BookingStateService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   readonly authService = inject(AuthService);
 
   services: ServiceResponse[] = [];
@@ -44,6 +45,18 @@ export class BookingStep1Component implements OnInit {
       next: (services) => {
         this.services = services.filter(s => s.isActive);
         this.isLoading = false;
+
+        // Check for query param to pre-select and move to step 2
+        this.route.queryParams.subscribe(params => {
+          const serviceId = params['serviceId'];
+          if (serviceId) {
+            const service = this.services.find(s => s.id === +serviceId);
+            if (service) {
+              this.selectService(service);
+              this.onNext();
+            }
+          }
+        });
       },
       error: (err) => {
         console.error('Error loading services:', err);

@@ -1,0 +1,40 @@
+<div class="address-selector">
+  <div class="form-grid">
+    <!-- Tỉnh/Thành -->
+    <div class="form-group">
+      <label>Tỉnh/Thành phố <span class="required">*</span></label>
+      <app-searchable-dropdown
+        [options]="provinceOptions()"
+        [selectedCode]="selectedProvinceCode"
+        [isLoading]="isLoadingProvinces()"
+        placeholder="Chọn Tỉnh/Thành"
+        (selectionChange)="onProvinceSelect($event)"
+      ></app-searchable-dropdown>
+    </div>
+
+    <!-- Phường/Xã -->
+    <div class="form-group">
+      <label>Phường/Xã <span class="required">*</span></label>
+      <app-searchable-dropdown
+        [options]="wardOptions()"
+        [selectedCode]="selectedWardCode"
+        [isLoading]="isLoadingWards()"
+        [disabled]="!selectedProvinceCode"
+        placeholder="Chọn Phường/Xã"
+        (selectionChange)="onWardSelect($event)"
+      ></app-searchable-dropdown>
+    </div>
+
+    <!-- Địa chỉ chi tiết -->
+    <div class="form-group full-width">
+      <label>Số nhà, tên đường <span class="required">*</span></label>
+      <input
+        type="text"
+        [(ngModel)]="streetAddress"
+        (input)="onStreetChange()"
+        placeholder="Ví dụ: 123 Đường Nguyễn Huệ"
+        class="street-input"
+      />
+    </div>
+  </div>
+</div>

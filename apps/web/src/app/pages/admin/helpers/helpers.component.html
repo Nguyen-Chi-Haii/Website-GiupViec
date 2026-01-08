@@ -1,0 +1,212 @@
+<div class="page">
+  <div class="page-header">
+    <h2>Quản Lý Người Giúp Việc</h2>
+    <div class="header-actions">
+      <div class="search-box">
+         <input type="text" [(ngModel)]="searchQuery" (input)="applyFilters()" placeholder="Tìm theo tên/email..." class="filter-input" />
+      </div>
+      <select [(ngModel)]="statusFilter" (change)="applyFilters()" class="filter-select">
+        <option value="">Tất cả trạng thái</option>
+        <option value="active">Hoạt động</option>
+        <option value="inactive">Khóa (Soft Delete)</option>
+      </select>
+      <button class="btn-primary" (click)="openCreateModal()">
+        <span class="material-symbols-outlined">person_add</span>
+        Thêm Helper
+      </button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="table-container">
+      @if (isLoading()) {
+        <div class="loading">Đang tải...</div>
+      } @else {
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Họ tên</th>
+              <th>Email</th>
+              <th>Khu vực</th>
+               <th>Kinh nghiệm</th>
+              <th>Đánh giá</th>
+              <th>Trạng thái</th>
+              <th>Hành động</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (helper of filteredHelpers(); track helper.id) {
+              <tr>
+                <td class="font-medium">#{{ helper.id }}</td>
+                <td>
+                  <div class="user-cell">
+                    <div class="user-avatar">{{ getInitials(helper.fullName) }}</div>
+                    <span>{{ helper.fullName }}</span>
+                  </div>
+                </td>
+                <td class="text-muted">{{ helper.email }}</td>
+                 <td class="text-muted">{{ helper.activeArea }}</td>
+                <td>{{ helper.experienceYears }} năm</td>
+                <td>
+                   <span class="rating">⭐ {{ helper.ratingAverage | number:'1.1-1' }}</span>
+                </td>
+                <td>
+                  <span class="status-badge" [class]="getStatusClass(helper.status)">
+                    {{ getStatusLabel(helper.status) }}
+                  </span>
+                </td>
+                <td>
+                  <div class="action-buttons">
+                  <button class="icon-btn edit-btn" title="Sửa" (click)="openEditModal(helper)">
+                    <span class="material-symbols-outlined">edit</span>
+                  </button>
+                  <button class="icon-btn" [title]="isHelperActive(helper.status) ? 'Khóa' : 'Mở khóa'" (click)="toggleStatus(helper)">
+                    <span class="material-symbols-outlined">{{ isHelperActive(helper.status) ? 'lock' : 'lock_open' }}</span>
+                  </button>
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="7" class="empty-state">Không có người giúp việc nào</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+  </div>
+
+  <!-- Create Helper Modal -->
+  @if (showModal()) {
+    <div class="modal-overlay" (click)="closeModal()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>{{ isEditMode() ? 'Sửa Người Giúp Việc' : 'Thêm Người Giúp Việc Mới' }}</h3>
+          <button class="close-btn" (click)="closeModal()">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          @if (!isEditMode()) {
+            <p class="subtitle">Lưu ý: Hệ thống sẽ tạo đồng thời tài khoản Người dùng và Hồ sơ Helper.</p>
+          } @else {
+            <p class="subtitle">Chỉnh sửa thông tin hồ sơ Helper. Thông tin tài khoản (tên, email) không thể sửa.</p>
+          }
+          <div class="form-grid">
+            @if (!isEditMode()) {
+              <div class="form-group full-width">
+                <label>Họ và tên <span class="required">*</span></label>
+                <input 
+                  type="text" 
+                  [value]="formData.fullName()" 
+                  (input)="formData.fullName.set($any($event.target).value); markTouched('fullName')"
+                  (blur)="markTouched('fullName')"
+                  placeholder="Nguyễn Văn A" 
+                  [class.error]="(touchedFields().has('fullName') || isSubmitted()) && errors()['fullName']" 
+                />
+                @if ((touchedFields().has('fullName') || isSubmitted()) && errors()['fullName']) {
+                  <span class="error-text">{{ errors()['fullName'] }}</span>
+                }
+              </div>
+              <div class="form-group">
+                <label>Email <span class="required">*</span></label>
+                <input 
+                  type="email" 
+                  [value]="formData.email()" 
+                  (input)="formData.email.set($any($event.target).value); markTouched('email')"
+                  (blur)="markTouched('email')"
+                  placeholder="helper@email.com" 
+                  [class.error]="(touchedFields().has('email') || isSubmitted()) && errors()['email']" 
+                />
+                @if ((touchedFields().has('email') || isSubmitted()) && errors()['email']) {
+                  <span class="error-text">{{ errors()['email'] }}</span>
+                }
+              </div>
+              <div class="form-group">
+                <label>Mật khẩu <span class="required">*</span></label>
+                <input 
+                  type="password" 
+                  [value]="formData.password()" 
+                  (input)="formData.password.set($any($event.target).value); markTouched('password')"
+                  (blur)="markTouched('password')"
+                  placeholder="Tối thiểu 6 ký tự" 
+                  [class.error]="(touchedFields().has('password') || isSubmitted()) && errors()['password']" 
+                />
+                @if ((touchedFields().has('password') || isSubmitted()) && errors()['password']) {
+                  <span class="error-text">{{ errors()['password'] }}</span>
+                }
+              </div>
+              <div class="form-group">
+                <label>Số điện thoại</label>
+                <input 
+                  type="tel" 
+                  [value]="formData.phone()" 
+                  (input)="formData.phone.set($any($event.target).value); markTouched('phone')"
+                  (blur)="markTouched('phone')"
+                  placeholder="0912345678" 
+                  [class.error]="(touchedFields().has('phone') || isSubmitted()) && errors()['phone']" 
+                />
+                @if ((touchedFields().has('phone') || isSubmitted()) && errors()['phone']) {
+                  <span class="error-text">{{ errors()['phone'] }}</span>
+                }
+              </div>
+            }
+            <div class="form-group">
+              <label>Số năm kinh nghiệm <span class="required">*</span></label>
+              <input 
+                type="number" 
+                [value]="formData.experienceYears()" 
+                (input)="formData.experienceYears.set($any($event.target).value ? +$any($event.target).value : 0); markTouched('experienceYears')"
+                (blur)="markTouched('experienceYears')"
+                min="0" max="50" placeholder="0" 
+                [class.error]="(touchedFields().has('experienceYears') || isSubmitted()) && errors()['experienceYears']" 
+              />
+              @if ((touchedFields().has('experienceYears') || isSubmitted()) && errors()['experienceYears']) {
+                <span class="error-text">{{ errors()['experienceYears'] }}</span>
+              }
+            </div>
+            <div class="form-group">
+              <label>Giá mỗi giờ (VNĐ)</label>
+              <input 
+                type="number" 
+                [value]="formData.hourlyRate()" 
+                (input)="formData.hourlyRate.set($any($event.target).value ? +$any($event.target).value : 0); markTouched('hourlyRate')"
+                (blur)="markTouched('hourlyRate')"
+                min="0" placeholder="50000" 
+                [class.error]="(touchedFields().has('hourlyRate') || isSubmitted()) && errors()['hourlyRate']" 
+              />
+              @if ((touchedFields().has('hourlyRate') || isSubmitted()) && errors()['hourlyRate']) {
+                <span class="error-text">{{ errors()['hourlyRate'] }}</span>
+              }
+            </div>
+            <div class="form-group full-width">
+              <label>Khu vực hoạt động <span class="required">*</span></label>
+              <app-address-selector 
+                [initialAddress]="formData.activeArea()"
+                (addressChange)="onAddressChange($event)"
+              ></app-address-selector>
+              @if ((touchedFields().has('activeArea') || isSubmitted()) && errors()['activeArea']) {
+                <span class="error-text">{{ errors()['activeArea'] }}</span>
+              }
+            </div>
+            <div class="form-group full-width">
+              <label>Giới thiệu (Bio)</label>
+              <textarea 
+                [value]="formData.bio()" 
+                (input)="formData.bio.set($any($event.target).value)"
+                rows="3" 
+                placeholder="Mô tả kinh nghiệm, kỹ năng..."
+              ></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-outline" (click)="closeModal()">Hủy</button>
+          <button type="button" class="btn-submit" (click)="saveHelper()">{{ isEditMode() ? 'Cập nhật' : 'Tạo mới' }}</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,38 @@
+<div class="modal-backdrop" (click)="close()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="icon-warning">
+        <span class="material-symbols-outlined">warning</span>
+      </div>
+      <h2>Thông báo đơn hàng bị từ chối</h2>
+      <p>Rất tiếc, một số đơn hàng của bạn đã bị từ chối.</p>
+    </div>
+
+    <div class="modal-body">
+      <div class="booking-list">
+        @for (booking of bookings; track booking.id) {
+          <div class="booking-item">
+            <div class="booking-info">
+              <span class="service-name">{{ booking.serviceName }}</span>
+              <span class="booking-date">
+                {{ booking.startDate | date:'dd/MM/yyyy' }} 
+                @if (booking.startDate !== booking.endDate) {
+                  - {{ booking.endDate | date:'dd/MM/yyyy' }}
+                }
+              </span>
+            </div>
+            <div class="booking-time">
+              {{ booking.startTime }} - {{ booking.endTime }}
+            </div>
+            <div class="booking-id">Mã đơn: #{{ booking.id }}</div>
+          </div>
+        }
+      </div>
+      <p class="note">Vui lòng kiểm tra lại thông tin hoặc đặt lại lịch mới.</p>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-dismiss" (click)="close()">Đã hiểu</button>
+    </div>
+  </div>
+</div>

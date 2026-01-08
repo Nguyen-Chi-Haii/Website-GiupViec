@@ -1,0 +1,151 @@
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content {
+  background: white;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.modal-header {
+  text-align: center;
+}
+
+.icon-warning {
+  width: 60px;
+  height: 60px;
+  background: #fff5f5;
+  color: #ff4d4f;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 15px;
+}
+
+.icon-warning span {
+  font-size: 36px;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 24px;
+  color: #1a1a1a;
+  font-weight: 700;
+}
+
+.modal-header p {
+  margin: 5px 0 0;
+  color: #666;
+}
+
+.modal-body {
+  max-height: 300px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.booking-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.booking-item {
+  background: #f8f9fa;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  transition: all 0.2s;
+}
+
+.booking-item:hover {
+  border-color: #ff4d4f;
+  background: #fffafa;
+}
+
+.service-name {
+  font-weight: 600;
+  color: #333;
+  font-size: 16px;
+}
+
+.booking-date {
+  color: #666;
+  font-size: 14px;
+  margin-left: 10px;
+}
+
+.booking-time {
+  color: #888;
+  font-size: 13px;
+}
+
+.booking-id {
+  color: #aaa;
+  font-size: 12px;
+}
+
+.note {
+  font-size: 14px;
+  color: #888;
+  text-align: center;
+  margin: 10px 0 0;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: center;
+}
+
+.btn-dismiss {
+  background: #1a1a1a;
+  color: white;
+  border: none;
+  padding: 12px 40px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.btn-dismiss:hover {
+  background: #333;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}

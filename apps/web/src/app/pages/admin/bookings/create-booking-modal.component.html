@@ -1,0 +1,166 @@
+<div class="modal-overlay" (click)="close()">
+  <div class="modal large" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Tạo Đơn Hàng Mới</h3>
+      <button class="close-btn" (click)="close()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <!-- Section 1: Khách hàng -->
+      <div class="form-section">
+        <h4>1. Thông tin khách hàng</h4>
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" [(ngModel)]="isNewCustomer" (change)="onCustomerTypeChange()">
+            <span>Khách hàng mới</span>
+          </label>
+        </div>
+
+        @if (!isNewCustomer) {
+          <div class="form-group">
+            <label>Chọn khách hàng *</label>
+            <select [(ngModel)]="formData.customerId" class="form-select">
+              <option [value]="0">-- Chọn khách hàng --</option>
+              @for (customer of customers(); track customer.id) {
+                <option [value]="customer.id">{{ customer.fullName }} ({{ customer.email }})</option>
+              }
+            </select>
+          </div>
+        } @else {
+          <div class="form-row">
+            <div class="form-group">
+              <label>Họ tên *</label>
+              <input type="text" [(ngModel)]="newCustomer.fullName" placeholder="Nguyễn Văn A">
+            </div>
+            <div class="form-group">
+              <label>Email *</label>
+              <input type="email" [(ngModel)]="newCustomer.email" placeholder="email@example.com">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Số điện thoại</label>
+              <input type="text" [(ngModel)]="newCustomer.phone" placeholder="0901234567">
+            </div>
+            <div class="form-group">
+              <label>Mật khẩu mặc định</label>
+              <input type="text" [value]="defaultPassword" readonly class="readonly-input">
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Section 2: Dịch vụ -->
+      <div class="form-section">
+        <h4>2. Chọn dịch vụ</h4>
+        <div class="form-group">
+          <label>Dịch vụ *</label>
+          <select [(ngModel)]="formData.serviceId" class="form-select" (change)="onTimeChange()">
+            <option [value]="0">-- Chọn dịch vụ --</option>
+            @for (service of services(); track service.id) {
+              <option [value]="service.id">{{ service.name }} ({{ service.price | number }}₫/giờ)</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <!-- Section 3: Lịch làm việc -->
+      <div class="form-section">
+        <h4>3. Lịch làm việc</h4>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Ngày bắt đầu *</label>
+            <input type="date" [(ngModel)]="formData.startDate" [min]="minDate" (change)="onTimeChange()">
+          </div>
+          <div class="form-group">
+            <label>Ngày kết thúc *</label>
+            <input type="date" [(ngModel)]="formData.endDate" [min]="formData.startDate || minDate" (change)="onTimeChange()">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Giờ bắt đầu *</label>
+            <select [(ngModel)]="formData.workShiftStart" class="form-select" (change)="onTimeChange()">
+              @for (time of timeOptions; track time) {
+                <option [value]="time">{{ time }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Giờ kết thúc *</label>
+            <select [(ngModel)]="formData.workShiftEnd" class="form-select" (change)="onTimeChange()">
+              @for (time of timeOptions; track time) {
+                <option [value]="time">{{ time }}</option>
+              }
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 4: Địa chỉ -->
+      <div class="form-section">
+        <h4>4. Địa chỉ làm việc</h4>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Tỉnh/Thành *</label>
+            <app-searchable-dropdown
+              [options]="provinceOptions()"
+              [placeholder]="isLoadingProvinces() ? 'Đang tải...' : 'Chọn tỉnh/thành'"
+              [selectedCode]="selectedProvinceCode"
+              (selectionChange)="onProvinceSelect($event)">
+            </app-searchable-dropdown>
+          </div>
+          <div class="form-group">
+            <label>Phường/Xã *</label>
+            <app-searchable-dropdown
+              [options]="wardOptions()"
+              [placeholder]="isLoadingWards() ? 'Đang tải...' : 'Chọn phường/xã'"
+              [selectedCode]="selectedWardCode"
+              (selectionChange)="onWardSelect($event)">
+            </app-searchable-dropdown>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Địa chỉ chi tiết *</label>
+          <input type="text" [(ngModel)]="streetAddress" placeholder="Số nhà, tên đường...">
+        </div>
+      </div>
+
+      <!-- Section 5: Gán Helper (sau khi có đủ lịch) -->
+      @if (canSelectHelper()) {
+        <div class="form-section">
+          <h4>5. Gán người giúp việc (tùy chọn)</h4>
+          <div class="form-group">
+            <label>Chọn người giúp việc</label>
+            <select [(ngModel)]="formData.helperId" class="form-select">
+              <option [value]="0">-- Không gán ngay --</option>
+              @for (helper of availableHelpers(); track helper.id) {
+                <option [value]="helper.id">{{ helper.fullName }}</option>
+              }
+            </select>
+          </div>
+        </div>
+      }
+
+      <!-- Section 6: Ghi chú -->
+      <div class="form-section">
+        <h4>{{ canSelectHelper() ? '6' : '5' }}. Ghi chú</h4>
+        <div class="form-group">
+          <textarea [(ngModel)]="formData.notes" placeholder="Ghi chú thêm..." rows="3"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" (click)="close()">Hủy</button>
+      <button class="btn-primary" (click)="submit()" [disabled]="isSubmitting()">
+        @if (isSubmitting()) {
+          <span>Đang xử lý...</span>
+        } @else {
+          <span class="material-symbols-outlined">add</span>
+          Tạo đơn hàng
+        }
+      </button>
+    </div>
+  </div>
+</div>

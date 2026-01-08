@@ -1,0 +1,143 @@
+<div class="page">
+  <div class="page-header">
+    <div class="header-main">
+      <h1>Xin chào, {{ userName() }}!</h1>
+      @if (profile()) {
+        <span class="status-badge" [class]="profileStatusClass()">
+          {{ profile()!.status === 1 ? 'Đang hoạt động' : 'Tạm dừng/Chưa kích hoạt' }}
+        </span>
+      }
+    </div>
+    <p class="subtitle">Đây là tổng quan công việc của bạn hôm nay, {{ todayDate | date:'dd/MM/yyyy' }}</p>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon today">
+        <span class="material-symbols-outlined">today</span>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ stats()?.totalUpcomingJobs || 0 }}</span>
+        <span class="stat-label">Việc sắp tới</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon rating">
+        <span class="material-symbols-outlined">star</span>
+      </div>
+      <div class="stat-info">
+        <div class="rating-value">
+          <span class="stat-value">{{ stats()?.averageRating | number:'1.1-1' }}</span>
+          <span class="rating-count">({{ stats()?.ratingCount || 0 }} đánh giá)</span>
+        </div>
+        <span class="stat-label">Điểm đánh giá</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon completed">
+        <span class="material-symbols-outlined">task_alt</span>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ stats()?.totalCompletedJobs || 0 }}</span>
+        <span class="stat-label">Đã hoàn thành</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon earnings">
+        <span class="material-symbols-outlined">payments</span>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ stats()?.totalEarnings || 0 | number }}₫</span>
+        <span class="stat-label">Tổng thu nhập</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-content">
+    <!-- Today's Schedule -->
+    <div class="section main-section">
+      <div class="section-header">
+        <h2>Lịch Làm Việc Hôm Nay</h2>
+        <a routerLink="/helper/schedule" class="link-btn">Xem tất cả lịch</a>
+      </div>
+      
+      @if (isLoading()) {
+        <div class="loading">Đang tải...</div>
+      } @else if (todaySchedule().length === 0) {
+        <div class="empty-card">
+          <div class="empty-icon">
+            <span class="material-symbols-outlined">event_available</span>
+          </div>
+          <p>Hôm nay bạn không có lịch làm việc nào.</p>
+          <button routerLink="/helper/schedule" class="btn-outline">Xem lịch của tôi</button>
+        </div>
+      } @else {
+        <div class="schedule-list">
+          @for (job of todaySchedule(); track job.id) {
+            <div class="job-card">
+              <div class="job-time">
+                <span class="time-main">{{ job.workShiftStart }} - {{ job.workShiftEnd }}</span>
+                <span class="time-label">Giờ làm việc</span>
+              </div>
+              <div class="job-details">
+                <div class="job-header">
+                  <h3>{{ job.serviceName }}</h3>
+                  <span class="status-indicator" [class]="job.status.toLowerCase()">
+                    {{ getStatusLabel(job.status) }}
+                  </span>
+                </div>
+                <p class="job-customer">
+                  <span class="material-symbols-outlined">person</span>
+                  {{ job.customerName }}
+                </p>
+                <p class="job-address">
+                  <span class="material-symbols-outlined">location_on</span>
+                  {{ job.address }}
+                </p>
+              </div>
+              <div class="job-actions">
+                <div class="job-price">{{ job.totalPrice | number }}₫</div>
+                <button class="btn-view" [routerLink]="['/helper/schedule']" [queryParams]="{bookingId: job.id}">
+                  Chi tiết
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Quick Actions Sidebar -->
+    <div class="section side-section">
+      <h2>Truy cập nhanh</h2>
+      <div class="quick-actions">
+        <button routerLink="/helper/profile" class="action-card">
+          <span class="material-symbols-outlined profile">person</span>
+          <div class="action-info">
+            <span class="action-title">Hồ sơ cá nhân</span>
+            <span class="action-desc">Cập nhật thông tin và khu vực</span>
+          </div>
+        </button>
+        <button routerLink="/helper/schedule" class="action-card">
+          <span class="material-symbols-outlined schedule">calendar_month</span>
+          <div class="action-info">
+            <span class="action-title">Lịch trình</span>
+            <span class="action-desc">Xem và quản lý lịch tháng</span>
+          </div>
+        </button>
+        <div class="support-card">
+          <span class="material-symbols-outlined">support_agent</span>
+          <div class="support-info">
+            <span class="title">Bạn cần hỗ trợ?</span>
+            <p>Liên hệ ngay với tổng đài nhân viên để được giải đáp thắc mắc.</p>
+            <a href="tel:19001234" class="btn-support">Gọi 1900 1234</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

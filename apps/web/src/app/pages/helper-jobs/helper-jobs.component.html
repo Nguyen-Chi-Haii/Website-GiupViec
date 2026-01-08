@@ -1,0 +1,129 @@
+<div class="jobs-page">
+  <!-- Header -->
+  <header class="jobs-header">
+    <div class="container">
+      <a routerLink="/" class="back-link">
+        <span class="material-symbols-outlined">arrow_back</span>
+        Quay về trang chủ
+      </a>
+    </div>
+  </header>
+
+  <!-- Hero Banner -->
+  <section class="jobs-hero">
+    <div class="container">
+      <div class="hero-badge">🎉 Đang tuyển dụng</div>
+      <h1>Trở Thành Người Giúp Việc Chuyên Nghiệp</h1>
+      <p>
+        Gia nhập đội ngũ hơn 500+ người giúp việc tin cậy. Thu nhập ổn định, 
+        lịch làm việc linh hoạt, được đào tạo miễn phí.
+      </p>
+      <div class="hero-highlights">
+        <div class="highlight">
+          <span class="material-symbols-outlined">payments</span>
+          <span>{{ contentService.jdContent().salaryRange }}</span>
+        </div>
+        <div class="highlight">
+          <span class="material-symbols-outlined">schedule</span>
+          <span>Giờ linh hoạt</span>
+        </div>
+        <div class="highlight">
+          <span class="material-symbols-outlined">shield</span>
+          <span>Có bảo hiểm</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Requirements Section -->
+  <section class="requirements-section">
+    <div class="container">
+      <h2>Yêu Cầu Ứng Viên</h2>
+      <div class="requirements-grid">
+        @for (req of requirements(); track req.title) {
+          <div class="requirement-card">
+            <div class="req-icon">
+              <span class="material-symbols-outlined">{{ req.icon }}</span>
+            </div>
+            <h3>{{ req.title }}</h3>
+            <p>{{ req.description }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Benefits Section -->
+  <section class="benefits-section">
+    <div class="container">
+      <h2>Quyền Lợi Khi Gia Nhập</h2>
+      <div class="benefits-grid">
+        @for (benefit of benefits(); track benefit.title) {
+          <div class="benefit-item">
+            <span class="material-symbols-outlined">{{ benefit.icon }}</span>
+            <span>{{ benefit.title }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Documents Section -->
+  <section class="documents-section">
+    <div class="container">
+      <h2>Hồ Sơ Cần Chuẩn Bị</h2>
+      <div class="documents-card">
+        <ul class="documents-list">
+          @for (doc of documents(); track doc.name) {
+            <li [class.required]="doc.required">
+              <span class="material-symbols-outlined">
+                {{ doc.required ? 'check_circle' : 'radio_button_unchecked' }}
+              </span>
+              <span>{{ doc.name }}</span>
+              @if (doc.required) {
+                <span class="badge">Bắt buộc</span>
+              }
+            </li>
+          }
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Apply Section -->
+  <section class="apply-section">
+    <div class="container">
+      <div class="apply-card">
+        <div class="apply-content">
+          <h2>Sẵn Sàng Ứng Tuyển?</h2>
+          <p>Gửi hồ sơ của bạn qua email hoặc liên hệ hotline để được hỗ trợ</p>
+        </div>
+        <div class="apply-actions">
+          <a [href]="'mailto:' + contentService.jdContent().email + '?subject=Ứng tuyển làm người giúp việc'" class="btn btn-primary btn-lg">
+            <span class="material-symbols-outlined">mail</span>
+            {{ contentService.jdContent().email }}
+          </a>
+          <a [href]="'tel:' + formatPhoneForTel(contentService.jdContent().hotline)" class="btn btn-outline btn-lg">
+            <span class="material-symbols-outlined">phone</span>
+            Hotline: {{ contentService.jdContent().hotline }}
+          </a>
+        </div>
+      </div>
+
+      <div class="apply-note">
+        <span class="material-symbols-outlined">info</span>
+        <p>
+          <strong>Lưu ý:</strong> Vui lòng gửi đầy đủ hồ sơ qua email với tiêu đề 
+          "Ứng tuyển - [Họ tên] - [Số điện thoại]". Chúng tôi sẽ liên hệ trong vòng 24-48 giờ.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="jobs-footer">
+    <div class="container">
+      <p>© 2024 Giúp Việc Nhà. Mọi quyền được bảo lưu.</p>
+    </div>
+  </footer>
+</div>

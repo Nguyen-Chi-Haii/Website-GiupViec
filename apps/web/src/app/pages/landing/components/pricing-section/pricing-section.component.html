@@ -1,0 +1,53 @@
+<section id="pricing" class="pricing-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-badge">Bảng Giá</span>
+      <h2 class="section-title">Giá Cả Minh Bạch, Không Phí Ẩn</h2>
+      <p class="section-subtitle">
+        Chọn gói dịch vụ phù hợp với nhu cầu của bạn. Tất cả đều bao gồm bảo hiểm và hỗ trợ 24/7.
+      </p>
+    </div>
+
+    @if (isLoading()) {
+      <div class="loading-state">
+        <span class="material-symbols-outlined spinning">sync</span>
+        <p>Đang tải dịch vụ...</p>
+      </div>
+    } @else {
+      <div class="pricing-grid">
+        @for (plan of pricingPlans(); track plan.id) {
+          <div class="pricing-card" [class.popular]="plan.isPopular">
+            @if (plan.isPopular) {
+              <div class="popular-badge">Phổ Biến Nhất</div>
+            }
+            <div class="plan-icon">
+              <span class="material-symbols-outlined">{{ plan.icon }}</span>
+            </div>
+            <h3 class="plan-name">{{ plan.name }}</h3>
+            <p class="plan-description">{{ plan.description }}</p>
+            <div class="plan-price">
+              <span class="price">{{ formatPrice(plan.price) }}</span>
+              <span class="unit">/ {{ plan.unit }}</span>
+            </div>
+            <ul class="plan-features">
+              @for (feature of plan.features; track feature) {
+                <li>
+                  <span class="material-symbols-outlined check">check_circle</span>
+                  {{ feature }}
+                </li>
+              }
+            </ul>
+            <a [routerLink]="['/booking/step1']" [queryParams]="{ serviceId: plan.id }" class="btn" [class.btn-primary]="plan.isPopular" [class.btn-outline]="!plan.isPopular">
+              Đặt Ngay
+            </a>
+          </div>
+        }
+      </div>
+    }
+
+    <div class="pricing-note">
+      <span class="material-symbols-outlined">info</span>
+      <p>Giá trên chưa bao gồm phí di chuyển (nếu có). Liên hệ để được báo giá chi tiết.</p>
+    </div>
+  </div>
+</section>

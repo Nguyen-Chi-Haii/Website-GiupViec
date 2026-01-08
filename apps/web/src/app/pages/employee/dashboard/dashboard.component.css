@@ -1,0 +1,60 @@
+.page { display: flex; flex-direction: column; gap: 2.5rem; }
+
+.page-header { display: flex; justify-content: space-between; align-items: flex-end; }
+.page-header h1 { margin: 0; font-size: 2rem; font-weight: 800; color: #111817; letter-spacing: -0.02em; }
+.subtitle { margin: 0.5rem 0 0; color: #638884; font-size: 1.1rem; }
+
+.stats-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; }
+.stat-card {
+  background: white; border-radius: 20px; padding: 1.75rem; 
+  display: flex; align-items: center; gap: 1.25rem;
+  border: 1px solid rgba(229, 231, 235, 0.5);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.stat-card:hover { transform: translateY(-4px); box-shadow: 0 12px 20px -8px rgba(0, 0, 0, 0.08); border-color: #13b9a5; }
+
+.stat-icon {
+  width: 56px; height: 56px; border-radius: 16px; 
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px;
+}
+.stat-icon.bookings { background: #eff6ff; color: #1d4ed8; }
+.stat-icon.pending { background: #fffbeb; color: #b45309; }
+.stat-icon.helpers { background: #f5f3ff; color: #6d28d9; }
+.stat-icon.customers { background: #ecfdf5; color: #059669; }
+
+.stat-details { display: flex; flex-direction: column; gap: 2px; }
+.stat-details .label { font-size: 0.875rem; color: #638884; font-weight: 500; }
+.stat-details .value { font-size: 1.75rem; font-weight: 800; color: #111817; }
+.value.highlight { color: #d97706; }
+
+.section-header { margin-bottom: 1.5rem; }
+.section-header h2 { margin: 0; font-size: 1.5rem; font-weight: 700; color: #111817; }
+
+.management-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.25rem; }
+.mgmt-card {
+  background: white; border-radius: 20px; padding: 1.5rem;
+  display: flex; align-items: center; gap: 1.25rem;
+  border: 1px solid #e5e7eb; text-decoration: none; color: inherit;
+  transition: all 0.2s;
+}
+.mgmt-card:hover { background: #f9fafb; border-color: #13b9a5; }
+
+.card-icon {
+  width: 52px; height: 52px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.card-icon.blue { background: #e0f2fe; color: #0369a1; }
+.card-icon.purple { background: #f3e8ff; color: #7e22ce; }
+.card-icon.orange { background: #ffedd5; color: #c2410c; }
+.card-icon.green { background: #dcfce7; color: #15803d; }
+.card-icon.teal { background: #ccfbf1; color: #0f766e; }
+
+.card-info { flex: 1; }
+.card-info h3 { margin: 0 0 2px; font-size: 1.125rem; font-weight: 700; color: #111817; }
+.card-info p { margin: 0; font-size: 0.875rem; color: #638884; line-height: 1.4; }
+
+.arrow { color: #94a3b8; font-size: 20px; transition: transform 0.2s; }
+.mgmt-card:hover .arrow { transform: translateX(4px); color: #13b9a5; }

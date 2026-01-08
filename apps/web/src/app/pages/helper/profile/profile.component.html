@@ -1,0 +1,62 @@
+<div class="page">
+  <div class="page-header">
+    <h2>Hồ Sơ Của Tôi</h2>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading">Đang tải...</div>
+  } @else {
+    <div class="profile-grid">
+      <!-- Profile Card -->
+      <div class="profile-card">
+        <div class="profile-avatar">{{ getInitials() }}</div>
+        <h3>{{ profile()?.fullName || userEmail() }}</h3>
+        <div class="rating">
+          <span class="material-symbols-outlined">star</span>
+          <span>{{ profile()?.ratingAverage || 0 | number:'1.1-1' }}</span>
+        </div>
+        <p class="experience">{{ getExperience() }}</p>
+      </div>
+
+      <!-- Edit Form -->
+      <div class="edit-card">
+        <h3>Chỉnh Sửa Hồ Sơ</h3>
+        
+        <div class="form-group">
+          <label>Giới thiệu bản thân</label>
+          <textarea [(ngModel)]="formData.bio" rows="4" placeholder="Mô tả về kinh nghiệm, kỹ năng của bạn..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Số năm kinh nghiệm</label>
+          <input type="number" [(ngModel)]="formData.experienceYears" min="0" />
+        </div>
+
+        <div class="form-group">
+          <label>Khu vực hoạt động</label>
+          <app-address-selector 
+            [initialAddress]="formData.activeArea"
+            (addressChange)="onAddressChange($event)">
+          </app-address-selector>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn-primary" (click)="saveProfile()" [disabled]="isSaving()">
+            @if (isSaving()) {
+              Đang lưu...
+            } @else {
+              Lưu Thay Đổi
+            }
+          </button>
+        </div>
+
+        @if (successMessage()) {
+          <div class="success-message">{{ successMessage() }}</div>
+        }
+        @if (errorMessage()) {
+          <div class="error-message">{{ errorMessage() }}</div>
+        }
+      </div>
+    </div>
+  }
+</div>

@@ -1,8 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { ServiceService } from '../../../../core/services/service.service';
 
 interface PricingPlan {
+  id: number;
   name: string;
   icon: string;
   price: number;
@@ -16,310 +18,146 @@ interface PricingPlan {
   selector: 'app-pricing-section',
   standalone: true,
   imports: [CommonModule, RouterLink],
-  template: `
-    <section id="pricing" class="pricing-section">
-      <div class="container">
-        <div class="section-header">
-          <span class="section-badge">Bảng Giá</span>
-          <h2 class="section-title">Giá Cả Minh Bạch, Không Phí Ẩn</h2>
-          <p class="section-subtitle">
-            Chọn gói dịch vụ phù hợp với nhu cầu của bạn. Tất cả đều bao gồm bảo hiểm và hỗ trợ 24/7.
-          </p>
-        </div>
-
-        <div class="pricing-grid">
-          @for (plan of pricingPlans; track plan.name) {
-            <div class="pricing-card" [class.popular]="plan.isPopular">
-              @if (plan.isPopular) {
-                <div class="popular-badge">Phổ Biến Nhất</div>
-              }
-              <div class="plan-icon">
-                <span class="material-symbols-outlined">{{ plan.icon }}</span>
-              </div>
-              <h3 class="plan-name">{{ plan.name }}</h3>
-              <p class="plan-description">{{ plan.description }}</p>
-              <div class="plan-price">
-                <span class="price">{{ formatPrice(plan.price) }}</span>
-                <span class="unit">/ {{ plan.unit }}</span>
-              </div>
-              <ul class="plan-features">
-                @for (feature of plan.features; track feature) {
-                  <li>
-                    <span class="material-symbols-outlined check">check_circle</span>
-                    {{ feature }}
-                  </li>
-                }
-              </ul>
-              <a routerLink="/booking" class="btn" [class.btn-primary]="plan.isPopular" [class.btn-outline]="!plan.isPopular">
-                Đặt Ngay
-              </a>
-            </div>
-          }
-        </div>
-
-        <div class="pricing-note">
-          <span class="material-symbols-outlined">info</span>
-          <p>Giá trên chưa bao gồm phí di chuyển (nếu có). Liên hệ để được báo giá chi tiết.</p>
-        </div>
-      </div>
-    </section>
-  `,
-  styles: [`
-    .pricing-section {
-      padding: 5rem 0;
-      background: linear-gradient(180deg, #f8fffe 0%, #fff 100%);
-    }
-
-    .section-header {
-      text-align: center;
-      margin-bottom: 3rem;
-    }
-
-    .section-badge {
-      display: inline-block;
-      padding: 0.5rem 1rem;
-      background: var(--primary-light);
-      color: var(--primary);
-      border-radius: 2rem;
-      font-size: 0.875rem;
-      font-weight: 600;
-      margin-bottom: 1rem;
-    }
-
-    .section-title {
-      font-size: 2.25rem;
-      font-weight: 700;
-      color: var(--text-dark);
-      margin-bottom: 1rem;
-    }
-
-    .section-subtitle {
-      font-size: 1.125rem;
-      color: var(--text-muted);
-      max-width: 600px;
-      margin: 0 auto;
-    }
-
-    .pricing-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 2rem;
-      max-width: 1000px;
-      margin: 0 auto;
-    }
-
-    .pricing-card {
-      background: white;
-      border-radius: 1.5rem;
-      padding: 2rem;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-      border: 2px solid transparent;
-      transition: all 0.3s ease;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .pricing-card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 12px 40px rgba(0, 191, 165, 0.15);
-    }
-
-    .pricing-card.popular {
-      border-color: var(--primary);
-      box-shadow: 0 8px 30px rgba(0, 191, 165, 0.2);
-    }
-
-    .popular-badge {
-      position: absolute;
-      top: -12px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--primary);
-      color: white;
-      padding: 0.35rem 1rem;
-      border-radius: 2rem;
-      font-size: 0.75rem;
-      font-weight: 600;
-    }
-
-    .plan-icon {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      background: var(--primary-light);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 1.5rem;
-    }
-
-    .plan-icon .material-symbols-outlined {
-      font-size: 28px;
-      color: var(--primary);
-    }
-
-    .plan-name {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--text-dark);
-      margin-bottom: 0.5rem;
-    }
-
-    .plan-description {
-      color: var(--text-muted);
-      font-size: 0.95rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .plan-price {
-      margin-bottom: 1.5rem;
-    }
-
-    .price {
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: var(--primary);
-    }
-
-    .unit {
-      font-size: 1rem;
-      color: var(--text-muted);
-    }
-
-    .plan-features {
-      list-style: none;
-      padding: 0;
-      margin: 0 0 2rem;
-      flex: 1;
-    }
-
-    .plan-features li {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 0.5rem 0;
-      color: var(--text-dark);
-      font-size: 0.95rem;
-    }
-
-    .plan-features .check {
-      font-size: 20px;
-      color: var(--primary);
-    }
-
-    .btn {
-      width: 100%;
-      padding: 1rem;
-      border-radius: 0.75rem;
-      font-size: 1rem;
-      font-weight: 600;
-      text-align: center;
-      text-decoration: none;
-      transition: all 0.2s ease;
-    }
-
-    .btn-primary {
-      background: var(--primary);
-      color: white;
-    }
-
-    .btn-primary:hover {
-      background: var(--primary-dark);
-    }
-
-    .btn-outline {
-      background: transparent;
-      border: 2px solid var(--primary);
-      color: var(--primary);
-    }
-
-    .btn-outline:hover {
-      background: var(--primary);
-      color: white;
-    }
-
-    .pricing-note {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      margin-top: 2rem;
-      padding: 1rem;
-      background: var(--gray-50);
-      border-radius: 0.75rem;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .pricing-note .material-symbols-outlined {
-      color: var(--text-muted);
-      font-size: 20px;
-    }
-
-    .pricing-note p {
-      margin: 0;
-      font-size: 0.875rem;
-      color: var(--text-muted);
-    }
-
-    @media (max-width: 768px) {
-      .section-title {
-        font-size: 1.75rem;
-      }
-      
-      .pricing-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-  `]
+  templateUrl: './pricing-section.component.html',
+  styleUrl: './pricing-section.component.css'
 })
-export class PricingSectionComponent {
-  pricingPlans: PricingPlan[] = [
-    {
-      name: 'Dọn Dẹp Cơ Bản',
-      icon: 'mop',
-      price: 50000,
-      unit: 'giờ',
-      description: 'Dịch vụ dọn dẹp hàng ngày cho gia đình',
-      features: [
-        'Quét dọn, lau nhà',
-        'Dọn phòng ngủ, phòng khách',
-        'Vệ sinh nhà bếp cơ bản',
-        'Đổ rác, sắp xếp đồ đạc'
-      ]
-    },
-    {
-      name: 'Dọn Dẹp Toàn Diện',
-      icon: 'cleaning_services',
-      price: 80000,
-      unit: 'giờ',
-      description: 'Dọn dẹp sâu, vệ sinh tổng thể',
-      features: [
-        'Tất cả dịch vụ cơ bản',
-        'Vệ sinh nhà tắm, toilet',
-        'Lau kính, cửa sổ',
-        'Giặt rèm, vệ sinh máy lạnh',
-        'Hỗ trợ nấu ăn nhẹ'
-      ],
-      isPopular: true
-    },
-    {
-      name: 'Chăm Sóc Gia Đình',
-      icon: 'family_restroom',
-      price: 100000,
-      unit: 'giờ',
-      description: 'Trông trẻ và chăm sóc người già',
-      features: [
-        'Trông trẻ từ 1-12 tuổi',
-        'Cho trẻ ăn, tắm rửa',
-        'Hỗ trợ học bài',
-        'Chăm sóc người cao tuổi',
-        'Hỗ trợ việc nhà nhẹ'
-      ]
+export class PricingSectionComponent implements OnInit {
+  private readonly serviceService = inject(ServiceService);
+
+  pricingPlans = signal<PricingPlan[]>([]);
+  isLoading = signal(true);
+
+  // Icons mapping for services
+  private readonly serviceIcons: Record<string, string> = {
+    'dọn dẹp': 'mop',
+    'vệ sinh': 'cleaning_services',
+    'giặt': 'local_laundry_service',
+    'chăm sóc': 'family_restroom',
+    'nấu ăn': 'restaurant',
+    'trông trẻ': 'child_care',
+    'default': 'home_work'
+  };
+
+  // Default features based on service name
+  private readonly defaultFeatures: Record<string, string[]> = {
+    'default': [
+      'Nhân viên được đào tạo chuyên nghiệp',
+      'Có bảo hiểm tai nạn',
+      'Hỗ trợ khách hàng 24/7',
+      'Đổi lịch linh hoạt'
+    ]
+  };
+
+  ngOnInit(): void {
+    this.loadServices();
+  }
+
+  private loadServices(): void {
+    this.serviceService.getAll().subscribe({
+      next: (services) => {
+        const activeServices = services.filter(s => s.isActive).slice(0, 3);
+        
+        const plans: PricingPlan[] = activeServices.map((service, index) => ({
+          id: service.id,
+          name: service.name,
+          icon: this.getIconForService(service.name),
+          price: service.price,
+          unit: 'giờ',
+          description: this.getDescriptionForService(service.name),
+          features: this.getFeaturesForService(service.name),
+          isPopular: index === 0 // Mark first one as popular as per screenshot
+        }));
+
+        this.pricingPlans.set(plans);
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        console.error('Error loading services:', err);
+        // Use fallback default plans
+        this.pricingPlans.set(this.getDefaultPlans());
+        this.isLoading.set(false);
+      }
+    });
+  }
+
+  private getIconForService(serviceName: string): string {
+    const nameLower = serviceName.toLowerCase();
+    for (const [keyword, icon] of Object.entries(this.serviceIcons)) {
+      if (nameLower.includes(keyword)) {
+        return icon;
+      }
     }
-  ];
+    return this.serviceIcons['default'];
+  }
+
+  private getDescriptionForService(serviceName: string): string {
+    const nameLower = serviceName.toLowerCase();
+    if (nameLower.includes('dọn dẹp') || nameLower.includes('vệ sinh')) {
+      return 'Dịch vụ vệ sinh chuyên nghiệp cho gia đình';
+    }
+    if (nameLower.includes('giặt')) {
+      return 'Giặt sạch với công nghệ hiện đại, an toàn';
+    }
+    if (nameLower.includes('chăm sóc') || nameLower.includes('trông trẻ')) {
+      return 'Chăm sóc tận tâm, an toàn và chu đáo';
+    }
+    return 'Dịch vụ chất lượng cao với giá cả phải chăng';
+  }
+
+  private getFeaturesForService(serviceName: string): string[] {
+    const nameLower = serviceName.toLowerCase();
+    
+    if (nameLower.includes('dọn dẹp')) {
+      return ['Quét dọn, lau nhà', 'Dọn phòng ngủ, phòng khách', 'Vệ sinh nhà bếp', 'Đổ rác, sắp xếp đồ đạc'];
+    }
+    if (nameLower.includes('vệ sinh')) {
+      return ['Vệ sinh sâu toàn bộ', 'Lau kính, cửa sổ', 'Vệ sinh nhà tắm, toilet', 'Vệ sinh máy lạnh'];
+    }
+    if (nameLower.includes('giặt')) {
+      return ['Giặt sofa, nệm', 'Giặt rèm cửa', 'Diệt khuẩn bằng hơi nước', 'Khử mùi hiệu quả'];
+    }
+    if (nameLower.includes('chăm sóc')) {
+      return ['Chăm sóc người già', 'Hỗ trợ sinh hoạt hàng ngày', 'Đo huyết áp, theo dõi sức khỏe', 'Đưa đón khi cần'];
+    }
+    if (nameLower.includes('trông trẻ')) {
+      return ['Trông trẻ từ 1-12 tuổi', 'Cho trẻ ăn, tắm rửa', 'Hỗ trợ học bài', 'Chơi và giải trí cùng trẻ'];
+    }
+    
+    return this.defaultFeatures['default'];
+  }
+
+  private getDefaultPlans(): PricingPlan[] {
+    return [
+      {
+        id: 1,
+        name: 'Dọn Dẹp Cơ Bản',
+        icon: 'mop',
+        price: 50000,
+        unit: 'giờ',
+        description: 'Dịch vụ dọn dẹp hàng ngày cho gia đình',
+        features: ['Quét dọn, lau nhà', 'Dọn phòng ngủ, phòng khách', 'Vệ sinh nhà bếp cơ bản', 'Đổ rác, sắp xếp đồ đạc']
+      },
+      {
+        id: 2,
+        name: 'Dọn Dẹp Toàn Diện',
+        icon: 'cleaning_services',
+        price: 80000,
+        unit: 'giờ',
+        description: 'Dọn dẹp sâu, vệ sinh tổng thể',
+        features: ['Tất cả dịch vụ cơ bản', 'Vệ sinh nhà tắm, toilet', 'Lau kính, cửa sổ', 'Giặt rèm, vệ sinh máy lạnh'],
+        isPopular: true
+      },
+      {
+        id: 3,
+        name: 'Chăm Sóc Gia Đình',
+        icon: 'family_restroom',
+        price: 100000,
+        unit: 'giờ',
+        description: 'Trông trẻ và chăm sóc người già',
+        features: ['Trông trẻ từ 1-12 tuổi', 'Cho trẻ ăn, tắm rửa', 'Hỗ trợ học bài', 'Chăm sóc người cao tuổi']
+      }
+    ];
+  }
 
   formatPrice(price: number): string {
     return new Intl.NumberFormat('vi-VN').format(price) + 'đ';

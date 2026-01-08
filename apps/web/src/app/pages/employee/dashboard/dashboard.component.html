@@ -1,0 +1,111 @@
+<div class="page">
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Tổng Quan Vận Hành</h1>
+      <p class="subtitle">Chào mừng trở lại! Dưới đây là tình hình hoạt động hôm nay.</p>
+    </div>
+  </div>
+
+  <!-- Key Stats -->
+  <div class="stats-container">
+    <div class="stat-card">
+      <div class="stat-icon bookings">
+        <span class="material-symbols-outlined">receipt_long</span>
+      </div>
+      <div class="stat-details">
+        <span class="label">Tổng đơn hàng</span>
+        <span class="value">{{ stats()?.totalBookings || 0 }}</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon pending">
+        <span class="material-symbols-outlined">pending_actions</span>
+      </div>
+      <div class="stat-details">
+        <span class="label">Chờ xử lý</span>
+        <span class="value highlight">{{ stats()?.pendingBookings || 0 }}</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon helpers">
+        <span class="material-symbols-outlined">engineering</span>
+      </div>
+      <div class="stat-details">
+        <span class="label">Người giúp việc</span>
+        <span class="value">{{ stats()?.totalHelpers || 0 }}</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon customers">
+        <span class="material-symbols-outlined">person</span>
+      </div>
+      <div class="stat-details">
+        <span class="label">Khách hàng</span>
+        <span class="value">{{ stats()?.totalCustomers || 0 }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Management Quick Access -->
+  <div class="section">
+    <div class="section-header">
+      <h2>Quản Lý Hệ Thống</h2>
+    </div>
+    <div class="management-grid">
+      <a routerLink="/employee/bookings" class="mgmt-card">
+        <div class="card-icon blue">
+          <span class="material-symbols-outlined">receipt_long</span>
+        </div>
+        <div class="card-info">
+          <h3>Đơn Hàng</h3>
+          <p>Xử lý, phân bổ và theo dõi trạng thái các đơn hàng.</p>
+        </div>
+        <span class="material-symbols-outlined arrow">chevron_right</span>
+      </a>
+
+      <a routerLink="/employee/helpers" class="mgmt-card">
+        <div class="card-icon purple">
+          <span class="material-symbols-outlined">engineering</span>
+        </div>
+        <div class="card-info">
+          <h3>Người Giúp Việc</h3>
+          <p>Quản lý hồ sơ, kỹ năng và lịch trình của cộng tác viên.</p>
+        </div>
+        <span class="material-symbols-outlined arrow">chevron_right</span>
+      </a>
+
+      <a routerLink="/employee/customers" class="mgmt-card">
+        <div class="card-icon orange">
+          <span class="material-symbols-outlined">group</span>
+        </div>
+        <div class="card-info">
+          <h3>Khách Hàng</h3>
+          <p>Xem thông tin chi tiết và lịch sử đặt dịch vụ của khách.</p>
+        </div>
+        <span class="material-symbols-outlined arrow">chevron_right</span>
+      </a>
+
+      <a routerLink="/employee/calendar" class="mgmt-card">
+        <div class="card-icon green">
+          <span class="material-symbols-outlined">calendar_month</span>
+        </div>
+        <div class="card-info">
+          <h3>Lịch Vận Hành</h3>
+          <p>Theo dõi tổng quan lịch làm việc của tất cả các đơn hàng.</p>
+        </div>
+        <span class="material-symbols-outlined arrow">chevron_right</span>
+      </a>
+
+      <a routerLink="/employee/services" class="mgmt-card">
+        <div class="card-icon teal">
+          <span class="material-symbols-outlined">service_toolbox</span>
+        </div>
+        <div class="card-info">
+          <h3>Dịch Vụ</h3>
+          <p>Thiết lập danh mục dịch vụ và điều chỉnh bảng giá.</p>
+        </div>
+        <span class="material-symbols-outlined arrow">chevron_right</span>
+      </a>
+    </div>
+  </div>
+</div>

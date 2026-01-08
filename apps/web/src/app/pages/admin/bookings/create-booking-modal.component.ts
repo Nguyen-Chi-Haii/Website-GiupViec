@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { AdminService, UserResponse, ServiceResponse, BookingCreate, UserCreate } from '../../../core/services/admin.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { VietnamProvincesService } from '../../../core/services/vietnam-provinces.service';
+import { HelperService } from '../../../core/services/helper.service';
 import { ProvinceResponse, WardResponse } from '../../../core/types/vietnam-provinces.types';
 import { SearchableDropdownComponent, DropdownOption } from '../../../shared/components/searchable-dropdown/searchable-dropdown.component';
 
@@ -16,207 +17,8 @@ interface AvailableHelper {
   selector: 'app-create-booking-modal',
   standalone: true,
   imports: [CommonModule, FormsModule, SearchableDropdownComponent],
-  template: `
-    <div class="modal-overlay" (click)="close()">
-      <div class="modal large" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h3>Tạo Đơn Hàng Mới</h3>
-          <button class="close-btn" (click)="close()">
-            <span class="material-symbols-outlined">close</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <!-- Section 1: Khách hàng -->
-          <div class="form-section">
-            <h4>1. Thông tin khách hàng</h4>
-            <div class="form-group">
-              <label class="checkbox-label">
-                <input type="checkbox" [(ngModel)]="isNewCustomer" (change)="onCustomerTypeChange()">
-                <span>Khách hàng mới</span>
-              </label>
-            </div>
-
-            @if (!isNewCustomer) {
-              <div class="form-group">
-                <label>Chọn khách hàng *</label>
-                <select [(ngModel)]="formData.customerId" class="form-select">
-                  <option [value]="0">-- Chọn khách hàng --</option>
-                  @for (customer of customers(); track customer.id) {
-                    <option [value]="customer.id">{{ customer.fullName }} ({{ customer.email }})</option>
-                  }
-                </select>
-              </div>
-            } @else {
-              <div class="form-row">
-                <div class="form-group">
-                  <label>Họ tên *</label>
-                  <input type="text" [(ngModel)]="newCustomer.fullName" placeholder="Nguyễn Văn A">
-                </div>
-                <div class="form-group">
-                  <label>Email *</label>
-                  <input type="email" [(ngModel)]="newCustomer.email" placeholder="email@example.com">
-                </div>
-              </div>
-              <div class="form-row">
-                <div class="form-group">
-                  <label>Số điện thoại</label>
-                  <input type="text" [(ngModel)]="newCustomer.phone" placeholder="0901234567">
-                </div>
-                <div class="form-group">
-                  <label>Mật khẩu mặc định</label>
-                  <input type="text" [value]="defaultPassword" readonly class="readonly-input">
-                </div>
-              </div>
-            }
-          </div>
-
-          <!-- Section 2: Dịch vụ -->
-          <div class="form-section">
-            <h4>2. Chọn dịch vụ</h4>
-            <div class="form-group">
-              <label>Dịch vụ *</label>
-              <select [(ngModel)]="formData.serviceId" class="form-select">
-                <option [value]="0">-- Chọn dịch vụ --</option>
-                @for (service of services(); track service.id) {
-                  <option [value]="service.id">{{ service.name }} ({{ service.price | number }}₫/giờ)</option>
-                }
-              </select>
-            </div>
-          </div>
-
-          <!-- Section 3: Lịch làm việc -->
-          <div class="form-section">
-            <h4>3. Lịch làm việc</h4>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Ngày bắt đầu *</label>
-                <input type="date" [(ngModel)]="formData.startDate" [min]="minDate">
-              </div>
-              <div class="form-group">
-                <label>Ngày kết thúc *</label>
-                <input type="date" [(ngModel)]="formData.endDate" [min]="formData.startDate || minDate">
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Giờ bắt đầu *</label>
-                <select [(ngModel)]="formData.workShiftStart" class="form-select">
-                  @for (time of timeOptions; track time) {
-                    <option [value]="time">{{ time }}</option>
-                  }
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Giờ kết thúc *</label>
-                <select [(ngModel)]="formData.workShiftEnd" class="form-select">
-                  @for (time of timeOptions; track time) {
-                    <option [value]="time">{{ time }}</option>
-                  }
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <!-- Section 4: Địa chỉ -->
-          <div class="form-section">
-            <h4>4. Địa chỉ làm việc</h4>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Tỉnh/Thành *</label>
-                <app-searchable-dropdown
-                  [options]="provinceOptions()"
-                  [placeholder]="isLoadingProvinces() ? 'Đang tải...' : 'Chọn tỉnh/thành'"
-                  [selectedCode]="selectedProvinceCode"
-                  (selectionChange)="onProvinceSelect($event)">
-                </app-searchable-dropdown>
-              </div>
-              <div class="form-group">
-                <label>Phường/Xã *</label>
-                <app-searchable-dropdown
-                  [options]="wardOptions()"
-                  [placeholder]="isLoadingWards() ? 'Đang tải...' : 'Chọn phường/xã'"
-                  [selectedCode]="selectedWardCode"
-                  (selectionChange)="onWardSelect($event)">
-                </app-searchable-dropdown>
-              </div>
-            </div>
-            <div class="form-group">
-              <label>Địa chỉ chi tiết *</label>
-              <input type="text" [(ngModel)]="streetAddress" placeholder="Số nhà, tên đường...">
-            </div>
-          </div>
-
-          <!-- Section 5: Gán Helper (sau khi có đủ lịch) -->
-          @if (canSelectHelper()) {
-            <div class="form-section">
-              <h4>5. Gán người giúp việc (tùy chọn)</h4>
-              <div class="form-group">
-                <label>Chọn người giúp việc</label>
-                <select [(ngModel)]="formData.helperId" class="form-select">
-                  <option [value]="0">-- Không gán ngay --</option>
-                  @for (helper of availableHelpers(); track helper.id) {
-                    <option [value]="helper.id">{{ helper.fullName }}</option>
-                  }
-                </select>
-              </div>
-            </div>
-          }
-
-          <!-- Section 6: Ghi chú -->
-          <div class="form-section">
-            <h4>{{ canSelectHelper() ? '6' : '5' }}. Ghi chú</h4>
-            <div class="form-group">
-              <textarea [(ngModel)]="formData.notes" placeholder="Ghi chú thêm..." rows="3"></textarea>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn-outline" (click)="close()">Hủy</button>
-          <button class="btn-primary" (click)="submit()" [disabled]="isSubmitting()">
-            @if (isSubmitting()) {
-              <span>Đang xử lý...</span>
-            } @else {
-              <span class="material-symbols-outlined">add</span>
-              Tạo đơn hàng
-            }
-          </button>
-        </div>
-      </div>
-    </div>
-  `,
-  styles: [`
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-    .modal { background: white; border-radius: 16px; width: 90%; max-width: 700px; max-height: 90vh; overflow: auto; }
-    .modal.large { max-width: 800px; }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; border-bottom: 1px solid #e5e7eb; position: sticky; top: 0; background: white; z-index: 1; }
-    .modal-header h3 { margin: 0; font-size: 1.25rem; font-weight: 700; }
-    .close-btn { background: none; border: none; cursor: pointer; color: #638884; }
-    .modal-body { padding: 1.5rem; }
-    .modal-footer { display: flex; justify-content: flex-end; gap: 1rem; padding: 1.5rem; border-top: 1px solid #e5e7eb; position: sticky; bottom: 0; background: white; }
-    
-    .form-section { margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid #e5e7eb; }
-    .form-section:last-of-type { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-    .form-section h4 { margin: 0 0 1rem; font-size: 0.95rem; font-weight: 600; color: #13b9a5; }
-    
-    .form-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
-    .form-group { margin-bottom: 0.75rem; }
-    .form-group label { display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem; color: #111817; }
-    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.75rem 1rem; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.9rem; font-family: inherit; }
-    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #13b9a5; }
-    .form-group textarea { resize: vertical; }
-    
-    .checkbox-label { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; }
-    .checkbox-label input[type="checkbox"] { width: 18px; height: 18px; accent-color: #13b9a5; }
-    
-    .readonly-input { background: #f3f4f6; color: #6b7280; cursor: not-allowed; }
-    
-    .form-select { width: 100%; padding: 0.75rem 1rem; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.9rem; }
-    
-    .btn-primary { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.25rem; background: #13b9a5; color: white; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
-    .btn-primary:hover:not(:disabled) { background: #0f9685; }
-    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-    .btn-outline { padding: 0.75rem 1.25rem; background: transparent; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.9rem; font-weight: 500; cursor: pointer; }
-  `]
+  templateUrl: './create-booking-modal.component.html',
+  styleUrl: './create-booking-modal.component.css'
 })
 export class CreateBookingModalComponent implements OnInit {
   @Output() closed = new EventEmitter<void>();
@@ -225,6 +27,7 @@ export class CreateBookingModalComponent implements OnInit {
   private readonly adminService = inject(AdminService);
   private readonly notification = inject(NotificationService);
   private readonly provincesService = inject(VietnamProvincesService);
+  private readonly helperService = inject(HelperService);
 
   // Data
   customers = signal<UserResponse[]>([]);
@@ -311,7 +114,7 @@ export class CreateBookingModalComponent implements OnInit {
         this.customers.set(users.filter(u => 
           String(u.role) === '4' || String(u.role) === 'Customer'
         ));
-        // Also get helpers
+        // Also get helpers (fallback)
         this.availableHelpers.set(
           users.filter(u => String(u.role) === '3' || String(u.role) === 'Helper')
             .map(h => ({ id: h.id, fullName: h.fullName }))
@@ -332,6 +135,32 @@ export class CreateBookingModalComponent implements OnInit {
         this.isLoadingProvinces.set(false);
       },
       error: () => this.isLoadingProvinces.set(false)
+    });
+  }
+
+  onTimeChange(): void {
+    if (this.canSelectHelper()) {
+      this.fetchAvailableHelpers();
+    }
+  }
+
+  private fetchAvailableHelpers(): void {
+    this.helperService.getAvailableHelpers({
+      serviceId: Number(this.formData.serviceId),
+      startDate: this.formData.startDate,
+      endDate: this.formData.endDate,
+      workShiftStart: `${this.formData.workShiftStart}:00`,
+      workShiftEnd: `${this.formData.workShiftEnd}:00`
+    }).subscribe({
+      next: (helpers) => {
+        this.availableHelpers.set(helpers.map(h => ({
+          id: h.userId,
+          fullName: h.fullName
+        })));
+      },
+      error: (err) => {
+        console.error('Error fetching available helpers:', err);
+      }
     });
   }
 

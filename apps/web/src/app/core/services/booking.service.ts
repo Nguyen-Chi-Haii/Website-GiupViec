@@ -73,4 +73,12 @@ export class BookingService {
   getById(id: number): Observable<BookingResponseDTO> {
     return this.http.get<BookingResponseDTO>(`${this.baseUrl}/${id}`);
   }
+
+  /**
+   * Get bookings for the current customer
+   * GET /api/bookings/my
+   */
+  getMyBookings(): Observable<BookingResponseDTO[]> {
+    return this.http.get<BookingResponseDTO[]>(`${this.baseUrl}/my`);
+  }
 }

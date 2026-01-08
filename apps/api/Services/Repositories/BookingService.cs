@@ -101,6 +101,7 @@ namespace GiupViecAPI.Services.Repositories
                     b.HelperId == dto.HelperId.Value &&
                     b.Status != BookingStatus.Cancelled &&
                     b.Status != BookingStatus.Completed &&
+                    b.Status != BookingStatus.Rejected &&
                     b.StartDate <= booking.EndDate && b.EndDate >= booking.StartDate &&
                     b.WorkShiftStart < booking.WorkShiftEnd && b.WorkShiftEnd > booking.WorkShiftStart
                 );
@@ -167,6 +168,7 @@ namespace GiupViecAPI.Services.Repositories
                     b.HelperId == dto.HelperId.Value &&
                     b.Status != BookingStatus.Cancelled &&
                     b.Status != BookingStatus.Completed &&
+                    b.Status != BookingStatus.Rejected &&
                     b.StartDate <= booking.EndDate && b.EndDate >= booking.StartDate &&
                     b.WorkShiftStart < booking.WorkShiftEnd && b.WorkShiftEnd > booking.WorkShiftStart
                 );
@@ -239,6 +241,7 @@ namespace GiupViecAPI.Services.Repositories
                 b.Id != id &&
                 b.Status != BookingStatus.Cancelled &&
                 b.Status != BookingStatus.Completed &&
+                b.Status != BookingStatus.Rejected &&
                 // Giao nhau về ngày
                 b.StartDate <= booking.EndDate && b.EndDate >= booking.StartDate &&
                 // Giao nhau về giờ
@@ -293,6 +296,8 @@ namespace GiupViecAPI.Services.Repositories
                 .Include(b => b.Customer)
                 .Where(b => b.HelperId == helperId
                             && b.Status != BookingStatus.Cancelled
+                            && b.Status != BookingStatus.Rejected
+                            && b.Status != BookingStatus.Completed
                             && b.StartDate <= toDate && b.EndDate >= fromDate)
                 .OrderBy(b => b.StartDate)
                 .Select(b => new BookingScheduleDTO
@@ -324,6 +329,7 @@ namespace GiupViecAPI.Services.Repositories
                 .Include(b => b.Customer) // Added to include customer information
                 .Where(b => b.Status != BookingStatus.Cancelled
                             && b.Status != BookingStatus.Rejected
+                            && b.Status != BookingStatus.Completed
                             && b.StartDate <= toDate && b.EndDate >= fromDate)
                 .OrderBy(b => b.StartDate)
                 .Select(b => new BookingScheduleDTO
@@ -444,6 +450,7 @@ namespace GiupViecAPI.Services.Repositories
                     b.HelperId == dto.HelperId.Value &&
                     b.Status != BookingStatus.Cancelled &&
                     b.Status != BookingStatus.Completed &&
+                    b.Status != BookingStatus.Rejected &&
                     b.StartDate <= booking.EndDate && b.EndDate >= booking.StartDate &&
                     b.WorkShiftStart < booking.WorkShiftEnd && b.WorkShiftEnd > booking.WorkShiftStart
                 );

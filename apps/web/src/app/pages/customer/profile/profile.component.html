@@ -1,0 +1,80 @@
+<div class="page">
+  <div class="page-header">
+    <h2>Hồ Sơ Cá Nhân</h2>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading">Đang tải...</div>
+  } @else {
+    <div class="profile-card">
+      <div class="profile-header">
+        <div class="avatar">{{ getInitials() }}</div>
+        <div class="info">
+          <h3>{{ profile()?.fullName || 'Chưa cập nhật' }}</h3>
+          <p>{{ profile()?.email }}</p>
+        </div>
+      </div>
+
+      <form (ngSubmit)="saveProfile()">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Họ và tên</label>
+            <input 
+              type="text" 
+              [value]="formData.fullName()" 
+              (input)="formData.fullName.set($any($event.target).value); markTouched('fullName')"
+              (blur)="markTouched('fullName')"
+              placeholder="Nguyễn Văn A" 
+              [class.error]="(touchedFields().has('fullName') || isSubmitted()) && errors()['fullName']" 
+            />
+            @if ((touchedFields().has('fullName') || isSubmitted()) && errors()['fullName']) {
+              <span class="error-text">{{ errors()['fullName'] }}</span>
+            }
+          </div>
+          <div class="form-group">
+            <label>Số điện thoại</label>
+            <input 
+              type="tel" 
+              [value]="formData.phoneNumber()" 
+              (input)="formData.phoneNumber.set($any($event.target).value); markTouched('phone')"
+              (blur)="markTouched('phone')"
+              placeholder="0912345678" 
+              [class.error]="(touchedFields().has('phone') || isSubmitted()) && errors()['phone']" 
+            />
+            @if ((touchedFields().has('phone') || isSubmitted()) && errors()['phone']) {
+              <span class="error-text">{{ errors()['phone'] }}</span>
+            }
+          </div>
+          
+          <!-- Address Selector -->
+          <div class="form-group full-width">
+            <app-address-selector 
+              [initialAddress]="profile()?.address || ''"
+              (addressChange)="onAddressChange($event)"
+            ></app-address-selector>
+            @if ((touchedFields().has('address') || isSubmitted()) && errors()['address']) {
+              <span class="error-text">{{ errors()['address'] }}</span>
+            }
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-primary" [disabled]="isSaving()">
+            @if (isSaving()) {
+              Đang lưu...
+            } @else {
+              Lưu Thay Đổi
+            }
+          </button>
+        </div>
+      </form>
+
+      @if (successMessage()) {
+        <div class="success-message">{{ successMessage() }}</div>
+      }
+      @if (errorMessage()) {
+        <div class="error-message">{{ errorMessage() }}</div>
+      }
+    </div>
+  }
+</div>

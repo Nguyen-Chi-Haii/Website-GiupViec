@@ -1,0 +1,113 @@
+<div class="page">
+  <div class="page-header">
+    <h2>Lịch Vận Hành</h2>
+    <div class="header-actions">
+      <button class="btn-icon" (click)="previousWeek()">
+        <span class="material-symbols-outlined">chevron_left</span>
+      </button>
+      <span class="current-range">{{ weekRangeLabel() }}</span>
+      <button class="btn-icon" (click)="nextWeek()">
+        <span class="material-symbols-outlined">chevron_right</span>
+      </button>
+      <button class="btn-outline" (click)="goToToday()">Hôm nay</button>
+    </div>
+  </div>
+
+  <div class="calendar-card">
+    @if (displayedDays().length > 0) {
+      <div class="calendar-grid">
+        <!-- Calendar Header (Days) -->
+        <div class="grid-header">
+          <div class="time-column">Giờ</div>
+          @for (day of displayedDays(); track day) {
+            <div class="header-day" [class.today]="isToday(day)">
+              <span class="day-name">{{ day | date:'EEEE' }}</span>
+              <span class="day-date">{{ day | date:'dd/MM' }}</span>
+            </div>
+          }
+        </div>
+
+        <!-- Calendar Body -->
+        <div class="grid-body">
+           <!-- Time Slots (Left) -->
+           <div class="time-slots">
+              @for (hour of hours; track hour) {
+                <div class="time-slot">{{ hour }}:00</div>
+              }
+           </div>
+
+           <!-- Grid Cells/Events -->
+           <div class="grid-container">
+              @for (day of displayedDays(); track day) {
+                <div class="day-column">
+                  @for (hour of hours; track hour) {
+                    <div class="cell"></div>
+                  }
+                  <!-- Events Overlay -->
+                   @for (booking of getProcessedBookingsForDay(day); track booking.id) {
+                    <div class="event" 
+                         [style.top.px]="getEventTop(booking)" 
+                         [style.height.px]="getEventHeight(booking)"
+                         [style.left.%]="booking.uiLeft"
+                         [style.width.%]="booking.uiWidth"
+                         [class]="getStatusClass(booking.status)"
+                         (click)="viewBooking(booking)">
+                      <div class="event-time">{{ (booking.startTime || '') | slice:0:5 }} - {{ (booking.endTime || '') | slice:0:5 }}</div>
+                      <div class="event-title">{{ booking.serviceName }}</div>
+                      <div class="event-helper">{{ booking.helperName || 'Chưa gán' }}</div>
+                      <div class="event-customer" style="font-size: 0.65rem; opacity: 0.8;">{{ booking.customerName }}</div>
+                    </div>
+                  }
+                </div>
+              }
+           </div>
+        </div>
+      </div>
+    } @else {
+      <div class="empty-calendar">
+        <span class="material-symbols-outlined">calendar_today</span>
+        <p>Tuần này không có lịch làm việc</p>
+      </div>
+    }
+  </div>
+
+   <!-- Simple Details Overlay -->
+   @if (selectedBooking()) {
+    <div class="modal-overlay" (click)="closeDetails()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Chi tiết đơn hàng #{{ selectedBooking()?.id }}</h3>
+          <button class="close-btn" (click)="closeDetails()">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="info-row">
+            <span class="label">Khách hàng:</span>
+            <span class="value">{{ selectedBooking()?.customerName }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Dịch vụ:</span>
+            <span class="value">{{ selectedBooking()?.serviceName }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Thời gian:</span>
+            <span class="value">{{ selectedBooking()?.startTime }} - {{ selectedBooking()?.endTime }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Ngày:</span>
+            <span class="value">{{ selectedBooking()?.startDate | date:'dd/MM/yyyy' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Người làm:</span>
+            <span class="value">{{ selectedBooking()?.helperName || 'Chưa gán' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Địa chỉ:</span>
+            <span class="value">{{ selectedBooking()?.address }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,118 @@
+<div class="page">
+  <div class="page-header">
+    <h2>Lịch Làm Việc</h2>
+    <div class="month-nav">
+      <button (click)="prevMonth()">
+        <span class="material-symbols-outlined">chevron_left</span>
+      </button>
+      <span class="month-label">{{ currentMonthLabel() }}</span>
+      <button (click)="nextMonth()">
+        <span class="material-symbols-outlined">chevron_right</span>
+      </button>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading">Đang tải...</div>
+  } @else {
+    <div class="schedule-container">
+      <!-- Calendar Grid -->
+      <div class="calendar">
+        <div class="calendar-header">
+          @for (day of weekDays; track day) {
+            <div class="day-header">{{ day }}</div>
+          }
+        </div>
+        <div class="calendar-body">
+          @for (day of calendarDays(); track $index) {
+            <div class="calendar-day" 
+                 [class.other-month]="!day.isCurrentMonth"
+                 [class.has-jobs]="day.jobs.length > 0"
+                 [class.selected]="isSelectedDate(day.date)"
+                 (click)="selectDate(day.date)">
+              <span class="day-number">{{ day.day }}</span>
+              @if (day.jobs.length > 0) {
+                <span class="job-count">{{ day.jobs.length }}</span>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+       <!-- Selected Day Jobs -->
+      <div class="day-jobs">
+        <h3>{{ selectedDateLabel() }}</h3>
+        @if (selectedDayJobs().length === 0) {
+          <div class="empty">Không có công việc</div>
+        } @else {
+          @for (job of selectedDayJobs(); track job.id) {
+            <div class="job-card" (click)="viewJob(job)">
+              <div class="job-header">
+                <span class="job-time">{{ job.startTime }} - {{ job.endTime }}</span>
+                <span class="job-status" [class]="job.status.toLowerCase()">{{ getStatusLabel(job.status) }}</span>
+              </div>
+              <h4>{{ job.serviceName }}</h4>
+              <p><span class="material-symbols-outlined">person</span> {{ job.customerName }}</p>
+              <p><span class="material-symbols-outlined">location_on</span> {{ job.address }}</p>
+              <div class="job-price">{{ job.totalPrice | number }}₫</div>
+            </div>
+          }
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Detail Modal -->
+  @if (selectedJob()) {
+    <div class="modal-overlay" (click)="closeJobModal()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Chi Tiết Công Việc #{{ selectedJob()!.id }}</h3>
+          <button class="close-btn" (click)="closeJobModal()">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="detail-grid">
+            <div class="detail-item">
+              <label>Dịch vụ</label>
+              <p class="font-bold">{{ selectedJob()!.serviceName }}</p>
+            </div>
+            <div class="detail-item">
+              <label>Khách hàng</label>
+              <p>{{ selectedJob()!.customerName }}</p>
+            </div>
+            <div class="detail-item full-width">
+              <label>Địa chỉ</label>
+              <p>{{ selectedJob()!.address }}</p>
+            </div>
+            <div class="detail-item">
+              <label>Ngày bắt đầu</label>
+              <p>{{ selectedJob()!.startDate | date:'dd/MM/yyyy' }}</p>
+            </div>
+            <div class="detail-item">
+              <label>Ngày kết thúc</label>
+              <p>{{ selectedJob()!.endDate | date:'dd/MM/yyyy' }}</p>
+            </div>
+            <div class="detail-item">
+              <label>Thời gian</label>
+              <p>{{ selectedJob()!.startTime }} - {{ selectedJob()!.endTime }}</p>
+            </div>
+            <div class="detail-item">
+              <label>Trạng thái</label>
+              <p>
+                <span class="status-badge" [class]="selectedJob()!.status.toLowerCase()">
+                  {{ getStatusLabel(selectedJob()!.status) }}
+                </span>
+              </p>
+            </div>
+            <div class="detail-item">
+              <label>Thanh toán</label>
+              <p class="price">{{ selectedJob()!.totalPrice | number }}₫</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

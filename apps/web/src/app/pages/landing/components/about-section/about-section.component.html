@@ -1,0 +1,88 @@
+<section id="about" class="about-section">
+  <div class="container">
+    <div class="about-grid">
+      <!-- Left Content -->
+      <div class="about-content">
+        <span class="section-badge">Về Chúng Tôi</span>
+        <h2 class="section-title">Đồng Hành Cùng Gia Đình Việt Từ 2020</h2>
+        <p class="about-text">
+          <strong>Giúp Việc Nhà</strong> ra đời với sứ mệnh mang đến giải pháp giúp việc gia đình 
+          chuyên nghiệp, uy tín và tiện lợi nhất cho mọi gia đình Việt Nam.
+        </p>
+        <p class="about-text">
+          Chúng tôi kết nối hàng ngàn người giúp việc đã được đào tạo bài bản với các gia đình 
+          cần hỗ trợ, đảm bảo mọi dịch vụ đều đạt tiêu chuẩn chất lượng cao nhất.
+        </p>
+        
+        <div class="stats-grid">
+          @for (stat of stats; track stat.label) {
+            <div class="stat-card">
+              <span class="material-symbols-outlined stat-icon">{{ stat.icon }}</span>
+              <div class="stat-value">{{ stat.value }}</div>
+              <div class="stat-label">{{ stat.label }}</div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Right Content - Image/Illustration -->
+      <div class="about-visual">
+        <div class="visual-card">
+          <div class="visual-header">
+            <span class="material-symbols-outlined">verified</span>
+            <span>Cam Kết Của Chúng Tôi</span>
+          </div>
+          <ul class="commitment-list">
+            <li>
+              <span class="material-symbols-outlined">shield</span>
+              <div>
+                <strong>Bảo Hiểm Toàn Diện</strong>
+                <p>Mọi dịch vụ đều được bảo hiểm 100%</p>
+              </div>
+            </li>
+            <li>
+              <span class="material-symbols-outlined">verified_user</span>
+              <div>
+                <strong>Nhân Viên Được Xác Minh</strong>
+                <p>Kiểm tra lý lịch và đào tạo chuyên nghiệp</p>
+              </div>
+            </li>
+            <li>
+              <span class="material-symbols-outlined">support_agent</span>
+              <div>
+                <strong>Hỗ Trợ 24/7</strong>
+                <p>Luôn sẵn sàng hỗ trợ mọi lúc mọi nơi</p>
+              </div>
+            </li>
+            <li>
+              <span class="material-symbols-outlined">payments</span>
+              <div>
+                <strong>Hoàn Tiền Nếu Không Hài Lòng</strong>
+                <p>Cam kết hoàn tiền 100% nếu bạn không hài lòng</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Team Section -->
+    <div class="team-section">
+      <h3 class="team-title">Đội Ngũ Xuất Sắc</h3>
+      <p class="team-subtitle">Những người giúp việc tiêu biểu của chúng tôi</p>
+      <div class="team-grid">
+        @for (member of teamMembers; track member.name) {
+          <div class="team-card">
+            <div class="team-avatar">
+              <span class="initials">{{ getInitials(member.name) }}</span>
+            </div>
+            <div class="team-info">
+              <h4>{{ member.name }}</h4>
+              <span>{{ member.role }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</section>

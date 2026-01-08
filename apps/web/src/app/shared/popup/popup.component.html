@@ -1,0 +1,27 @@
+@for (notification of notificationService.notifications(); track notification.id) {
+  <div class="popup-overlay" (click)="onOverlayClick(notification, $event)">
+    <div class="popup-container" [class]="notification.type" (click)="$event.stopPropagation()">
+      <div class="popup-icon">
+        @switch (notification.type) {
+          @case ('success') { <span class="material-symbols-outlined">check_circle</span> }
+          @case ('error') { <span class="material-symbols-outlined">error</span> }
+          @case ('warning') { <span class="material-symbols-outlined">warning</span> }
+          @case ('info') { <span class="material-symbols-outlined">info</span> }
+          @case ('confirm') { <span class="material-symbols-outlined">help</span> }
+        }
+      </div>
+      <div class="popup-content">
+        <h3 class="popup-title">{{ notification.title }}</h3>
+        <p class="popup-message">{{ notification.message }}</p>
+      </div>
+      <div class="popup-actions">
+        @if (notification.showConfirmButtons) {
+          <button class="btn btn-cancel" (click)="close(notification, false)">Hủy</button>
+          <button class="btn btn-confirm" (click)="close(notification, true)">Xác nhận</button>
+        } @else {
+          <button class="btn btn-close" (click)="close(notification)">Đóng</button>
+        }
+      </div>
+    </div>
+  </div>
+}

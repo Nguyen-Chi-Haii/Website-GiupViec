@@ -18,75 +18,8 @@ export interface AddressResult {
   selector: 'app-address-selector',
   standalone: true,
   imports: [CommonModule, FormsModule, SearchableDropdownComponent],
-  template: `
-    <div class="address-selector">
-      <div class="form-grid">
-        <!-- Tỉnh/Thành -->
-        <div class="form-group">
-          <label>Tỉnh/Thành phố <span class="required">*</span></label>
-          <app-searchable-dropdown
-            [options]="provinceOptions()"
-            [selectedCode]="selectedProvinceCode"
-            [isLoading]="isLoadingProvinces()"
-            placeholder="Chọn Tỉnh/Thành"
-            (selectionChange)="onProvinceSelect($event)"
-          ></app-searchable-dropdown>
-        </div>
-
-        <!-- Phường/Xã -->
-        <div class="form-group">
-          <label>Phường/Xã <span class="required">*</span></label>
-          <app-searchable-dropdown
-            [options]="wardOptions()"
-            [selectedCode]="selectedWardCode"
-            [isLoading]="isLoadingWards()"
-            [disabled]="!selectedProvinceCode"
-            placeholder="Chọn Phường/Xã"
-            (selectionChange)="onWardSelect($event)"
-          ></app-searchable-dropdown>
-        </div>
-
-        <!-- Địa chỉ chi tiết -->
-        <div class="form-group full-width">
-          <label>Số nhà, tên đường <span class="required">*</span></label>
-          <input
-            type="text"
-            [(ngModel)]="streetAddress"
-            (input)="onStreetChange()"
-            placeholder="Ví dụ: 123 Đường Nguyễn Huệ"
-            class="street-input"
-          />
-        </div>
-      </div>
-    </div>
-  `,
-  styles: [`
-    :host { display: block; width: 100%; }
-    .address-selector { width: 100%; box-sizing: border-box; }
-    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; width: 100%; }
-    .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
-    .form-group.full-width { grid-column: span 2; }
-    .form-group label { font-size: 0.875rem; font-weight: 500; color: var(--text-dark, #111817); }
-    .required { color: #ef4444; }
-    .street-input {
-      width: 100%;
-      height: 3rem;
-      padding: 0 1rem;
-      font-size: 1rem;
-      border: 1px solid #dce5e4;
-      border-radius: 0.5rem;
-      background-color: white;
-      color: var(--text-dark, #111817);
-      transition: border-color 0.2s ease;
-      box-sizing: border-box;
-    }
-    .street-input:focus { outline: none; border-color: var(--primary-color, #13b9a5); box-shadow: 0 0 0 1px var(--primary-color); }
-    
-    @media (max-width: 640px) {
-      .form-grid { grid-template-columns: 1fr; }
-      .form-group.full-width { grid-column: span 1; }
-    }
-  `]
+  templateUrl: './address-selector.component.html',
+  styleUrl: './address-selector.component.css'
 })
 export class AddressSelectorComponent implements OnInit, OnChanges {
   private readonly provincesService = inject(VietnamProvincesService);

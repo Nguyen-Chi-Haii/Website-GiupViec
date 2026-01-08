@@ -1,0 +1,237 @@
+<div class="page">
+  <div class="page-header">
+    <h2>Đơn Của Tôi</h2>
+    <a routerLink="/booking" class="btn-primary">
+      <span class="material-symbols-outlined">add</span>
+      Đặt Dịch Vụ Mới
+    </a>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat">
+      <span class="stat-value">{{ totalBookings() }}</span>
+      <span class="stat-label">Tổng đơn</span>
+    </div>
+    <div class="stat">
+      <span class="stat-value pending">{{ pendingBookings() }}</span>
+      <span class="stat-label">Chờ xử lý</span>
+    </div>
+    <div class="stat">
+      <span class="stat-value confirmed">{{ confirmedBookings() }}</span>
+      <span class="stat-label">Đang thực hiện</span>
+    </div>
+    <div class="stat">
+      <span class="stat-value completed">{{ completedBookings() }}</span>
+      <span class="stat-label">Hoàn thành</span>
+    </div>
+    <div class="stat">
+      <span class="stat-value cancelled">{{ cancelledBookings() }}</span>
+      <span class="stat-label">Đã hủy</span>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading">Đang tải...</div>
+  } @else if (bookings().length === 0) {
+    <div class="empty-state">
+      <span class="material-symbols-outlined">receipt_long</span>
+      <h3>Chưa có đơn nào</h3>
+      <p>Bạn chưa đặt dịch vụ nào. Hãy bắt đầu đặt ngay!</p>
+      <a routerLink="/booking" class="btn-primary">Đặt Dịch Vụ</a>
+    </div>
+  } @else {
+    <div class="bookings-list">
+      @for (booking of bookings(); track booking.id) {
+        <div class="booking-card" (click)="viewBooking(booking)">
+          <div class="booking-header">
+            <span class="booking-id">#{{ booking.id }}</span>
+            <span class="status-badge" [class]="booking.status.toLowerCase()">
+              {{ getStatusLabel(booking.status) }}
+            </span>
+          </div>
+          <h3>{{ booking.serviceName }}</h3>
+          <div class="booking-info">
+            <p>
+              <span class="material-symbols-outlined">calendar_month</span>
+              {{ booking.startDate | date:'dd/MM/yyyy' }}
+              @if (booking.startDate !== booking.endDate) {
+                - {{ booking.endDate | date:'dd/MM/yyyy' }}
+              }
+            </p>
+            <p>
+              <span class="material-symbols-outlined">schedule</span>
+              {{ formatTime(booking.startTime) }} - {{ formatTime(booking.endTime) }}
+            </p>
+            <p>
+              <span class="material-symbols-outlined">location_on</span>
+              {{ booking.address }}
+            </p>
+            @if (booking.helperName) {
+              <p>
+                <span class="material-symbols-outlined">person</span>
+                {{ booking.helperName }}
+              </p>
+            } @else {
+              <p class="no-helper">
+                <span class="material-symbols-outlined">person_search</span>
+                Chưa phân công người làm
+              </p>
+            }
+          </div>
+          <div class="booking-footer">
+            <div class="footer-left">
+              <span class="payment-badge" [class]="booking.paymentStatus.toLowerCase()">
+                {{ booking.paymentStatus === 'Paid' ? 'Đã thanh toán' : 'Chưa thanh toán' }}
+              </span>
+              <span class="price">{{ booking.totalPrice | number }}₫</span>
+            </div>
+            <div class="footer-actions">
+              @if (booking.status === 'Pending') {
+                <button class="btn-cancel" (click)="cancelBooking(booking); $event.stopPropagation()">Hủy đơn</button>
+              }
+              @if (booking.status === 'Completed' && !booking.isRated) {
+                <button class="btn-rate" (click)="openRatingModal(booking); $event.stopPropagation()">
+                  <span class="material-symbols-outlined">star</span>
+                  Đánh giá
+                </button>
+              }
+              @if (booking.status === 'Cancelled' || booking.status === 'Rejected') {
+                <button class="btn-reorder" (click)="reorderBooking(booking); $event.stopPropagation()">Đặt lại</button>
+              } @else if (booking.paymentStatus === 'Unpaid' && booking.status !== 'Completed' && booking.status !== 'Cancelled') {
+                <button class="btn-pay" [disabled]="payingBookingId() === booking.id" (click)="payBooking(booking.id); $event.stopPropagation()">
+                  {{ payingBookingId() === booking.id ? 'Đang xử lý...' : 'Thanh toán' }}
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Detail Modal -->
+  @if (selectedBooking()) {
+    <div class="modal-overlay" (click)="closeModal()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Chi Tiết Đơn Hàng #{{ selectedBooking()!.id }}</h3>
+          <button class="close-btn" (click)="closeModal()">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="detail-grid">
+            <div class="detail-item">
+              <label>Dịch vụ</label>
+              <p class="font-bold">{{ selectedBooking()!.serviceName }}</p>
+            </div>
+            <div class="detail-item">
+              <label>Người giúp việc</label>
+              <p>{{ selectedBooking()!.helperName || 'Đang tìm người...' }}</p>
+            </div>
+            <div class="detail-item full-width">
+              <label>Địa chỉ</label>
+              <p>{{ selectedBooking()!.address }}</p>
+            </div>
+            <div class="detail-item">
+              <label>Ngày bắt đầu</label>
+              <p>{{ selectedBooking()!.startDate | date:'dd/MM/yyyy' }}</p>
+            </div>
+            <div class="detail-item">
+              <label>Ngày kết thúc</label>
+              <p>{{ selectedBooking()!.endDate | date:'dd/MM/yyyy' }}</p>
+            </div>
+            <div class="detail-item">
+              <label>Thời gian</label>
+              <p>{{ formatTime(selectedBooking()!.startTime) }} - {{ formatTime(selectedBooking()!.endTime) }}</p>
+            </div>
+            <div class="detail-item">
+              <label>Trạng thái</label>
+              <p>
+                <span class="status-badge" [class]="selectedBooking()!.status.toLowerCase()">
+                  {{ getStatusLabel(selectedBooking()!.status) }}
+                </span>
+              </p>
+            </div>
+            <div class="detail-item">
+              <label>Thanh toán</label>
+              <p>
+                <span class="payment-badge" [class]="selectedBooking()!.paymentStatus.toLowerCase()">
+                  {{ selectedBooking()!.paymentStatus === 'Paid' ? 'Đã thanh toán' : 'Chưa thanh toán' }}
+                </span>
+              </p>
+            </div>
+            <div class="detail-item">
+              <label>Tổng tiền</label>
+              <p class="price-large">{{ selectedBooking()!.totalPrice | number }}₫</p>
+            </div>
+            @if (selectedBooking()!.notes) {
+              <div class="detail-item full-width">
+                <label>Ghi chú</label>
+                <p class="notes">{{ selectedBooking()!.notes }}</p>
+              </div>
+            }
+          </div>
+        </div>
+        @if (selectedBooking()!.status === 'Completed' && !selectedBooking()!.isRated) {
+          <div class="modal-footer">
+            <button class="btn-rate-large" (click)="openRatingModal(selectedBooking()!)">
+              <span class="material-symbols-outlined">star</span>
+              Đánh giá người giúp việc ngay
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Rating Modal -->
+  @if (ratingBooking()) {
+    <div class="modal-overlay" (click)="closeRatingModal()">
+      <div class="modal rating-modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Đánh giá dịch vụ</h3>
+          <button class="close-btn" (click)="closeRatingModal()">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p class="rating-target">Bạn đang đánh giá đơn hàng <strong>#{{ ratingBooking()!.id }}</strong> - <strong>{{ ratingBooking()!.helperName }}</strong></p>
+          
+          <div class="star-rating">
+            @for (star of [1,2,3,4,5]; track star) {
+              <span 
+                class="material-symbols-outlined star" 
+                [class.filled]="star <= currentScore()"
+                (click)="currentScore.set(star)"
+              >
+                star
+              </span>
+            }
+          </div>
+          <p class="score-label">{{ getScoreLabel(currentScore()) }}</p>
+
+          <div class="form-group">
+            <label>Nhận xét của bạn (không bắt buộc)</label>
+            <textarea 
+              [(ngModel)]="ratingComment" 
+              placeholder="Chia sẻ trải nghiệm của bạn về dịch vụ và người giúp việc..."
+              rows="4"
+            ></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-outline" (click)="closeRatingModal()">Bỏ qua</button>
+          <button 
+            class="btn-primary" 
+            [disabled]="isSubmittingRating() || currentScore() === 0"
+            (click)="submitRating()"
+          >
+            {{ isSubmittingRating() ? 'Đang gửi...' : 'Gửi đánh giá' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

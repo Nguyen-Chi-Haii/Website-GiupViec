@@ -1,0 +1,258 @@
+﻿[33mΓ¥»[39m Building...
+node.exe : 
+At line:1 char:1
++ & "C:\Program Files
+\nodejs/node.exe" "C:
+\Users\haila\AppData\
+Roaming\ ...
++ ~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~
+    + CategoryInfo   
+           : NotSpe  
+  cified: (:String   
+ ) [], RemoteExce    
+ption
+    + FullyQualified 
+   ErrorId : Native  
+  CommandError
+ 
+  polyfills-5CFQRCPP.
+js  33.8kb
+
+Done in 91ms
+X [ERROR] NG5002: 
+Parser Error: 
+Unexpected token / 
+at column 53 in 
+['tel:' + contentServ
+ice.jdContent().hotli
+ne.replace(/ /g, 
+'')] in D:\Code\Angul
+ar\GIUPVIEC\apps\web\
+src\app\pages\helper-
+jobs\helper-jobs.comp
+onent.html@105:21 
+[plugin 
+angular-compiler]
+
+    src/app/pages/hel
+per-jobs/helper-jobs.
+component.html:106:21
+:
+      106 Γöé ...a 
+[href]="'tel:' + cont
+entService.jdContent(
+).hotline.replace(...
+          Γò╡        
+      ~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
+
+  Error occurs in 
+the template of 
+component 
+HelperJobsComponent.
+
+    src/app/pages/hel
+per-jobs/helper-jobs.
+component.ts:26:15:
+      26 Γöé   
+templateUrl: './helpe
+r-jobs.component.html
+',
+         Γò╡         
+       ~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
+
+X [ERROR] TS2554: 
+Expected 2 
+arguments, but got 
+1. [plugin 
+angular-compiler]
+
+    src/app/pages/hel
+per-jobs/helper-jobs.
+component.html:106:65
+:
+      106 Γöé ...Serv
+ice.jdContent().hotli
+ne.replace(/ /g, 
+'')" class="btn 
+btn-...
+          Γò╡        
+                     
+   ~~~~~~~
+
+  Error occurs in 
+the template of 
+component 
+HelperJobsComponent.
+
+    src/app/pages/hel
+per-jobs/helper-jobs.
+component.ts:26:15:
+      26 Γöé   
+templateUrl: './helpe
+r-jobs.component.html
+',
+         Γò╡         
+       ~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
+
+Γû▓ [WARNING] 
+Expected ":" [plugin 
+angular-compiler] 
+[css-syntax-error]
+
+    angular:styles/co
+mponent:css;5b1195dd8
+6e256cc69fdbb18fba790
+3751ef826b3252d9671ef
+312fc48d1fc31;D:/Code
+/Angular/GIUPVIEC/app
+s/web/src/app/pages/h
+elper/dashboard/dashb
+oard.component.ts:51:
+67:
+      51 Γöé 
+...lex-direction: 
+column; items-end; 
+justify-content: 
+space-betwee...
+         Γöé         
+                     
+      ^
+         Γò╡         
+                     
+      :
+
+1 warning and 2 
+errors
+[32mΓ£ö[39m Building...
+Application bundle generation failed. [7.523 seconds] - 2026-01-08T07:42:10.126Z
+
+[1m[33m[33mΓû▓ [4
+3;33m[[43;30mWARNING
+[43;33m][0m 
+[1mExpected ":"[0m 
+[1m[35m[plugin angu
+lar-compiler][0m 
+[css-syntax-error]
+
+    angular:styles/co
+mponent:css;5b1195dd8
+6e256cc69fdbb18fba790
+3751ef826b3252d9671ef
+312fc48d1fc31;D:/Code
+/Angular/GIUPVIEC/app
+s/web/src/app/pages/h
+elper/dashboard/dashb
+oard.component.ts:51:
+67:
+[37m      51 Γöé 
+...lex-direction: 
+column; 
+items-end[32m[37m; 
+justify-content: 
+space-betwee...
+         Γöé         
+                     
+      [32m^[37m
+         Γò╡         
+                     
+      [32m:[0m
+
+[39m[22m
+[1m[31m[31mX [41;
+31m[[41;97mERROR[41
+;31m][0m 
+[1mNG5002: Parser 
+Error: Unexpected 
+token / at column 53 
+in ['tel:' + contentS
+ervice.jdContent().ho
+tline.replace(/ /g, 
+'')] in D:\Code\Angul
+ar\GIUPVIEC\apps\web\
+src\app\pages\helper-
+jobs\helper-jobs.comp
+onent.html@105:21[0m
+ [1m[35m[plugin 
+angular-compiler][0m
+
+    src/app/pages/hel
+per-jobs/helper-jobs.
+component.html:106:21
+:
+[37m      106 Γöé 
+...a 
+[href]="[32m'tel:' 
++ contentService.jdCo
+ntent().hotline.repla
+ce([37m...
+          Γò╡        
+      [32m~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+[0m
+
+  Error occurs in 
+the template of 
+component 
+HelperJobsComponent.
+
+    src/app/pages/hel
+per-jobs/helper-jobs.
+component.ts:26:15:
+[37m      26 Γöé   
+templateUrl: [32m'./
+helper-jobs.component
+.html'[37m,
+         Γò╡         
+       [32m~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+[0m
+
+
+[31mX [41;31m[[41;
+97mERROR[41;31m][0m
+ [1mTS2554: 
+Expected 2 
+arguments, but got 
+1.[0m 
+[1m[35m[plugin 
+angular-compiler][0m
+
+    src/app/pages/hel
+per-jobs/helper-jobs.
+component.html:106:65
+:
+[37m      106 Γöé ..
+.Service.jdContent().
+hotline.[32mreplace
+[37m(/ /g, '')" 
+class="btn btn-...
+          Γò╡        
+                     
+   [32m~~~~~~~[0m
+
+  Error occurs in 
+the template of 
+component 
+HelperJobsComponent.
+
+    src/app/pages/hel
+per-jobs/helper-jobs.
+component.ts:26:15:
+[37m      26 Γöé   
+templateUrl: [32m'./
+helper-jobs.component
+.html'[37m,
+         Γò╡         
+       [32m~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+[0m
+
+[39m[22m

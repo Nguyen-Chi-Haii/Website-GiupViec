@@ -1,0 +1,75 @@
+<div class="admin-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <!-- Logo Area -->
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-icon">
+          <span class="material-symbols-outlined">cleaning_services</span>
+        </div>
+        <h1 class="logo-text">GiúpViệc Admin</h1>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="sidebar-nav">
+      @for (item of navItems; track item.route) {
+        <a 
+          class="nav-item" 
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{exact: item.route === '/admin'}"
+        >
+          <span class="material-symbols-outlined">{{ item.icon }}</span>
+          <span class="nav-label">{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+
+    <!-- User Profile & Logout -->
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar">AD</div>
+        <div class="user-details">
+          <p class="user-name">Admin User</p>
+          <p class="user-email">admin&#64;giupviecnha.vn</p>
+        </div>
+      </div>
+      <button class="logout-btn" (click)="logout()">
+        <span class="material-symbols-outlined">logout</span>
+        <span>Đăng Xuất</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Top Header -->
+    <header class="top-header">
+      <div class="header-left">
+        <!-- Removed duplicate title - each page has its own -->
+      </div>
+      <div class="header-right">
+        <!-- Search -->
+        <div class="search-box">
+          <span class="material-symbols-outlined">search</span>
+          <input type="text" placeholder="Tìm kiếm..." [(ngModel)]="searchQuery" (keyup.enter)="onSearch()" />
+        </div>
+        <!-- Notifications -->
+        <button class="header-btn" (click)="showNotifications()" title="Thông báo">
+          <span class="material-symbols-outlined">notifications</span>
+          <span class="notification-badge"></span>
+        </button>
+        <!-- Settings -->
+        <button class="header-btn" (click)="showSettings()" title="Cài đặt">
+          <span class="material-symbols-outlined">settings</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Scrollable Content -->
+    <div class="content-area">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+</div>
