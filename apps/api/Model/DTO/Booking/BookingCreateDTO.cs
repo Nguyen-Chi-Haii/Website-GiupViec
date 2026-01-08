@@ -24,6 +24,8 @@ namespace GiupViecAPI.Model.DTO.Booking
         public string Address { get; set; }
 
         public int? HelperId { get; set; }
+ 
+        public double Quantity { get; set; } = 1;
 
         public string? Notes { get; set; }
     }

@@ -45,11 +45,11 @@
             (click)="selectService(service)"
           >
             <div class="service-icon">
-              <span class="material-symbols-outlined">{{ getServiceIcon(service.name) }}</span>
+              <span class="material-symbols-outlined">{{ service.icon || getServiceIcon(service.name) }}</span>
             </div>
             <div class="service-info">
               <h3 class="service-name">{{ service.name }}</h3>
-              <p class="service-price">{{ formatPrice(service.price) }}<span>/giờ</span></p>
+              <p class="service-price">{{ formatPrice(service.price) }}<span>/{{ service.unitLabel || 'giờ' }}</span></p>
             </div>
             <div class="service-check">
               @if (isSelected(service)) {

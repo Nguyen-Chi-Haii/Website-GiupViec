@@ -32,6 +32,7 @@ export interface BookingState {
   notes: string;
   selectedHelper: HelperSuggestion | null;
   autoAssignHelper: boolean;
+  quantity: number;
   guestInfo: GuestInfo | null;
 }
 
@@ -47,6 +48,7 @@ export class BookingStateService {
   private _notes = signal('');
   private _selectedHelper = signal<HelperSuggestion | null>(null);
   private _autoAssignHelper = signal(true);
+  private _quantity = signal(1);
   private _guestInfo = signal<GuestInfo | null>(null);
 
   // Public readonly signals
@@ -57,6 +59,7 @@ export class BookingStateService {
   readonly notes = this._notes.asReadonly();
   readonly selectedHelper = this._selectedHelper.asReadonly();
   readonly autoAssignHelper = this._autoAssignHelper.asReadonly();
+  readonly quantity = this._quantity.asReadonly();
   readonly guestInfo = this._guestInfo.asReadonly();
 
   // Computed values
@@ -87,9 +90,23 @@ export class BookingStateService {
   // Calculate total price
   readonly totalPrice = computed(() => {
     const service = this._selectedService();
-    const hours = this.totalHours();
     if (!service) return 0;
-    return service.price * hours;
+
+    if (service.unit === 'Hour' || !service.unit) {
+      const hours = this.totalHours();
+      return service.price * hours;
+    } else {
+      // Piece, m2, Session based
+      return service.price * this._quantity();
+    }
+  });
+
+  // Calculate display quantity (hours or items)
+  readonly displayQuantity = computed(() => {
+    const service = this._selectedService();
+    if (!service) return 0;
+    if (service.unit === 'Hour' || !service.unit) return this.totalHours();
+    return this._quantity();
   });
 
   // Actions
@@ -131,6 +148,10 @@ export class BookingStateService {
     this._guestInfo.set(info);
   }
 
+  setQuantity(qty: number): void {
+    this._quantity.set(qty);
+  }
+
   // Get full state for API call (for logged-in users)
   getBookingData() {
     const address = this._address();
@@ -142,6 +163,7 @@ export class BookingStateService {
       workShiftEnd: this._schedule()?.workShiftEnd ?? '',
       address: address?.fullAddress ?? '',
       helperId: this._selectedHelper()?.userId,
+      quantity: this._quantity(),
       notes: this._notes() || undefined
     };
   }
@@ -163,6 +185,7 @@ export class BookingStateService {
       workShiftEnd: this._schedule()?.workShiftEnd ?? '',
       address: address?.fullAddress ?? '',
       helperId: this._selectedHelper()?.userId,
+      quantity: this._quantity(),
       notes: this._notes() || undefined,
       // CAPTCHA
       captchaToken: captchaToken
@@ -178,6 +201,7 @@ export class BookingStateService {
     this._notes.set('');
     this._selectedHelper.set(null);
     this._autoAssignHelper.set(true);
+    this._quantity.set(1);
     this._guestInfo.set(null);
   }
 
@@ -197,6 +221,9 @@ export class BookingStateService {
       id: booking.serviceId,
       name: booking.serviceName,
       price: 0, // Will be recalculated
+      unit: 'Hour', // Default to Hour for re-orders
+      minQuantity: 1,
+      requiresNotes: false,
       isActive: true
     });
 

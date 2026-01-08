@@ -2,8 +2,23 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { 
+  ServiceResponse, 
+  ServiceCreateDTO, 
+  ServiceUpdateDTO, 
+  ServiceUnit,
+  BookingResponseDTO as SharedBookingResponse,
+  BookingCreateDTO as SharedBookingCreate
+} from '@giupviec/shared';
+
+// Re-export for backward compatibility
+export type { ServiceResponse, ServiceCreateDTO, ServiceUpdateDTO, ServiceUnit };
+export type BookingResponse = SharedBookingResponse;
+// REMOVING BookingCreate re-export to prefer the local interface which handles admin-specific fields
+// export type BookingCreate = SharedBookingCreate; 
 
 // ============== Statistics Types ==============
+// ... (rest of stats)
 export interface AdminStats {
   totalUsers: number;
   totalHelpers: number;
@@ -25,26 +40,7 @@ export interface HelperDashboardStats {
 }
 
 // ============== Booking Types ==============
-export interface BookingResponse {
-  id: number;
-  customerId: number;
-  customerName: string;
-  helperId?: number;
-  helperName?: string;
-  serviceId: number;
-  serviceName: string;
-  address: string;
-  startDate: string;
-  endDate: string;
-  startTime: string;
-  endTime: string;
-  status: string;
-  paymentStatus: string;
-  totalPrice: number;
-  isPaid: boolean;
-  notes?: string;
-  createdAt: string;
-}
+// (Local BookingResponse removed in favor of SharedBookingResponse)
 
 export interface BookingStatusUpdate {
   status: number; // 1=Pending, 2=Confirmed, 3=Rejected, 4=Completed, 5=Cancelled
@@ -56,6 +52,7 @@ export interface BookingAssignHelper {
 }
 
 // Admin tạo đơn hàng (cần customerId thay vì lấy từ token)
+// Admin tạo đơn hàng (cần customerId thay vì lấy từ token)
 export interface BookingCreate {
   customerId: number;      // ID khách hàng
   serviceId: number;       // ID dịch vụ
@@ -64,28 +61,13 @@ export interface BookingCreate {
   workShiftStart: string;  // Format: HH:mm:ss
   workShiftEnd: string;    // Format: HH:mm:ss
   address: string;         // Địa chỉ đầy đủ
+  quantity: number;        // Thêm trường số lượng
   notes?: string;          // Ghi chú
   helperId?: number;       // ID helper (optional)
 }
 
 // ============== Service Types ==============
-export interface ServiceResponse {
-  id: number;
-  name: string;
-  price: number;
-  isActive: boolean;
-}
-
-export interface ServiceCreate {
-  name: string;
-  price: number;
-}
-
-export interface ServiceUpdate {
-  name?: string;
-  price?: number;
-  isActive?: boolean;
-}
+// (Local Service interfaces removed in favor of shared ones)
 
 // ============== User Types ==============
 export interface UserResponse {
@@ -188,12 +170,12 @@ export class AdminService {
   }
 
   // --- Bookings ---
-  getAllBookings(): Observable<BookingResponse[]> {
-    return this.http.get<BookingResponse[]>(`${this.apiUrl}/bookings`);
+  getAllBookings(): Observable<SharedBookingResponse[]> {
+    return this.http.get<SharedBookingResponse[]>(`${this.apiUrl}/bookings`);
   }
 
-  getBookingById(id: number): Observable<BookingResponse> {
-    return this.http.get<BookingResponse>(`${this.apiUrl}/bookings/${id}`);
+  getBookingById(id: number): Observable<SharedBookingResponse> {
+    return this.http.get<SharedBookingResponse>(`${this.apiUrl}/bookings/${id}`);
   }
 
   updateBookingStatus(id: number, dto: BookingStatusUpdate): Observable<any> {
@@ -214,8 +196,8 @@ export class AdminService {
   }
 
   // Admin tạo đơn hàng mới
-  createBooking(dto: BookingCreate): Observable<BookingResponse> {
-    return this.http.post<BookingResponse>(`${this.apiUrl}/bookings/admin`, dto);
+  createBooking(dto: BookingCreate): Observable<SharedBookingResponse> {
+    return this.http.post<SharedBookingResponse>(`${this.apiUrl}/bookings/admin`, dto);
   }
 
   // --- Services ---
@@ -223,11 +205,11 @@ export class AdminService {
     return this.http.get<ServiceResponse[]>(`${this.apiUrl}/services`);
   }
 
-  createService(dto: ServiceCreate): Observable<ServiceResponse> {
+  createService(dto: ServiceCreateDTO): Observable<ServiceResponse> {
     return this.http.post<ServiceResponse>(`${this.apiUrl}/services`, dto);
   }
 
-  updateService(id: number, dto: ServiceUpdate): Observable<ServiceResponse> {
+  updateService(id: number, dto: ServiceUpdateDTO): Observable<ServiceResponse> {
     return this.http.put<ServiceResponse>(`${this.apiUrl}/services/${id}`, dto);
   }
 
@@ -255,6 +237,10 @@ export class AdminService {
   // --- Helpers ---
   getAllHelperProfiles(): Observable<HelperProfile[]> {
     return this.http.get<HelperProfile[]>(`${this.apiUrl}/helperprofiles`);
+  }
+
+  getServiceUnitLabels(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.apiUrl}/services/unit-labels`);
   }
 
   getHelperProfile(userId: number): Observable<HelperProfile> {

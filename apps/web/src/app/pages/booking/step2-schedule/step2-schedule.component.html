@@ -32,9 +32,11 @@
     <!-- Selected Service Badge -->
     @if (selectedService) {
       <div class="selected-service">
-        <span class="material-symbols-outlined">cleaning_services</span>
+        <span class="material-symbols-outlined">{{ selectedService.icon || 'cleaning_services' }}</span>
         <span>{{ selectedService.name }}</span>
-        <span class="service-price">{{ formatPrice(selectedService.price) }}/giờ</span>
+        <span class="service-price">
+          {{ formatPrice(selectedService.price) }}/{{ selectedService.unitLabel || 'giờ' }}
+        </span>
       </div>
     }
 
@@ -137,8 +139,9 @@
         </div>
       </div>
 
-      <!-- Time Section -->
-      <div class="form-section">
+      <!-- Time/Quantity Section -->
+      @if (selectedService?.unit === 'Hour') {
+        <div class="form-section">
         <h3 class="section-title">
           <span class="material-symbols-outlined">schedule</span>
           Giờ Làm Việc
@@ -178,6 +181,33 @@
           </div>
         </div>
       </div>
+      } @else {
+        <div class="form-section">
+          <h3 class="section-title">
+            <span class="material-symbols-outlined">analytics</span>
+            Khối Lượng Công Việc
+          </h3>
+          <div class="form-group">
+            <label for="quantity">Số lượng ({{ selectedService?.unitLabel }}) <span class="required">*</span></label>
+            <div class="quantity-input-wrapper">
+              <button type="button" class="qty-btn" (click)="quantity = quantity > (selectedService?.minQuantity || 1) ? quantity - 1 : quantity">-</button>
+              <input 
+                type="number" 
+                id="quantity"
+                [(ngModel)]="quantity"
+                name="quantity"
+                [min]="selectedService?.minQuantity || 1"
+                [class.error]="errors()['quantity']"
+              />
+              <button type="button" class="qty-btn" (click)="quantity = quantity + 1">+</button>
+            </div>
+            @if (errors()['quantity']) {
+              <span class="error-text">{{ errors()['quantity'] }}</span>
+            }
+            <span class="help-text">Tối thiểu: {{ selectedService?.minQuantity }} {{ selectedService?.unitLabel }}</span>
+          </div>
+        </div>
+      }
 
       <!-- Address Section -->
       <div class="form-section">
@@ -207,13 +237,21 @@
           Ghi Chú
         </h3>
         <div class="form-group full-width">
+          <label for="notes">
+            {{ selectedService?.requiresNotes ? 'Ghi chú chi tiết' : 'Ghi chú thêm' }} 
+            @if (selectedService?.requiresNotes) { <span class="required">*</span> }
+          </label>
           <textarea 
             id="notes"
             [(ngModel)]="notes"
             name="notes"
             rows="3"
-            placeholder="VD: Căn hộ tầng 5, bấm chuông gọi trước khi đến..."
+            [placeholder]="selectedService?.notePrompt || 'VD: Căn hộ tầng 5, bấm chuông gọi trước khi đến...'"
+            [class.error]="errors()['notes']"
           ></textarea>
+          @if (errors()['notes']) {
+            <span class="error-text">{{ errors()['notes'] }}</span>
+          }
         </div>
       </div>
     </form>

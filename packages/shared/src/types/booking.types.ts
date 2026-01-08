@@ -23,7 +23,9 @@ export interface BookingCreateDTO {
   workShiftStart: string;   // TimeSpan format: "HH:mm:ss"
   workShiftEnd: string;     // TimeSpan format: "HH:mm:ss"
   address: string;
+  quantity: number;         // Added for non-hourly services
   notes?: string;
+  helperId?: number;        // Added to support reordering or pre-selection
 }
 
 export interface BookingUpdateDTO {
@@ -48,10 +50,16 @@ export interface BookingResponseDTO {
   endDate: string;
   startTime: string;
   endTime: string;
+  quantity: number;         // Added
+  serviceUnit: string;      // Added
+  serviceUnitLabel?: string; // Added
   totalPrice: number;
   status: string;
   paymentStatus: string;
+  isPaid: boolean;          // Added
   isRated: boolean;
+  customerConfirmed: boolean;
+  helperConfirmed: boolean;
   notes?: string;
   createdAt?: string;
 }

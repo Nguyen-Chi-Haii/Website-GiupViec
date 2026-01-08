@@ -85,5 +85,15 @@ namespace GiupViecAPI.Services.Repositories
 
             return _mapper.Map<ServiceResponseDTO>(existingService);
         }
+
+        // 5. LẤY DANH SÁCH NHÃN ĐƠN VỊ (Gợi ý cho dropdown)
+        public async Task<IEnumerable<string>> GetUnitLabelsAsync()
+        {
+            return await _db.Services
+                .Where(s => !string.IsNullOrEmpty(s.UnitLabel))
+                .Select(s => s.UnitLabel)
+                .Distinct()
+                .ToListAsync();
+        }
     }
 }

@@ -32,6 +32,7 @@ export class BookingStep2Component implements OnInit {
   selectedProvinceCode = '';
   selectedWardCode = '';
   streetAddress = '';
+  quantity = 1;
   notes = '';
 
   // Guest info (for non-logged-in users)
@@ -128,6 +129,12 @@ export class BookingStep2Component implements OnInit {
     if (notes) {
       this.notes = notes;
     }
+
+    this.quantity = this.bookingState.quantity();
+    // Use service minQuantity as default if quantity is 1
+    if (this.selectedService && this.quantity === 1) {
+      this.quantity = this.selectedService.minQuantity;
+    }
   }
 
   private loadUserAddress(): void {
@@ -201,6 +208,18 @@ export class BookingStep2Component implements OnInit {
 
     if (this.workShiftStart && this.workShiftEnd && this.workShiftStart >= this.workShiftEnd) {
       errors['workShiftEnd'] = 'Giờ kết thúc phải sau giờ bắt đầu';
+    }
+
+    // New validation for Unit/Quantity
+    if (this.selectedService && this.selectedService.unit !== 'Hour') {
+      if (!this.quantity || this.quantity < this.selectedService.minQuantity) {
+        errors['quantity'] = `Số lượng tối thiểu là ${this.selectedService.minQuantity} ${this.selectedService.unitLabel || ''}`;
+      }
+    }
+
+    // Validation for Mandatory Notes
+    if (this.selectedService?.requiresNotes && (!this.notes || this.notes.trim().length < 5)) {
+      errors['notes'] = this.selectedService.notePrompt || 'Vui lòng nhập ghi chú bắt buộc cho dịch vụ này';
     }
 
     if (!this.selectedProvinceCode) {
@@ -280,6 +299,8 @@ export class BookingStep2Component implements OnInit {
       };
       this.bookingState.setGuestInfo(guestInfo);
     }
+
+    this.bookingState.setQuantity(this.quantity);
   }
 
   formatPrice(price: number): string {

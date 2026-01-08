@@ -1,7 +1,8 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AdminService, ServiceResponse, ServiceCreate } from '../../../core/services/admin.service';
+import { AdminService } from '../../../core/services/admin.service';
+import { ServiceResponse, ServiceCreateDTO, ServiceUpdateDTO, ServiceUnit } from '@giupviec/shared';
 import { NotificationService } from '../../../core/services/notification.service';
 
 @Component({
@@ -27,14 +28,31 @@ export class AdminServicesComponent implements OnInit {
 
   formData = {
     name: signal(''),
-    price: signal<number | null>(null)
+    description: signal(''),
+    price: signal<number | null>(null),
+    unit: signal<ServiceUnit>('Hour'),
+    unitLabel: signal(''),
+    minQuantity: signal(1),
+    requiresNotes: signal(false),
+    notePrompt: signal(''),
+    icon: signal('')
   };
+
+  availableIcons = [
+    'cleaning_services', 'ac_unit', 'local_laundry_service', 'restaurant', 
+    'home_work', 'elderly', 'pest_control', 'plumbing', 
+    'imagesearch_roller', 'yard', 'checkroom', 'kitchen'
+  ];
+
+  unitLabelsSuggestion = signal<string[]>([]);
+  showCustomLabelInput = signal(false);
 
   // Computed validation errors
   errors = computed(() => {
     const errors: Record<string, string> = {};
     const name = this.formData.name().trim();
     const price = this.formData.price();
+    const unit = this.formData.unit();
 
     if (!name || name.length < 3) {
       errors['name'] = 'Tên dịch vụ phải có ít nhất 3 ký tự';
@@ -44,11 +62,16 @@ export class AdminServicesComponent implements OnInit {
       errors['price'] = 'Giá phải lớn hơn 0';
     }
 
+    if (!unit) {
+      errors['unit'] = 'Vui lòng chọn đơn vị tính';
+    }
+
     return errors;
   });
 
   ngOnInit(): void {
     this.loadServices();
+    this.loadUnitLabels();
   }
 
   loadServices(): void {
@@ -64,10 +87,45 @@ export class AdminServicesComponent implements OnInit {
     });
   }
 
+  loadUnitLabels(): void {
+    this.adminService.getServiceUnitLabels().subscribe(labels => {
+      // Ensure common labels are always available
+      const commonLabels = ['giờ', 'máy', 'm2', 'buổi', 'lần', 'cái'];
+      const mergedLabels = Array.from(new Set([...commonLabels, ...labels]));
+      this.unitLabelsSuggestion.set(mergedLabels);
+    });
+  }
+
+  onUnitLabelSelect(value: string): void {
+    if (value === '__CUSTOM__') {
+      this.showCustomLabelInput.set(true);
+      this.formData.unitLabel.set('');
+    } else {
+      this.showCustomLabelInput.set(false);
+      this.formData.unitLabel.set(value);
+    }
+  }
+
+  toggleCustomLabel(isCustom: boolean): void {
+    this.showCustomLabelInput.set(isCustom);
+    if (!isCustom && this.unitLabelsSuggestion().length > 0) {
+      this.formData.unitLabel.set(this.unitLabelsSuggestion()[0]); // Default to first option
+    }
+  }
+
   openCreateModal(): void {
     this.formData.name.set('');
+    this.formData.description.set('');
     this.formData.price.set(null);
+    this.formData.unit.set('Hour');
+    this.formData.unitLabel.set('giờ');
+    this.formData.minQuantity.set(1);
+    this.formData.requiresNotes.set(false);
+    this.formData.notePrompt.set('');
+    this.formData.icon.set('cleaning_services');
+    
     this.isEditing.set(false);
+    this.showCustomLabelInput.set(false);
     this.showModal.set(true);
     this.touchedFields.set(new Set());
     this.isSubmitted.set(false);
@@ -75,9 +133,23 @@ export class AdminServicesComponent implements OnInit {
 
   openEditModal(service: ServiceResponse): void {
     this.formData.name.set(service.name);
+    this.formData.description.set(service.description || '');
     this.formData.price.set(service.price);
+    this.formData.unit.set(service.unit);
+    this.formData.unitLabel.set(service.unitLabel || '');
+    this.formData.minQuantity.set(service.minQuantity);
+    this.formData.requiresNotes.set(service.requiresNotes);
+    this.formData.notePrompt.set(service.notePrompt || '');
+    this.formData.icon.set(service.icon || '');
+
     this.editingId = service.id;
     this.isEditing.set(true);
+    
+    // If current label is not in suggestion list, set to Custom mode
+    const currentLabel = service.unitLabel || '';
+    const isKnownLabel = this.unitLabelsSuggestion().includes(currentLabel);
+    this.showCustomLabelInput.set(!isKnownLabel && !!currentLabel);
+
     this.showModal.set(true);
     this.touchedFields.set(new Set());
     this.isSubmitted.set(false);
@@ -99,9 +171,17 @@ export class AdminServicesComponent implements OnInit {
       return;
     }
 
-    const serviceData: ServiceCreate = {
+    const serviceData: ServiceCreateDTO = {
       name: this.formData.name(),
-      price: this.formData.price() || 0
+      description: this.formData.description(),
+      price: this.formData.price() || 0,
+      unit: this.formData.unit(),
+      unitLabel: this.formData.unitLabel(),
+      minQuantity: this.formData.minQuantity(),
+      requiresNotes: this.formData.requiresNotes(),
+      notePrompt: this.formData.notePrompt(),
+      icon: this.formData.icon(),
+      isActive: true
     };
 
     if (this.isEditing()) {
@@ -130,10 +210,8 @@ export class AdminServicesComponent implements OnInit {
     const confirmed = await this.notification.confirm(`Bạn có chắc muốn ${statusText} dịch vụ "${service.name}"?`);
     if (confirmed) {
       this.adminService.updateService(service.id, {
-        name: service.name,
-        price: service.price,
         isActive: !service.isActive
-      }).subscribe({
+      } as ServiceUpdateDTO).subscribe({
         next: () => {
           this.notification.success(`Đã ${statusText} dịch vụ thành công!`);
           this.loadServices();

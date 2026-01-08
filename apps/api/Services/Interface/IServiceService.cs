@@ -8,5 +8,6 @@ namespace GiupViecAPI.Services.Interface
         Task<ServiceResponseDTO> GetByIdAsync(int id);
         Task<ServiceResponseDTO> CreateAsync(ServiceCreateDTO dto);
         Task<ServiceResponseDTO> UpdateAsync(int id, ServiceUpdateDTO dto);
+        Task<IEnumerable<string>> GetUnitLabelsAsync();
     }
 }

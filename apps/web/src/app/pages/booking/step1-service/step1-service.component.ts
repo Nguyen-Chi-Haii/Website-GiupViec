@@ -62,9 +62,9 @@ export class BookingStep1Component implements OnInit {
         console.error('Error loading services:', err);
         // Fallback to default services
         this.services = [
-          { id: 1, name: 'Dọn Dẹp Nhà Cửa', price: 60000, isActive: true },
-          { id: 2, name: 'Tổng Vệ Sinh', price: 15000, isActive: true },
-          { id: 3, name: 'Giặt Sofa & Rèm', price: 300000, isActive: true }
+          { id: 1, name: 'Dọn Dẹp Nhà Cửa', price: 60000, isActive: true, unit: 'Hour', minQuantity: 2, requiresNotes: false },
+          { id: 2, name: 'Tổng Vệ Sinh', price: 15000, isActive: true, unit: 'm2', minQuantity: 50, requiresNotes: false },
+          { id: 3, name: 'Giặt Sofa & Rèm', price: 300000, isActive: true, unit: 'Piece', minQuantity: 1, requiresNotes: true, notePrompt: 'Loại sofa/rèm...' }
         ];
         this.isLoading = false;
       }

@@ -25,6 +25,14 @@ namespace GiupViecAPI.Controllers
             return Ok(result);
         }
 
+        // GET: api/services/unit-labels
+        [HttpGet("unit-labels")]
+        public async Task<IActionResult> GetUnitLabels()
+        {
+            var result = await _service.GetUnitLabelsAsync();
+            return Ok(result);
+        }
+
         // GET: api/services/5
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)

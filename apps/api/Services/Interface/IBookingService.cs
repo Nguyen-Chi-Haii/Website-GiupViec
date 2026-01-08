@@ -29,6 +29,9 @@ namespace GiupViecAPI.Services.Interface
 
         Task<bool> ConfirmPaymentAsync(int id);
 
+        Task<bool> ConfirmBookingByCustomerAsync(int bookingId, int customerId);
+        Task<bool> ConfirmBookingByHelperAsync(int bookingId, int helperId);
+
         Task<List<BookingScheduleDTO>> GetHelperScheduleAsync(int helperId, DateTime fromDate, DateTime toDate);
         Task<List<BookingScheduleDTO>> GetAllSchedulesAsync(DateTime fromDate, DateTime toDate);
 

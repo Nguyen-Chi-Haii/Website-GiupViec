@@ -132,6 +132,41 @@ export class CustomerMyBookingsComponent implements OnInit {
     return time.substring(0, 5);
   }
 
+  // --- CONFIRMATION ---
+  
+  canConfirmCompletion(booking: BookingResponseDTO): boolean {
+    if (booking.status !== 'Confirmed') return false; 
+    if (booking.customerConfirmed) return false;
+
+    // Time Check
+    // booking.endDate is Date object or string? From API it's string.
+    // booking.endTime is "HH:mm" string.
+    const endDateTime = new Date(booking.endDate);
+    const [hours, minutes] = booking.endTime.split(':').map(Number);
+    endDateTime.setHours(hours, minutes, 0, 0);
+
+    return new Date() >= endDateTime;
+  }
+
+  isConfirming = signal(false);
+
+  confirmCompletion(booking: BookingResponseDTO): void {
+    if (!confirm('Xác nhận công việc đã hoàn thành?')) return;
+
+    this.isConfirming.set(true);
+    this.http.post(`${environment.apiUrl}/bookings/${booking.id}/confirm-customer`, {}).subscribe({
+      next: () => {
+        this.notification.success('Đã xác nhận hoàn thành!');
+        this.isConfirming.set(false);
+        this.loadBookings();
+      },
+      error: (err) => {
+        this.notification.error(err.error?.message || 'Lỗi khi xác nhận');
+        this.isConfirming.set(false);
+      }
+    });
+  }
+
   cancelBooking(booking: BookingResponseDTO): void {
     if (!confirm('Bạn có chắc muốn hủy đơn hàng này?')) return;
     

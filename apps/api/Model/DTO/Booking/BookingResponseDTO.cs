@@ -22,11 +22,17 @@
         public string EndTime { get; set; }   // Format: "HH:mm"
         
         // Price & Status
+        public double Quantity { get; set; }
+        public string ServiceUnit { get; set; }
+        public string? ServiceUnitLabel { get; set; }
         public decimal TotalPrice { get; set; }
         public string Status { get; set; }
         public string PaymentStatus { get; set; }
         public bool IsPaid { get; set; }
         public bool IsRated { get; set; }
+
+        public bool CustomerConfirmed { get; set; }
+        public bool HelperConfirmed { get; set; }
 
         // Metadata
         public string? Notes { get; set; }

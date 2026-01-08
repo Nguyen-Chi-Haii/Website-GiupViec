@@ -81,4 +81,12 @@ export class BookingService {
   getMyBookings(): Observable<BookingResponseDTO[]> {
     return this.http.get<BookingResponseDTO[]>(`${this.baseUrl}/my`);
   }
+
+  confirmByCustomer(id: number): Observable<any> {
+    return this.http.post(`${this.baseUrl}/${id}/confirm-customer`, {});
+  }
+
+  confirmByHelper(id: number): Observable<any> {
+    return this.http.post(`${this.baseUrl}/${id}/confirm-helper`, {});
+  }
 }

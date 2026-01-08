@@ -15,6 +15,8 @@ interface ScheduleItem {
   endTime: string;
   status: string;
   totalPrice: number;
+  customerConfirmed: boolean;
+  helperConfirmed: boolean;
 }
 
 @Component({
@@ -35,6 +37,9 @@ export class HelperScheduleComponent implements OnInit {
   calendarDays = signal<{day: number, date: Date, isCurrentMonth: boolean, jobs: ScheduleItem[]}[]>([]);
   selectedDayJobs = signal<ScheduleItem[]>([]);
   selectedJob = signal<ScheduleItem | null>(null);
+  
+  // NEW: Confirmation State
+  isConfirming = signal(false);
 
   ngOnInit(): void {
     this.loadMonth();
@@ -147,6 +152,36 @@ export class HelperScheduleComponent implements OnInit {
 
   isSelectedDate(date: Date): boolean {
     return date.toDateString() === this.selectedDate().toDateString();
+  }
+  
+  // NEW: Confirmation Methods
+  canConfirm(job: ScheduleItem): boolean {
+    if (job.helperConfirmed) return false;
+    
+    // Time check
+    const endDateTime = new Date(job.endDate);
+    const [hours, minutes] = job.endTime.split(':').map(Number);
+    endDateTime.setHours(hours, minutes, 0, 0);
+
+    return new Date() >= endDateTime;
+  }
+
+  confirmJob(job: ScheduleItem): void {
+    if (!confirm('Xác nhận công việc đã hoàn thành?')) return;
+
+    this.isConfirming.set(true);
+    this.http.post(`${environment.apiUrl}/bookings/${job.id}/confirm-helper`, {}).subscribe({
+      next: () => {
+        alert('Đã xác nhận hoàn thành!');
+        this.isConfirming.set(false);
+        this.loadMonth();
+        this.closeJobModal();
+      },
+      error: (err) => {
+        alert('Lỗi: ' + (err.error?.message || 'Không thể xác nhận'));
+        this.isConfirming.set(false);
+      }
+    });
   }
 
   getStatusLabel(status: string): string {

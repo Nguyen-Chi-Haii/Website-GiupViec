@@ -309,3 +309,62 @@
 .btn .material-symbols-outlined {
   font-size: 1.25rem;
 }
+
+/* Quantity Input */
+.quantity-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: 200px;
+}
+
+.qty-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 0.5rem;
+  border: 1.5px solid #e5e7eb;
+  background-color: white;
+  color: var(--text-dark);
+  font-size: 1.25rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.qty-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background-color: rgba(19, 185, 165, 0.05);
+}
+
+.qty-btn:active {
+  transform: scale(0.95);
+}
+
+.quantity-input-wrapper input {
+  flex: 1;
+  text-align: center;
+  font-weight: 700;
+  appearance: none;
+  -moz-appearance: textfield;
+}
+
+.quantity-input-wrapper input::-webkit-outer-spin-button,
+.quantity-input-wrapper input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.error-text-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+}
+
+textarea.error {
+  border-color: #ef4444;
+}

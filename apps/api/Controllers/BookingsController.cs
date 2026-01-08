@@ -189,6 +189,48 @@ namespace GiupViecAPI.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpPost("{id}/confirm-customer")]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> ConfirmByCustomer(int id)
+        {
+            try
+            {
+                var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdString)) return Unauthorized();
+                int customerId = int.Parse(userIdString);
+
+                var success = await _service.ConfirmBookingByCustomerAsync(id, customerId);
+                if (!success) return NotFound(new { message = "Không tìm thấy đơn hàng" });
+
+                return Ok(new { message = "Đã xác nhận hoàn thành công việc." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("{id}/confirm-helper")]
+        [Authorize(Roles = "Helper")]
+        public async Task<IActionResult> ConfirmByHelper(int id)
+        {
+            try
+            {
+                var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdString)) return Unauthorized();
+                int helperId = int.Parse(userIdString);
+
+                var success = await _service.ConfirmBookingByHelperAsync(id, helperId);
+                if (!success) return NotFound(new { message = "Không tìm thấy đơn hàng" });
+
+                return Ok(new { message = "Đã xác nhận hoàn thành công việc." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
         [HttpGet("my-schedule")]
         [Authorize(Roles = "Helper")] // Chỉ Helper mới gọi được
         public async Task<IActionResult> GetMySchedule([FromQuery] DateTime from, [FromQuery] DateTime to)

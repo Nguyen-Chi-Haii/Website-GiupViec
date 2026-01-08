@@ -18,6 +18,7 @@
               <th>ID</th>
               <th>Tên dịch vụ</th>
               <th>Giá</th>
+              <th>Đơn vị</th>
               <th>Trạng thái</th>
               <th>Hành động</th>
             </tr>
@@ -27,7 +28,8 @@
               <tr>
                 <td class="font-medium">#{{ service.id }}</td>
                 <td>{{ service.name }}</td>
-                <td class="font-medium">{{ service.price | number }}₫/giờ</td>
+                <td class="font-medium">{{ service.price | number }}₫</td>
+                <td>/{{ service.unitLabel || service.unit }}</td>
                 <td>
                   <span class="status-badge" [class.active]="service.isActive" [class.inactive]="!service.isActive">
                     {{ service.isActive ? 'Hoạt động' : 'Tạm dừng' }}
@@ -82,20 +84,133 @@
               <span class="error-text">{{ errors()['name'] }}</span>
             }
           </div>
-          <div class="form-group">
-            <label>Giá (VNĐ/giờ)</label>
-            <input 
-              type="number" 
-              [value]="formData.price()" 
-              (input)="formData.price.set($any($event.target).value ? +$any($event.target).value : null); markTouched('price')"
-              (blur)="markTouched('price')"
-              placeholder="VD: 50000" 
-              [class.error]="(touchedFields().has('price') || isSubmitted()) && errors()['price']" 
-            />
-            @if ((touchedFields().has('price') || isSubmitted()) && errors()['price']) {
-              <span class="error-text">{{ errors()['price'] }}</span>
-            }
+          <div class="form-group full-width">
+            <label>Mô tả dịch vụ</label>
+            <textarea 
+              [value]="formData.description()" 
+              (input)="formData.description.set($any($event.target).value)"
+              rows="2"
+              placeholder="Mô tả ngắn gọn về dịch vụ..."
+            ></textarea>
           </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Giá (VNĐ)</label>
+              <input 
+                type="number" 
+                [value]="formData.price()" 
+                (input)="formData.price.set($any($event.target).value ? +$any($event.target).value : null); markTouched('price')"
+                (blur)="markTouched('price')"
+                placeholder="VD: 50000" 
+                [class.error]="(touchedFields().has('price') || isSubmitted()) && errors()['price']" 
+              />
+              @if ((touchedFields().has('price') || isSubmitted()) && errors()['price']) {
+                <span class="error-text">{{ errors()['price'] }}</span>
+              }
+            </div>
+
+            <div class="form-group full-width">
+              <label>Icon (Material Symbol)</label>
+              <div class="icon-picker">
+                @for (icon of availableIcons; track icon) {
+                  <button 
+                    type="button" 
+                    class="icon-option" 
+                    [class.selected]="formData.icon() === icon" 
+                    (click)="formData.icon.set(icon)"
+                    [title]="icon"
+                  >
+                    <span class="material-symbols-outlined">{{ icon }}</span>
+                  </button>
+                }
+              </div>
+              <input 
+                type="text" 
+                [value]="formData.icon()" 
+                (input)="formData.icon.set($any($event.target).value)"
+                placeholder="Hoặc nhập tên icon..." 
+                class="mt-2"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Đơn vị tính (Loại)</label>
+              <select 
+                [value]="formData.unit()" 
+                (change)="formData.unit.set($any($event.target).value); markTouched('unit')"
+              >
+                <option value="Hour">Giờ</option>
+                <option value="Piece">Cái/Máy</option>
+                <option value="m2">m2</option>
+                <option value="Session">Buổi/Lượt</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Nhãn hiển thị (VD: giờ, máy, m2)</label>
+              
+              @if (!showCustomLabelInput()) {
+                <select 
+                  [value]="formData.unitLabel()" 
+                  (change)="onUnitLabelSelect($any($event.target).value)"
+                  class="w-full p-2 border rounded"
+                >
+                  <option value="" disabled>-- Chọn nhãn --</option>
+                  @for (label of unitLabelsSuggestion(); track label) {
+                    <option [value]="label">{{ label }}</option>
+                  }
+                  <option value="__CUSTOM__" class="font-bold text-primary">-- Nhập khác... --</option>
+                </select>
+              } @else {
+                <div class="flex gap-2">
+                  <input 
+                    type="text" 
+                    [value]="formData.unitLabel()" 
+                    (input)="formData.unitLabel.set($any($event.target).value)"
+                    placeholder="VD: giờ" 
+                    class="flex-1"
+                  />
+                  <button type="button" class="btn-outline px-3" (click)="toggleCustomLabel(false)" title="Chọn từ danh sách">
+                    <span class="material-symbols-outlined">list</span>
+                  </button>
+                </div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label>Số lượng tối thiểu</label>
+              <input 
+                type="number" 
+                [value]="formData.minQuantity()" 
+                (input)="formData.minQuantity.set(+$any($event.target).value)"
+                step="0.5"
+              />
+            </div>
+          </div>
+
+          <div class="checkbox-group">
+            <label class="checkbox-label">
+              <input 
+                type="checkbox" 
+                [checked]="formData.requiresNotes()" 
+                (change)="formData.requiresNotes.set($any($event.target).checked)"
+              />
+              Bắt buộc nhập ghi chú
+            </label>
+          </div>
+
+          @if (formData.requiresNotes()) {
+            <div class="form-group full-width">
+              <label>Gợi ý ghi chú (Prompt)</label>
+              <input 
+                type="text" 
+                [value]="formData.notePrompt()" 
+                (input)="formData.notePrompt.set($any($event.target).value)"
+                placeholder="VD: Nhập danh sách món ăn..." 
+              />
+            </div>
+          }
         </div>
         <div class="modal-footer">
           <button class="btn-outline" (click)="closeModal()">Hủy</button>

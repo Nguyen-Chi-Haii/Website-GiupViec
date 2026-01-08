@@ -103,6 +103,15 @@
                   {{ payingBookingId() === booking.id ? 'Đang xử lý...' : 'Thanh toán' }}
                 </button>
               }
+
+              <!-- Confirmation Logic -->
+              @if (canConfirmCompletion(booking)) {
+                <button class="btn-primary" [disabled]="isConfirming()" (click)="confirmCompletion(booking); $event.stopPropagation()">
+                  {{ isConfirming() ? 'Đang xử lý...' : 'Xác nhận xong việc' }}
+                </button>
+              } @else if (booking.customerConfirmed && booking.status !== 'Completed') {
+                <span class="text-sm text-gray-500 italic">Đã xác nhận - Chờ Helper...</span>
+              }
             </div>
           </div>
         </div>

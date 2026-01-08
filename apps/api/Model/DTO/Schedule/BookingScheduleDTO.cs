@@ -15,6 +15,9 @@ namespace GiupViecAPI.Model.DTO.Schedule
         public decimal TotalPrice { get; set; }
         public string HelperName { get; set; }
         public string Status { get; set; }
+
+        public bool CustomerConfirmed { get; set; }
+        public bool HelperConfirmed { get; set; }
         
         // Keep these for backward compatibility if needed, though we should migrate to HH:mm strings
         public TimeSpan WorkShiftStart { get; set; }

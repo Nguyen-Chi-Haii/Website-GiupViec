@@ -60,10 +60,10 @@ export class PricingSectionComponent implements OnInit {
         const plans: PricingPlan[] = activeServices.map((service, index) => ({
           id: service.id,
           name: service.name,
-          icon: this.getIconForService(service.name),
+          icon: service.icon || this.getIconForService(service.name),
           price: service.price,
-          unit: 'giờ',
-          description: this.getDescriptionForService(service.name),
+          unit: service.unitLabel || 'giờ',
+          description: service.description || this.getDescriptionForService(service.name),
           features: this.getFeaturesForService(service.name),
           isPopular: index === 0 // Mark first one as popular as per screenshot
         }));

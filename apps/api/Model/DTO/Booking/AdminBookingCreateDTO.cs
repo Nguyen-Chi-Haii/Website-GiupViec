@@ -29,6 +29,8 @@ namespace GiupViecAPI.Model.DTO.Booking
         [MaxLength(255)]
         public string Address { get; set; }
 
+        public double Quantity { get; set; } = 1;
+
         public string? Notes { get; set; }
 
         // Optional: Admin có thể gán Helper ngay khi tạo

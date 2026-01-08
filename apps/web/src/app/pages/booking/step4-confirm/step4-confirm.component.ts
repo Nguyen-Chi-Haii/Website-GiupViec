@@ -74,6 +74,10 @@ export class BookingStep4Component implements OnInit {
     return this.bookingState.totalHours();
   }
 
+  get displayQuantity() {
+    return this.bookingState.displayQuantity();
+  }
+
   get totalPrice() {
     return this.bookingState.totalPrice();
   }

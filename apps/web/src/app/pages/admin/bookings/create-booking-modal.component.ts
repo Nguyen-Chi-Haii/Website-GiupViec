@@ -3,10 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminService, UserResponse, ServiceResponse, BookingCreate, UserCreate } from '../../../core/services/admin.service';
 import { NotificationService } from '../../../core/services/notification.service';
-import { VietnamProvincesService } from '../../../core/services/vietnam-provinces.service';
 import { HelperService } from '../../../core/services/helper.service';
-import { ProvinceResponse, WardResponse } from '../../../core/types/vietnam-provinces.types';
-import { SearchableDropdownComponent, DropdownOption } from '../../../shared/components/searchable-dropdown/searchable-dropdown.component';
+import { AddressSelectorComponent, AddressResult } from '../../../shared/components/address-selector/address-selector.component';
 
 interface AvailableHelper {
   id: number;
@@ -16,7 +14,7 @@ interface AvailableHelper {
 @Component({
   selector: 'app-create-booking-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, SearchableDropdownComponent],
+  imports: [CommonModule, FormsModule, AddressSelectorComponent],
   templateUrl: './create-booking-modal.component.html',
   styleUrl: './create-booking-modal.component.css'
 })
@@ -26,19 +24,14 @@ export class CreateBookingModalComponent implements OnInit {
 
   private readonly adminService = inject(AdminService);
   private readonly notification = inject(NotificationService);
-  private readonly provincesService = inject(VietnamProvincesService);
   private readonly helperService = inject(HelperService);
 
   // Data
   customers = signal<UserResponse[]>([]);
   services = signal<ServiceResponse[]>([]);
   availableHelpers = signal<AvailableHelper[]>([]);
-  provinces = signal<ProvinceResponse[]>([]);
-  wards = signal<WardResponse[]>([]);
 
   // Loading states
-  isLoadingProvinces = signal(false);
-  isLoadingWards = signal(false);
   isSubmitting = signal(false);
 
   // Form state
@@ -59,25 +52,16 @@ export class CreateBookingModalComponent implements OnInit {
     workShiftStart: '08:00',
     workShiftEnd: '12:00',
     notes: '',
-    helperId: 0
+    helperId: 0,
+    address: '' // Stores the full address string for submission
   };
 
-  // Address
-  selectedProvinceCode = '';
-  selectedWardCode = '';
-  streetAddress = '';
+  // Address State
+  currentAddressForSelector = ''; // Passed to app-address-selector [initialAddress]
+  addressResult: AddressResult | null = null; // Captured from (addressChange)
 
   // Time options
   timeOptions: string[] = [];
-
-  // Computed
-  provinceOptions = computed<DropdownOption[]>(() => 
-    this.provinces().map(p => ({ code: p.code, name: p.name }))
-  );
-
-  wardOptions = computed<DropdownOption[]>(() => 
-    this.wards().map(w => ({ code: w.code, name: w.name }))
-  );
 
   canSelectHelper = computed(() => {
     return this.formData.startDate && this.formData.endDate && 
@@ -126,16 +110,6 @@ export class CreateBookingModalComponent implements OnInit {
     this.adminService.getAllServices().subscribe({
       next: (services) => this.services.set(services.filter(s => s.isActive))
     });
-
-    // Load provinces
-    this.isLoadingProvinces.set(true);
-    this.provincesService.getProvinces().subscribe({
-      next: (data) => {
-        this.provinces.set(data);
-        this.isLoadingProvinces.set(false);
-      },
-      error: () => this.isLoadingProvinces.set(false)
-    });
   }
 
   onTimeChange(): void {
@@ -164,51 +138,40 @@ export class CreateBookingModalComponent implements OnInit {
     });
   }
 
+  onCustomerChange(): void {
+    const customerId = Number(this.formData.customerId);
+    if (!customerId) {
+        this.currentAddressForSelector = '';
+        return;
+    }
+
+    const customer = this.customers().find(u => u.id === customerId);
+    if (customer?.address) {
+       this.currentAddressForSelector = customer.address;
+       // We DON'T set formData.address here immediately, because the selector will parse and emit 'addressChange'
+       // automatically if it matches? 
+       // Actually AddressSelector usually emits on initial parsing too? 
+       // Let's verify AddressSelector logic: "this.emitChange();" is called in "parseInitialAddress()". 
+       // So yes, setting currentAddressForSelector will trigger parsing -> emit -> onAddressChange updates form data.
+    } else {
+        this.currentAddressForSelector = '';
+    }
+  }
+
   onCustomerTypeChange(): void {
     if (this.isNewCustomer) {
       this.formData.customerId = 0;
+      this.currentAddressForSelector = '';
+      this.addressResult = null;
+      this.formData.address = '';
     } else {
       this.newCustomer = { fullName: '', email: '', phone: '' };
     }
   }
 
-  onProvinceSelect(option: DropdownOption | null): void {
-    if (option) {
-      this.selectedProvinceCode = String(option.code);
-      this.loadWards();
-    } else {
-      this.selectedProvinceCode = '';
-      this.wards.set([]);
-      this.selectedWardCode = '';
-    }
-  }
-
-  onWardSelect(option: DropdownOption | null): void {
-    this.selectedWardCode = option ? String(option.code) : '';
-  }
-
-  private loadWards(): void {
-    if (!this.selectedProvinceCode) return;
-    
-    this.isLoadingWards.set(true);
-    this.selectedWardCode = '';
-    this.provincesService.getWardsByProvince(Number(this.selectedProvinceCode)).subscribe({
-      next: (data) => {
-        this.wards.set(data);
-        this.isLoadingWards.set(false);
-      },
-      error: () => this.isLoadingWards.set(false)
-    });
-  }
-
-  private buildFullAddress(): string {
-    const province = this.provinces().find(p => p.code === Number(this.selectedProvinceCode));
-    const ward = this.wards().find(w => w.code === Number(this.selectedWardCode));
-    
-    if (province && ward && this.streetAddress) {
-      return `${this.streetAddress.trim()}, ${ward.name}, ${province.name}`;
-    }
-    return this.streetAddress.trim();
+  onAddressChange(result: AddressResult): void {
+    this.addressResult = result;
+    this.formData.address = result.fullAddress;
   }
 
   async submit(): Promise<void> {
@@ -230,12 +193,19 @@ export class CreateBookingModalComponent implements OnInit {
       return;
     }
 
+    // Validate mandatory notes
+    const selectedService = this.services().find(s => s.id === Number(this.formData.serviceId));
+    if (selectedService?.requiresNotes && !this.formData.notes?.trim()) {
+      this.notification.warning(`Dịch vụ này yêu cầu nhập ghi chú (${selectedService.notePrompt || 'Bắt buộc'})!`);
+      return;
+    }
+
     if (!this.formData.startDate || !this.formData.endDate) {
       this.notification.warning('Vui lòng chọn ngày làm việc!');
       return;
     }
 
-    if (!this.selectedProvinceCode || !this.selectedWardCode || !this.streetAddress) {
+    if (!this.formData.address) {
       this.notification.warning('Vui lòng nhập đầy đủ địa chỉ!');
       return;
     }
@@ -247,7 +217,7 @@ export class CreateBookingModalComponent implements OnInit {
 
       // Nếu là khách mới, tạo user trước
       if (this.isNewCustomer) {
-        const fullAddress = this.buildFullAddress();
+        const fullAddress = this.formData.address;
         const userDto: UserCreate = {
           fullName: this.newCustomer.fullName,
           email: this.newCustomer.email,
@@ -276,9 +246,10 @@ export class CreateBookingModalComponent implements OnInit {
         endDate: this.formData.endDate,
         workShiftStart: `${this.formData.workShiftStart}:00`,
         workShiftEnd: `${this.formData.workShiftEnd}:00`,
-        address: this.buildFullAddress(),
+        address: this.formData.address,
         notes: this.formData.notes || undefined,
-        helperId: this.formData.helperId > 0 ? this.formData.helperId : undefined
+        helperId: this.formData.helperId > 0 ? this.formData.helperId : undefined,
+        quantity: 1
       };
 
       await this.adminService.createBooking(bookingDto).toPromise();

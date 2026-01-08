@@ -51,6 +51,8 @@ namespace GiupViecAPI.Mapping
                 .ForMember(dest => dest.ServiceName, opt => opt.MapFrom(src => src.Service.Name))
                 .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.WorkShiftStart.ToString(@"hh\:mm")))
                 .ForMember(dest => dest.EndTime, opt => opt.MapFrom(src => src.WorkShiftEnd.ToString(@"hh\:mm")))
+                .ForMember(dest => dest.ServiceUnit, opt => opt.MapFrom(src => src.Service.Unit.ToString()))
+                .ForMember(dest => dest.ServiceUnitLabel, opt => opt.MapFrom(src => src.Service.UnitLabel))
                 .ForMember(dest => dest.IsPaid, opt => opt.MapFrom(src => src.PaymentStatus == GiupViecAPI.Model.Enums.PaymentStatus.Paid))
                 .ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Notes))
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt));
@@ -66,9 +68,11 @@ namespace GiupViecAPI.Mapping
             CreateMap<ServiceCreateDTO, Service>();
 
             CreateMap<ServiceUpdateDTO, Service>()
+                .ForMember(dest => dest.Unit, opt => opt.MapFrom(src => src.Unit != null ? Enum.Parse<GiupViecAPI.Model.Enums.ServiceUnit>(src.Unit) : (GiupViecAPI.Model.Enums.ServiceUnit?)null))
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-
-            CreateMap<Service, ServiceResponseDTO>();
+ 
+            CreateMap<Service, ServiceResponseDTO>()
+                .ForMember(dest => dest.Unit, opt => opt.MapFrom(src => src.Unit.ToString()));
             CreateMap<HelperProfileUpdateDTO, HelperProfile>()
                 .ForMember(dest => dest.CareerStartDate,
                            opt => opt.MapFrom(src => src.ExperienceYears.HasValue

@@ -19,6 +19,8 @@ namespace GiupViecAPI.Model.DTO.Booking
         public TimeSpan WorkShiftEnd { get; set; }
         public string Address { get; set; }
         public int? HelperId { get; set; }
+        public double Quantity { get; set; } = 1;
+
         public string? Notes { get; set; }
         
         // CAPTCHA token from Google reCAPTCHA v3

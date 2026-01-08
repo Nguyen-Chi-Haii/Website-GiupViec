@@ -39,6 +39,9 @@ namespace GiupViecAPI.Model.Domain
 
         // Ví dụ: 17:30:00 (5 rưỡi chiều)
         public TimeSpan WorkShiftEnd { get; set; }
+ 
+        // 3. Số lượng (Cho các dịch vụ tính theo m2, chiếc, lần)
+        public double Quantity { get; set; } = 1;
 
         // ----------------------
 
@@ -54,6 +57,9 @@ namespace GiupViecAPI.Model.Domain
         public decimal TotalPrice { get; set; }
 
         public PaymentStatus PaymentStatus { get; set; } = PaymentStatus.Unpaid;
+
+        public bool CustomerConfirmed { get; set; } = false;
+        public bool HelperConfirmed { get; set; } = false;
 
         public bool IsRated { get; set; } = false;
 
