@@ -54,8 +54,8 @@ export class AuthService {
   login(dto: LoginDTO): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.baseUrl}/login`, dto).pipe(
       tap(response => {
-        localStorage.setItem('token', response.token);
-        localStorage.setItem('mustChangePassword', String(response.mustChangePassword));
+        sessionStorage.setItem('token', response.token);
+        sessionStorage.setItem('mustChangePassword', String(response.mustChangePassword));
         const decoded = this.decodeToken(response.token);
         this.currentUser.set(decoded);
         this.isAuthenticated.set(true);
@@ -75,7 +75,7 @@ export class AuthService {
     return this.http.post<{ message: string }>(`${this.baseUrl}/change-password`, request).pipe(
       tap(() => {
         // Clear the flag after successful password change
-        localStorage.setItem('mustChangePassword', 'false');
+        sessionStorage.setItem('mustChangePassword', 'false');
         this.mustChangePassword.set(false);
       }),
       catchError(error => {
@@ -108,7 +108,7 @@ export class AuthService {
    * Logout user
    */
   logout(): void {
-    localStorage.removeItem('token');
+    sessionStorage.removeItem('token');
     this.currentUser.set(null);
     this.isAuthenticated.set(false);
   }
@@ -117,7 +117,7 @@ export class AuthService {
    * Check if user is authenticated
    */
   private checkAuth(): void {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     if (token) {
       const decoded = this.decodeToken(token);
       if (decoded && decoded.exp * 1000 > Date.now()) {
@@ -134,7 +134,7 @@ export class AuthService {
    * Get current token
    */
   getToken(): string | null {
-    return localStorage.getItem('token');
+    return sessionStorage.getItem('token');
   }
 
   /**
