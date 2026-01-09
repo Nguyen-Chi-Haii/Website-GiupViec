@@ -153,7 +153,7 @@ async function runTests() {
 
   // Test 10: Access protected endpoint without token
   await runner.run('Access protected endpoint without token should fail', async () => {
-    const result = await apiCall('GET', '/bookings/my-bookings', null, null);
+    const result = await apiCall('GET', '/bookings/my', null, null);
     
     if (!result.success && result.status === 401) {
       log(`   Correctly rejected (401 Unauthorized)`, 'yellow');

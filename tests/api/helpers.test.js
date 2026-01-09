@@ -64,7 +64,7 @@ async function runTests() {
 
   // Test 2: Get Helper profile
   await runner.run('Get Helper profile by userId', async () => {
-    const result = await apiCall('GET', `/helperprofiles/${helperUserId}`);
+    const result = await apiCall('GET', `/helperprofiles/user/${helperUserId}`);
     
     if (result.success && result.data.userId === helperUserId) {
       log(`   Retrieved profile`, 'yellow');
@@ -80,9 +80,10 @@ async function runTests() {
     const updateData = {
       bio: 'Updated bio: 10 years of professional cleaning experience',
       activeArea: 'Quận 1, Quận 2, Quận 3, Quận 4',
-      hourlyRate: 80000
+      hourlyRate: 80000,
+      experienceYears: 10
     };
-    const result = await apiCall('PUT', `/helperprofiles/${helperUserId}`, updateData, adminToken);
+    const result = await apiCall('PUT', `/helperprofiles/user/${helperUserId}`, updateData, adminToken);
     
     if (result.success) {
       log(`   Updated profile`, 'yellow');
@@ -94,7 +95,7 @@ async function runTests() {
 
   // Test 4: Verify update
   await runner.run('Verify profile was updated', async () => {
-    const result = await apiCall('GET', `/helperprofiles/${helperUserId}`);
+    const result = await apiCall('GET', `/helperprofiles/user/${helperUserId}`);
     
     if (result.success && result.data.hourlyRate === 80000) {
       log(`   Hourly rate updated to 80000₫`, 'yellow');
@@ -124,14 +125,18 @@ async function runTests() {
     tomorrow.setDate(tomorrow.getDate() + 1);
     const dateStr = tomorrow.toISOString().split('T')[0];
     
-    const result = await apiCall('GET', 
-      `/helperprofiles/available?startDate=${dateStr}&endDate=${dateStr}&startTime=09:00&endTime=17:00`);
+    const filter = {
+      startDate: `${dateStr}T09:00:00`,
+      endDate: `${dateStr}T17:00:00`,
+      workShiftStart: '09:00:00',
+      workShiftEnd: '17:00:00'
+    };
     
-    if (result.success && Array.isArray(result.data)) {
-      log(`   Found ${result.data.length} available helpers`, 'yellow');
-      if (result.data.length > 0) {
-        log(`   First helper: ${result.data[0].fullName} (⭐${result.data[0].ratingAverage})`, 'yellow');
-      }
+    const result = await apiCall('POST', '/helperprofiles/available', filter);
+    
+    if (result.success && (Array.isArray(result.data) || result.data.data)) {
+      const list = Array.isArray(result.data) ? result.data : result.data.data;
+      log(`   Found ${list.length} available helpers`, 'yellow');
       return true;
     }
     return false;
@@ -139,7 +144,7 @@ async function runTests() {
 
   // Test 7: Helper profile shows rating info
   await runner.run('Helper profile includes rating information', async () => {
-    const result = await apiCall('GET', `/helperprofiles/${helperUserId}`);
+    const result = await apiCall('GET', `/helperprofiles/user/${helperUserId}`);
     
     if (result.success) {
       const hasRatingAvg = typeof result.data.ratingAverage === 'number';

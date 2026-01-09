@@ -25,11 +25,14 @@ async function runTests() {
     return false;
   });
 
-  // Setup: Login as Employee
-  await runner.run('Setup: Login as Employee', async () => {
+  // Setup: Register and Login Employee
+  await runner.run('Setup: Register and Login Employee', async () => {
+    const { generateUser } = require('../utils/test-data');
+    const user = generateUser('Employee');
+    await apiCall('POST', '/auth/register', user);
     const result = await apiCall('POST', '/auth/login', {
-      email: 'nhanvien@nv.com',
-      password: 'Nhanvien@123'
+      email: user.email,
+      password: user.password
     });
     if (result.success && result.data.token) {
       employeeToken = result.data.token;
@@ -65,9 +68,12 @@ async function runTests() {
 
   // Test 2: Customer cannot access Admin stats
   await runner.run('Customer cannot access Admin statistics', async () => {
+    const { generateUser } = require('../utils/test-data');
+    const user = generateUser('Customer');
+    await apiCall('POST', '/auth/register', user);
     const customerResult = await apiCall('POST', '/auth/login', {
-      email: 'customer@test.com',
-      password: 'Customer@123'
+      email: user.email,
+      password: user.password
     });
     
     if (customerResult.success) {
