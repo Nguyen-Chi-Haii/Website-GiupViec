@@ -37,6 +37,7 @@ export interface HelperDashboardStats {
   totalUpcomingJobs: number;
   averageRating: number;
   ratingCount: number;
+  recentCompletedJobs: any[];
 }
 
 // ============== Booking Types ==============

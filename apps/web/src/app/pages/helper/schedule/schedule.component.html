@@ -111,6 +111,14 @@
               <p class="price">{{ selectedJob()!.totalPrice | number }}₫</p>
             </div>
           </div>
+          
+          <div class="modal-actions" *ngIf="canConfirm(selectedJob()!)">
+            <button class="btn-confirm" (click)="confirmJob(selectedJob()!)" [disabled]="isConfirming()">
+              <span class="material-symbols-outlined" *ngIf="!isConfirming()">check_circle</span>
+              <span class="spinner" *ngIf="isConfirming()"></span>
+              {{ isConfirming() ? 'Đang xác nhận...' : 'Xác nhận hoàn thành' }}
+            </button>
+          </div>
         </div>
       </div>
     </div>

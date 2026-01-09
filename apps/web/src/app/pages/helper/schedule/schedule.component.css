@@ -56,3 +56,54 @@
 .status-badge.confirmed { background: #dbeafe; color: #1d4ed8; }
 .status-badge.completed { background: #dcfce7; color: #16a34a; }
 .status-badge.pending { background: #fef3c7; color: #b45309; }
+
+.modal-actions {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #f3f4f6;
+  display: flex;
+  justify-content: center;
+}
+
+.btn-confirm {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  background: #13b9a5;
+  color: white;
+  border: none;
+  padding: 0.875rem 1.75rem;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(19, 185, 165, 0.2);
+}
+
+.btn-confirm:hover:not(:disabled) {
+  background: #0f9d8c;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(19, 185, 165, 0.3);
+}
+
+.btn-confirm:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-confirm:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2.5px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

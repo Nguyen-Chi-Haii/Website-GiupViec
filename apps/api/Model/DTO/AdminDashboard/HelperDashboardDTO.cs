@@ -8,5 +8,6 @@
         public int TotalUpcomingJobs { get; internal set; }
         public decimal AverageRating { get; internal set; }
         public int RatingCount { get; internal set; }
+        public List<GiupViecAPI.Model.DTO.Schedule.BookingScheduleDTO> RecentCompletedJobs { get; set; } = new();
     }
 }

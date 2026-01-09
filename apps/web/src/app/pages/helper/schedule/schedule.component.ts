@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
+import { BookingService } from '../../../core/services/booking.service';
 
 interface ScheduleItem {
   id: number;
@@ -28,6 +29,7 @@ interface ScheduleItem {
 })
 export class HelperScheduleComponent implements OnInit {
   private readonly http = inject(HttpClient);
+  private readonly bookingService = inject(BookingService);
 
   weekDays = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
   currentDate = new Date();
@@ -156,9 +158,14 @@ export class HelperScheduleComponent implements OnInit {
   
   // NEW: Confirmation Methods
   canConfirm(job: ScheduleItem): boolean {
-    if (job.helperConfirmed) return false;
+    if (job.helperConfirmed || job.status === 'Completed' || job.status === 'Rejected' || job.status === 'Cancelled') {
+      return false;
+    }
     
-    // Time check
+    // Only allow confirming jobs that are currently 'Confirmed'
+    if (job.status !== 'Confirmed') return false;
+
+    // Time check: only after end time
     const endDateTime = new Date(job.endDate);
     const [hours, minutes] = job.endTime.split(':').map(Number);
     endDateTime.setHours(hours, minutes, 0, 0);
@@ -170,14 +177,14 @@ export class HelperScheduleComponent implements OnInit {
     if (!confirm('Xác nhận công việc đã hoàn thành?')) return;
 
     this.isConfirming.set(true);
-    this.http.post(`${environment.apiUrl}/bookings/${job.id}/confirm-helper`, {}).subscribe({
+    this.bookingService.confirmByHelper(job.id).subscribe({
       next: () => {
         alert('Đã xác nhận hoàn thành!');
         this.isConfirming.set(false);
         this.loadMonth();
         this.closeJobModal();
       },
-      error: (err) => {
+      error: (err: any) => {
         alert('Lỗi: ' + (err.error?.message || 'Không thể xác nhận'));
         this.isConfirming.set(false);
       }
