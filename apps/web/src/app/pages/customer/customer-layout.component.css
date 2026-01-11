@@ -23,6 +23,14 @@
 .logout-btn { display: flex; align-items: center; gap: 0.75rem; width: 100%; padding: 0.75rem 1rem; background: transparent; border: 1px solid #e5e7eb; border-radius: 8px; color: #638884; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; }
 .logout-btn:hover { background: #fef2f2; border-color: #fecaca; color: #dc2626; }
 .main-content { flex: 1; padding: 2rem; overflow-y: auto; display: flex; flex-direction: column; }
+.top-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; flex-shrink: 0; }
+.header-right { display: flex; align-items: center; gap: 1.5rem; }
+.search-box { display: flex; align-items: center; background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 0.5rem 0.75rem; width: 300px; }
+.search-box input { border: none; background: transparent; padding-left: 0.5rem; width: 100%; outline: none; font-size: 0.9rem; }
+.search-box .material-symbols-outlined { color: #638884; font-size: 20px; }
+.content-area { flex: 1; }
 .sidebar.collapsed .nav-item { justify-content: center; padding: 0.75rem; }
 .sidebar.collapsed .user-info { justify-content: center; }
 .sidebar.collapsed .logout-btn { justify-content: center; padding: 0.75rem; }
+
+

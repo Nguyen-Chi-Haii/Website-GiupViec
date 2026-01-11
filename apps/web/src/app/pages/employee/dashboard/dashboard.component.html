@@ -4,6 +4,11 @@
       <h1>Tổng Quan Vận Hành</h1>
       <p class="subtitle">Chào mừng trở lại! Dưới đây là tình hình hoạt động hôm nay.</p>
     </div>
+    <app-date-range-picker 
+      [initialStartDate]="startDate()"
+      [initialEndDate]="endDate()"
+      (rangeChange)="onDateRangeChange($event)">
+    </app-date-range-picker>
   </div>
 
   <!-- Key Stats -->

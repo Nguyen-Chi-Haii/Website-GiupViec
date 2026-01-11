@@ -2,9 +2,12 @@
 using GiupViecAPI.Data;
 using GiupViecAPI.Model.Domain;
 using GiupViecAPI.Model.DTO.HelperProfile;
+using GiupViecAPI.Model.DTO.Shared;
 using GiupViecAPI.Model.Enums;
 using GiupViecAPI.Services.Interface;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Dynamic.Core;
 
 namespace GiupViecAPI.Services.Repositories
 {
@@ -19,7 +22,7 @@ namespace GiupViecAPI.Services.Repositories
             _mapper = mapper;
         }
 
-        public async Task<HelperProfileResponseDTO> CreateAsync(HelperProfileCreateDTO dto)
+        public async Task<HelperProfileResponseDTO?> CreateAsync(HelperProfileCreateDTO dto)
         {
             // Bước 1: Kiểm tra xem User này đã có hồ sơ chưa (Mỗi người chỉ 1 hồ sơ)
             var existingProfile = await _db.HelperProfiles
@@ -49,7 +52,7 @@ namespace GiupViecAPI.Services.Repositories
         }
 
         // Admin creates helper with user data in one go
-        public async Task<HelperProfileResponseDTO> CreateHelperWithUserAsync(AdminHelperCreateDTO dto)
+        public async Task<HelperProfileResponseDTO?> CreateHelperWithUserAsync(AdminHelperCreateDTO dto)
         {
             // Bước 1: Kiểm tra email đã tồn tại chưa
             if (await _db.Users.AnyAsync(u => u.Email == dto.Email))
@@ -62,8 +65,8 @@ namespace GiupViecAPI.Services.Repositories
             {
                 UserName = dto.Email, // IdentityUser requires UserName
                 Email = dto.Email,
-                NormalizedEmail = dto.Email.ToUpper(),
-                NormalizedUserName = dto.Email.ToUpper(),
+                NormalizedEmail = dto.Email?.ToUpper(),
+                NormalizedUserName = dto.Email?.ToUpper(),
                 PhoneNumber = dto.Phone, // IdentityUser uses PhoneNumber, not Phone
                 SecurityStamp = Guid.NewGuid().ToString(), // Required by IdentityUser
                 FullName = dto.FullName,
@@ -77,7 +80,7 @@ namespace GiupViecAPI.Services.Repositories
 
             // Băm mật khẩu
             var passwordHasher = new Microsoft.AspNetCore.Identity.PasswordHasher<User>();
-            user.PasswordHash = passwordHasher.HashPassword(user, dto.Password);
+            user.PasswordHash = passwordHasher.HashPassword(user, dto.Password ?? string.Empty);
 
             // Bước 3: Lưu User vào DB
             await _db.Users.AddAsync(user);
@@ -106,7 +109,7 @@ namespace GiupViecAPI.Services.Repositories
         }
 
         // 2. Logic lấy hồ sơ theo UserId
-        public async Task<HelperProfileResponseDTO> GetByUserIdAsync(int userId)
+        public async Task<HelperProfileResponseDTO?> GetByUserIdAsync(int userId)
         {
             var profile = await _db.HelperProfiles
                 .Include(h => h.User) // Join bảng User nếu cần lấy tên/email
@@ -118,7 +121,7 @@ namespace GiupViecAPI.Services.Repositories
         }
 
         // 3. Logic cập nhật hồ sơ
-        public async Task<HelperProfileResponseDTO> UpdateAsync(int userId, HelperProfileUpdateDTO dto)
+        public async Task<HelperProfileResponseDTO?> UpdateAsync(int userId, HelperProfileUpdateDTO dto)
         {
             // Tìm hồ sơ cũ
             var existingProfile = await _db.HelperProfiles
@@ -149,7 +152,7 @@ namespace GiupViecAPI.Services.Repositories
                     // (ShiftStartA < ShiftEndB) và (ShiftEndA > ShiftStartB) -> Trùng giờ
                     b.WorkShiftStart < filter.WorkShiftEnd && b.WorkShiftEnd > filter.WorkShiftStart
                 )
-                .Select(b => b.HelperId.Value) // Lấy ra List ID
+                .Select(b => b.HelperId ?? 0) // Lấy ra List ID
                 .Distinct()
                 .ToListAsync();
 
@@ -163,14 +166,66 @@ namespace GiupViecAPI.Services.Repositories
             return _mapper.Map<IEnumerable<HelperSuggestionDTO>>(availableHelpers);
         }
 
-        public async Task<IEnumerable<HelperProfileResponseDTO>> GetAllAsync()
+        public async Task<GiupViecAPI.Model.DTO.Shared.PagedResult<HelperProfileResponseDTO>> GetAllAsync(HelperProfileFilterDTO filter)
         {
-            var profiles = await _db.HelperProfiles
+            var query = _db.HelperProfiles
                 .Include(h => h.User)
                 .AsNoTracking()
+                .AsQueryable();
+            
+            if (!string.IsNullOrEmpty(filter.Keyword))
+            {
+                var keyword = filter.Keyword.ToLower();
+                query = query.Where(h => (h.User != null && h.User.FullName != null && h.User.FullName.ToLower().Contains(keyword)) 
+                                      || (h.User != null && h.User.Email != null && h.User.Email.ToLower().Contains(keyword)));
+            }
+
+            if (!string.IsNullOrEmpty(filter.ActiveArea))
+                query = query.Where(h => h.ActiveArea != null && h.ActiveArea.Contains(filter.ActiveArea));
+
+             if (filter.MinHourlyRate.HasValue)
+                query = query.Where(h => h.HourlyRate >= filter.MinHourlyRate.Value);
+
+             if (filter.MaxHourlyRate.HasValue)
+                query = query.Where(h => h.HourlyRate <= filter.MaxHourlyRate.Value);
+            
+            // Experience is calculated from CareerStartDate. 
+            // If filter.StartExperience = 2 years, we want people who started <= 2 years ago? Or >= 2 years ago?
+            // "ExperienceYears" usually means "at least X years". 
+            // So CareerStartDate <= Now - X years.
+             if (filter.MinExperience.HasValue)
+                query = query.Where(h => h.CareerStartDate <= DateTime.UtcNow.AddYears(-filter.MinExperience.Value));
+
+            return await GetPagedResultAsync<HelperProfile, HelperProfileResponseDTO>(query, filter);
+        }
+
+        private async Task<GiupViecAPI.Model.DTO.Shared.PagedResult<TResult>> GetPagedResultAsync<TEntity, TResult>(IQueryable<TEntity> query, BaseFilterDTO filter)
+        {
+            if (!string.IsNullOrEmpty(filter.SortBy))
+            {
+                try
+                {
+                    query = query.OrderBy($"{filter.SortBy} {(filter.IsDescending ? "desc" : "asc")}");
+                }
+                catch {}
+            }
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .Skip((filter.PageIndex - 1) * filter.PageSize)
+                .Take(filter.PageSize)
                 .ToListAsync();
 
-            return _mapper.Map<IEnumerable<HelperProfileResponseDTO>>(profiles);
+            var resultItems = _mapper.Map<IEnumerable<TResult>>(items);
+
+            return new GiupViecAPI.Model.DTO.Shared.PagedResult<TResult>
+            {
+                Items = resultItems,
+                TotalCount = totalCount,
+                PageIndex = filter.PageIndex,
+                PageSize = filter.PageSize
+            };
         }
 
         public async Task<bool> SoftDeleteAsync(int id)

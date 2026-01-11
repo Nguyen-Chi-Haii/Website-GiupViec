@@ -1,0 +1,30 @@
+export interface BookingResponseDTO {
+    id: number;
+    customerId: number;
+    helperId?: number;
+    customerName: string;
+    helperName?: string;
+    serviceId: number;
+    serviceName: string;
+    address: string;
+    startDate: string;
+    endDate: string;
+    startTime: string;
+    endTime: string;
+    quantity: number;
+    serviceUnit: string;  
+    serviceUnitLabel?: string;
+    totalPrice: number;
+    status: string;
+    paymentStatus: string;
+    isPaid: boolean;
+    isRated: boolean;
+    customerConfirmed: boolean;
+    helperConfirmed: boolean;
+    notes?: string;
+    approvalStatus: string;
+    approvedByName?: string;
+    approvalDate?: string;
+    rejectionReason?: string;
+    createdAt: string;
+}

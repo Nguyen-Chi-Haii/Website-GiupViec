@@ -8,7 +8,18 @@
         </span>
       }
     </div>
-    <p class="subtitle">Đây là tổng quan công việc của bạn hôm nay, {{ todayDate | date:'dd/MM/yyyy' }}</p>
+    
+    <div class="header-actions flex items-center justify-between mt-4">
+      <p class="subtitle mb-0">Thống kê và tổng quan công việc</p>
+      
+      <div class="w-64">
+        <app-date-range-picker
+          [initialStartDate]="startDate()"
+          [initialEndDate]="endDate()"
+          (rangeChange)="handleDateChange($event)">
+        </app-date-range-picker>
+      </div>
+    </div>
   </div>
 
   <!-- Stats Grid -->

@@ -1,0 +1,53 @@
+<div class="notifications-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <button (click)="goBack()" class="back-link">
+        <span class="material-symbols-outlined">arrow_back</span>
+      </button>
+      <h1 class="page-title">Thông báo</h1>
+    </div>
+    <button (click)="markAllRead()" class="mark-all-btn">
+      Đánh dấu tất cả đã đọc
+    </button>
+  </div>
+
+  <!-- List -->
+  <div class="notification-list">
+    <div *ngFor="let noti of notifications()" 
+         class="notification-card" 
+         [class.unread]="!noti.isRead"
+         (click)="onNotificationClick(noti)">
+      
+      <div class="icon-container" [style.background-color]="getIconColor(noti.type) + '15'">
+        <span class="material-symbols-outlined" [style.color]="getIconColor(noti.type)">
+          {{ getIcon(noti.type) }}
+        </span>
+      </div>
+
+      <div class="card-content">
+        <div class="card-top">
+          <h3 class="card-title">{{ noti.title }}</h3>
+          <span class="card-time">{{ noti.createdAt | date:'HH:mm • dd/MM/yyyy' }}</span>
+        </div>
+        <p class="card-message">{{ noti.message }}</p>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="notifications().length === 0 && !isLoading()" class="empty-state">
+      <i class="material-symbols-outlined">notifications_off</i>
+      <h2>Hiện chưa có thông báo nào dành cho bạn</h2>
+    </div>
+
+    <!-- Load More -->
+    <button 
+      *ngIf="hasMore()" 
+      (click)="loadMore()" 
+      [disabled]="isLoading()" 
+      class="load-more-btn">
+      <span *ngIf="isLoading()" class="loading loading-spinner loading-xs mr-2"></span>
+      {{ isLoading() ? 'Đang tải...' : 'Xem thêm thông báo cũ' }}
+    </button>
+  </div>
+</div>

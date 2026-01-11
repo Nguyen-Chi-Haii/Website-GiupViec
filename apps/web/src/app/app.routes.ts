@@ -22,11 +22,13 @@ import { HelperProfileComponent } from './pages/helper/profile/profile.component
 // Customer imports
 import { CustomerLayoutComponent } from './pages/customer/customer-layout.component';
 import { CustomerMyBookingsComponent } from './pages/customer/my-bookings/my-bookings.component';
+import { CustomerMyJobPostsComponent } from './pages/customer/my-job-posts/my-job-posts.component';
 import { CustomerProfileComponent } from './pages/customer/profile/profile.component';
 // Employee imports
 import { EmployeeLayoutComponent } from './pages/employee/employee-layout.component';
 import { EmployeeDashboardComponent } from './pages/employee/dashboard/dashboard.component';
 import { EmployeeBookingsComponent } from './pages/employee/bookings/bookings.component';
+import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 
 export const routes: Routes = [
   {
@@ -79,6 +81,11 @@ export const routes: Routes = [
       }
     ]
   },
+  {
+    path: 'notifications',
+    loadComponent: () => import('./pages/notifications/notification-list.component').then(m => m.NotificationListComponent),
+    title: 'Thông báo',
+  },
   // Admin Routes
   {
     path: 'admin',
@@ -93,6 +100,11 @@ export const routes: Routes = [
         path: 'bookings',
         component: AdminBookingsComponent,
         title: 'Quản Lý Đơn Hàng - Admin'
+      },
+      {
+        path: 'approvals',
+        loadComponent: () => import('./pages/admin/bookings/pending-approvals/pending-approvals.component').then(m => m.PendingApprovalsComponent),
+        title: 'Duyệt Bài Đăng - Admin'
       },
       {
         path: 'services',
@@ -132,6 +144,16 @@ export const routes: Routes = [
         title: 'Lịch Làm Việc - Helper'
       },
       {
+        path: 'jobs',
+        loadComponent: () => import('./pages/helper/available-jobs/available-jobs.component').then(m => m.AvailableJobsComponent),
+        title: 'Tìm Việc Mới - Helper'
+      },
+      {
+        path: 'my-jobs',
+        loadComponent: () => import('./pages/helper/jobs/my-jobs/my-jobs.component').then(m => m.MyJobsComponent),
+        title: 'Công Việc Của Tôi - Helper'
+      },
+      {
         path: 'profile',
         component: HelperProfileComponent,
         title: 'Hồ Sơ Của Tôi - Helper'
@@ -145,8 +167,18 @@ export const routes: Routes = [
     children: [
       {
         path: '',
+        loadComponent: () => import('./pages/customer/dashboard/dashboard.component').then(m => m.CustomerDashboardComponent),
+        title: 'Tổng Quan - Khách Hàng'
+      },
+      {
+        path: 'my-bookings',
         component: CustomerMyBookingsComponent,
         title: 'Đơn Của Tôi - Khách Hàng'
+      },
+      {
+        path: 'job-posts',
+        component: CustomerMyJobPostsComponent,
+        title: 'Bài Đăng Của Tôi - Khách Hàng'
       },
       {
         path: 'profile',
@@ -184,6 +216,11 @@ export const routes: Routes = [
         path: 'calendar',
         loadComponent: () => import('./pages/employee/calendar/calendar.component').then(m => m.EmployeeCalendarComponent),
         title: 'Lịch Vận Hành - Nhân Viên'
+      },
+      {
+        path: 'approvals',
+        loadComponent: () => import('./pages/admin/bookings/pending-approvals/pending-approvals.component').then(m => m.PendingApprovalsComponent),
+        title: 'Duyệt Bài Đăng - Nhân Viên'
       },
       {
         path: 'services',

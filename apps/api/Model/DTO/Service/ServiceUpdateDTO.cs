@@ -6,7 +6,7 @@ namespace GiupViecAPI.Model.DTO.Service
     {
         [Required(ErrorMessage = "Tên dịch vụ không được để trống")]
         [MaxLength(100)]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         public string? Description { get; set; }
 

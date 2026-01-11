@@ -35,6 +35,15 @@ namespace API.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
+                    b.Property<DateTime?>("ApprovalDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ApprovalStatus")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ApprovedBy")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -53,6 +62,9 @@ namespace API.Migrations
                     b.Property<int?>("HelperId")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsJobPost")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsRated")
                         .HasColumnType("bit");
 
@@ -64,6 +76,10 @@ namespace API.Migrations
 
                     b.Property<double>("Quantity")
                         .HasColumnType("float");
+
+                    b.Property<string>("RejectionReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<int>("ServiceId")
                         .HasColumnType("int");
@@ -87,6 +103,10 @@ namespace API.Migrations
                         .HasColumnType("time");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ApprovalStatus");
+
+                    b.HasIndex("ApprovedBy");
 
                     b.HasIndex("CustomerId");
 
@@ -135,6 +155,50 @@ namespace API.Migrations
                         .IsUnique();
 
                     b.ToTable("HelperProfiles");
+                });
+
+            modelBuilder.Entity("GiupViecAPI.Model.Domain.Notification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int?>("RelatedEntityId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RelatedEntityType")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "IsRead");
+
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("GiupViecAPI.Model.Domain.Rating", b =>
@@ -450,6 +514,11 @@ namespace API.Migrations
 
             modelBuilder.Entity("GiupViecAPI.Model.Domain.Booking", b =>
                 {
+                    b.HasOne("GiupViecAPI.Model.Domain.User", "ApprovedByUser")
+                        .WithMany()
+                        .HasForeignKey("ApprovedBy")
+                        .OnDelete(DeleteBehavior.NoAction);
+
                     b.HasOne("GiupViecAPI.Model.Domain.User", "Customer")
                         .WithMany()
                         .HasForeignKey("CustomerId")
@@ -466,6 +535,8 @@ namespace API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("ApprovedByUser");
+
                     b.Navigation("Customer");
 
                     b.Navigation("Helper");
@@ -478,6 +549,17 @@ namespace API.Migrations
                     b.HasOne("GiupViecAPI.Model.Domain.User", "User")
                         .WithOne("HelperProfile")
                         .HasForeignKey("GiupViecAPI.Model.Domain.HelperProfile", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("GiupViecAPI.Model.Domain.Notification", b =>
+                {
+                    b.HasOne("GiupViecAPI.Model.Domain.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

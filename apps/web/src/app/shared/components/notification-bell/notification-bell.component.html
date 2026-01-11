@@ -1,0 +1,57 @@
+<div class="notification-container">
+  <!-- Bell Icon -->
+  <button class="header-btn" (click)="toggleDropdown()">
+    <span class="material-symbols-outlined">notifications</span>
+    <span *ngIf="unreadCount() > 0" class="notification-badge-number">
+      {{ unreadCount() }}
+    </span>
+  </button>
+
+  <!-- Overlay for clicking outside -->
+  <div *ngIf="isOpen()" class="overlay" (click)="closeDropdown()"></div>
+
+  <!-- Dropdown Content -->
+  <div *ngIf="isOpen()" class="notification-dropdown">
+    <div class="dropdown-header">
+       <h3>Thông báo</h3>
+       <button class="mark-read-btn" (click)="markAllRead()" *ngIf="unreadCount() > 0">
+         Đánh dấu tất cả đã đọc
+       </button>
+    </div>
+    
+    <div class="notification-list">
+       <div *ngIf="isLoading()" class="flex justify-center py-10">
+         <span class="loading loading-spinner text-blue-500"></span>
+       </div>
+       
+       <div *ngIf="!isLoading() && previewList().length === 0" class="empty-box">
+         <i class="material-symbols-outlined">notifications_off</i>
+         <p>Không có thông báo mới</p>
+       </div>
+
+       <div *ngFor="let noti of previewList()" 
+            class="notification-item"
+            [class.unread]="!noti.isRead"
+            (click)="handleNotificationClick(noti)">
+          
+          <div class="icon-wrapper" [style.background-color]="getIconColor(noti.type) + '15'">
+             <span class="material-symbols-outlined" [style.color]="getIconColor(noti.type)">
+               {{ getIcon(noti.type) }}
+             </span>
+          </div>
+
+          <div class="notification-content">
+             <h4 class="notification-title">{{ noti.title }}</h4>
+             <p class="notification-message">{{ noti.message }}</p>
+             <span class="notification-time">{{ noti.createdAt | date:'HH:mm dd/MM/yyyy' }}</span>
+          </div>
+       </div>
+    </div>
+
+    <div class="dropdown-footer">
+      <a routerLink="/notifications" (click)="closeDropdown()" class="view-all-link">
+        Xem tất cả thông báo
+      </a>
+    </div>
+  </div>
+</div>

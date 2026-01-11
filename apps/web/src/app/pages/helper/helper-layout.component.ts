@@ -3,10 +3,12 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 
+import { NotificationBellComponent } from '../../shared/components/notification-bell/notification-bell.component';
+
 @Component({
   selector: 'app-helper-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, NotificationBellComponent],
   template: `
     <div class="layout">
       <!-- Sidebar -->
@@ -38,6 +40,14 @@ import { AuthService } from '../../core/services/auth.service';
             <span class="material-symbols-outlined">calendar_month</span>
             @if (!sidebarCollapsed()) { <span>Lịch Làm Việc</span> }
           </a>
+          <a routerLink="/helper/jobs" routerLinkActive="active" class="nav-item">
+            <span class="material-symbols-outlined">search</span>
+            @if (!sidebarCollapsed()) { <span>Tìm Việc Mới</span> }
+          </a>
+          <a routerLink="/helper/my-jobs" routerLinkActive="active" class="nav-item">
+            <span class="material-symbols-outlined">work</span>
+            @if (!sidebarCollapsed()) { <span>Công Việc Của Tôi</span> }
+          </a>
           <a routerLink="/helper/profile" routerLinkActive="active" class="nav-item">
             <span class="material-symbols-outlined">person</span>
             @if (!sidebarCollapsed()) { <span>Hồ Sơ Của Tôi</span> }
@@ -63,6 +73,14 @@ import { AuthService } from '../../core/services/auth.service';
 
       <!-- Main Content -->
       <main class="main-content">
+        <!-- Header for Mobile/Title -->
+        <header class="flex justify-between items-center mb-6 bg-white p-4 rounded-xl shadow-sm sticky top-0 z-10">
+           <h1 class="text-xl font-bold text-gray-800">{{ getPageTitle() }}</h1>
+           <div class="flex items-center gap-4">
+              <app-notification-bell></app-notification-bell>
+           </div>
+        </header>
+
         <router-outlet></router-outlet>
       </main>
     </div>
@@ -117,6 +135,15 @@ export class HelperLayoutComponent implements OnInit {
   getUserInitials(): string {
     const email = this.currentUser()?.email || '';
     return email.charAt(0).toUpperCase();
+  }
+
+  getPageTitle(): string {
+    // Simple mapping or use Route data. For now, simple return based on URL
+    if (this.router.url.includes('/schedule')) return 'Lịch Làm Việc';
+    if (this.router.url.includes('/jobs')) return 'Tìm Việc Mới';
+    if (this.router.url.includes('/my-jobs')) return 'Công Việc Của Tôi';
+    if (this.router.url.includes('/profile')) return 'Hồ Sơ Của Tôi';
+    return 'Tổng Quan';
   }
 
   logout(): void {

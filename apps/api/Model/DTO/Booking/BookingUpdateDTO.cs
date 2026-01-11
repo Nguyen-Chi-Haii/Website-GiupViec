@@ -5,7 +5,7 @@ namespace GiupViecAPI.Model.DTO.Booking
     public class BookingUpdateDTO
     {
         [Required]
-        public string Address { get; set; }
+        public string? Address { get; set; }
 
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }

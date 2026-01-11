@@ -11,13 +11,8 @@
       <span class="step-label">Lịch & Địa Chỉ</span>
     </div>
     <div class="progress-line active"></div>
-    <div class="progress-step completed">
-      <span class="step-number">✓</span>
-      <span class="step-label">Chọn Helper</span>
-    </div>
-    <div class="progress-line active"></div>
     <div class="progress-step active">
-      <span class="step-number">4</span>
+      <span class="step-number">3</span>
       <span class="step-label">Xác Nhận</span>
     </div>
   </div>
@@ -26,8 +21,8 @@
   <div class="card-container">
     <div class="card-header">
       <span class="material-symbols-outlined header-icon">task_alt</span>
-      <h1 class="card-title">Xác Nhận Đặt Dịch Vụ</h1>
-      <p class="card-subtitle">Kiểm tra lại thông tin trước khi xác nhận</p>
+      <h1 class="card-title">{{ isPostingMode ? 'Xác Nhận Đăng Bài Tìm Người' : 'Xác Nhận Đặt Dịch Vụ' }}</h1>
+      <p class="card-subtitle">{{ isPostingMode ? 'Bài đăng của bạn sẽ được hiển thị trên hệ thống để người giúp việc nhận việc' : 'Kiểm tra lại thông tin trước khi xác nhận' }}</p>
     </div>
 
     <!-- Success Message -->
@@ -67,7 +62,9 @@
             <div class="info-row">
               <span class="label">Người thực hiện:</span>
               <span class="value">
-                @if (autoAssignHelper) {
+                @if (isPostingMode) {
+                  <em>Công khai trên sàn tìm việc</em>
+                } @else if (autoAssignHelper) {
                   <em>Hệ thống tự động chọn</em>
                 } @else if (selectedHelper) {
                   {{ selectedHelper.fullName }}
@@ -170,7 +167,7 @@
             <span>Đang xử lý...</span>
           } @else {
             <span class="material-symbols-outlined">lock</span>
-            <span>Xác Nhận Đặt Dịch Vụ</span>
+            <span>{{ isPostingMode ? 'Xác Nhận Đăng Bài' : 'Xác Nhận Đặt Dịch Vụ' }}</span>
           }
         </button>
       </div>

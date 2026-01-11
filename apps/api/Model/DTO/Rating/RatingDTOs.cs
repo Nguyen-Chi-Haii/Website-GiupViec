@@ -20,9 +20,9 @@ namespace GiupViecAPI.Model.DTO.Rating
         public int Id { get; set; }
         public int BookingId { get; set; }
         public int CustomerId { get; set; }
-        public string CustomerName { get; set; }
+        public string? CustomerName { get; set; }
         public int HelperId { get; set; }
-        public string HelperName { get; set; }
+        public string? HelperName { get; set; }
         public int Score { get; set; }
         public string? Comment { get; set; }
         public DateTime CreatedAt { get; set; }

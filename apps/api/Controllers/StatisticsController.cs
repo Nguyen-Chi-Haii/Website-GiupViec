@@ -19,11 +19,11 @@ namespace GiupViecAPI.Controllers
 
         [HttpGet("admin")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetAdminStats()
+        public async Task<IActionResult> GetAdminStats([FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
         {
             try
             {
-                var stats = await _service.GetAdminDashboardAsync();
+                var stats = await _service.GetAdminDashboardAsync(startDate, endDate);
                 return Ok(stats);
             }
             catch (Exception ex)
@@ -33,13 +33,32 @@ namespace GiupViecAPI.Controllers
             }
         }
 
-        [HttpGet("employee")]
-        [Authorize(Roles = "Employee")]
-        public async Task<IActionResult> GetEmployeeStats()
+        [HttpGet("revenue-chart")]
+        [Authorize(Roles = "Admin,Employee")]
+        public async Task<IActionResult> GetRevenueChart([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
         {
             try
             {
-                var stats = await _service.GetEmployeeDashboardAsync();
+                // Fix: Nếu client không gửi, default lấy năm hiện tại
+                if (startDate == default) startDate = new DateTime(DateTime.Now.Year, 1, 1);
+                if (endDate == default) endDate = new DateTime(DateTime.Now.Year, 12, 31);
+                
+                var data = await _service.GetRevenueChartDataAsync(startDate, endDate);
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Lỗi server: " + ex.Message });
+            }
+        }
+
+        [HttpGet("employee")]
+        [Authorize(Roles = "Employee")]
+        public async Task<IActionResult> GetEmployeeStats([FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
+        {
+            try
+            {
+                var stats = await _service.GetEmployeeDashboardAsync(startDate, endDate);
                 return Ok(stats);
             }
             catch (Exception ex)
@@ -50,7 +69,7 @@ namespace GiupViecAPI.Controllers
 
         [HttpGet("helper")]
         [Authorize(Roles = "Helper")]
-        public async Task<IActionResult> GetHelperStats()
+        public async Task<IActionResult> GetHelperStats([FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
         {
             try
             {
@@ -62,7 +81,7 @@ namespace GiupViecAPI.Controllers
 
                 var userId = int.Parse(userIdString);
 
-                var stats = await _service.GetHelperDashboardAsync(userId);
+                var stats = await _service.GetHelperDashboardAsync(userId, startDate, endDate);
 
                 // Nếu chưa có hồ sơ hoặc dữ liệu, trả về mặc định thay vì lỗi
                 if (stats == null) return NotFound(new { message = "Không tìm thấy dữ liệu thống kê." });

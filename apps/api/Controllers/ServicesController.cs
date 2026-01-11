@@ -19,9 +19,9 @@ namespace GiupViecAPI.Controllers
         // GET: api/services
         // Không để [Authorize] để khách vãng lai cũng xem được giá
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] ServiceFilterDTO filter)
         {
-            var result = await _service.GetAllAsync();
+            var result = await _service.GetAllAsync(filter);
             return Ok(result);
         }
 
@@ -53,6 +53,7 @@ namespace GiupViecAPI.Controllers
             try
             {
                 var result = await _service.CreateAsync(dto);
+                if (result == null) return BadRequest(new { message = "Không thể tạo dịch vụ" });
                 return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
             }
             catch (Exception ex)

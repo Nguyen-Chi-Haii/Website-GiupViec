@@ -10,7 +10,7 @@ namespace GiupViecAPI.Model.Domain
 
         public int UserId { get; set; }
         [ForeignKey("UserId")]
-        public User User { get; set; }
+        public User? User { get; set; }
 
         // --- BỔ SUNG CÁC TRƯỜNG MỚI ---
 
@@ -26,7 +26,7 @@ namespace GiupViecAPI.Model.Domain
         public int RatingCount { get; set; } = 0;
 
         [MaxLength(255)]
-        public string ActiveArea { get; set; }
+        public string? ActiveArea { get; set; }
 
         public decimal HourlyRate { get; set; } = 0;
     }

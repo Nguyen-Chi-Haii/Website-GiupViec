@@ -31,14 +31,18 @@ export class VietnamProvincesService {
     if (!this.provincesCache$) {
       // Sử dụng /p/ thay vì / để tránh lỗi
       this.provincesCache$ = this.http.get<ProvinceResponse[]>(`${API_BASE_URL}/p/`).pipe(
-        shareReplay(1),
-        catchError((error) => {
-          console.error('Failed to load provinces from API:', error);
-          return of([]);
-        })
+        shareReplay(1)
       );
     }
-    return this.provincesCache$;
+    
+    return this.provincesCache$.pipe(
+      catchError((error) => {
+        console.error('Failed to load provinces from API:', error);
+        // Clear cache so we can retry later
+        this.provincesCache$ = null;
+        return of([]);
+      })
+    );
   }
 
   /**

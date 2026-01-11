@@ -29,17 +29,21 @@ export class BookingStep4Component implements OnInit {
   guestBookingResult = signal<GuestBookingResponseDTO | null>(null);
 
   ngOnInit(): void {
-    this.bookingState.setCurrentStep(4);
+    this.bookingState.setCurrentStep(3);
 
-    // Check prerequisites
-    if (!this.bookingState.canProceedToStep4()) {
-      this.router.navigate(['/booking/step3']);
+    // Check prerequisites (now skipping step 3)
+    if (!this.bookingState.canProceedToStep2()) {
+      this.router.navigate(['/booking/step1']);
       return;
     }
   }
 
   get isLoggedIn() {
     return this.authService.isAuthenticated();
+  }
+
+  get isPostingMode() {
+    return this.bookingState.isPostingMode();
   }
 
   get guestInfo() {
@@ -83,7 +87,7 @@ export class BookingStep4Component implements OnInit {
   }
 
   onBack(): void {
-    this.router.navigate(['/booking/step3']);
+    this.router.navigate(['/booking/step2']);
   }
 
   onSubmit(): void {

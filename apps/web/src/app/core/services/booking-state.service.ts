@@ -50,6 +50,7 @@ export class BookingStateService {
   private _autoAssignHelper = signal(true);
   private _quantity = signal(1);
   private _guestInfo = signal<GuestInfo | null>(null);
+  private _isPostingMode = signal(false);
 
   // Public readonly signals
   readonly currentStep = this._currentStep.asReadonly();
@@ -61,6 +62,7 @@ export class BookingStateService {
   readonly autoAssignHelper = this._autoAssignHelper.asReadonly();
   readonly quantity = this._quantity.asReadonly();
   readonly guestInfo = this._guestInfo.asReadonly();
+  readonly isPostingMode = this._isPostingMode.asReadonly();
 
   // Computed values
   readonly canProceedToStep2 = computed(() => this._selectedService() !== null);
@@ -152,6 +154,14 @@ export class BookingStateService {
     this._quantity.set(qty);
   }
 
+  setPostingMode(isPosting: boolean): void {
+    this._isPostingMode.set(isPosting);
+    if (isPosting) {
+      this._autoAssignHelper.set(true);
+      this._selectedHelper.set(null);
+    }
+  }
+
   // Get full state for API call (for logged-in users)
   getBookingData() {
     const address = this._address();
@@ -203,6 +213,7 @@ export class BookingStateService {
     this._autoAssignHelper.set(true);
     this._quantity.set(1);
     this._guestInfo.set(null);
+    this._isPostingMode.set(false);
   }
 
   // Set data from a previous booking for re-ordering

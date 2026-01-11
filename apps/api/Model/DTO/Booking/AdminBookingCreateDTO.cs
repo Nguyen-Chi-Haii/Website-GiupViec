@@ -27,7 +27,7 @@ namespace GiupViecAPI.Model.DTO.Booking
 
         [Required]
         [MaxLength(255)]
-        public string Address { get; set; }
+        public string? Address { get; set; }
 
         public double Quantity { get; set; } = 1;
 

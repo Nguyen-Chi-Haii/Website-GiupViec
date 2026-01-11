@@ -2,8 +2,10 @@
 using GiupViecAPI.Data;
 using GiupViecAPI.Model.Domain;
 using GiupViecAPI.Model.DTO.Service;
+using GiupViecAPI.Model.DTO.Shared;
 using GiupViecAPI.Services.Interface;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Dynamic.Core;
 
 namespace GiupViecAPI.Services.Repositories
 {
@@ -19,7 +21,7 @@ namespace GiupViecAPI.Services.Repositories
         }
 
         // 1. TẠO DỊCH VỤ MỚI
-        public async Task<ServiceResponseDTO> CreateAsync(ServiceCreateDTO dto)
+        public async Task<ServiceResponseDTO?> CreateAsync(ServiceCreateDTO dto)
         {
             // Kiểm tra trùng tên dịch vụ (Optional: tùy nghiệp vụ có cần không)
             bool isExists = await _db.Services.AnyAsync(s => s.Name == dto.Name);
@@ -27,8 +29,7 @@ namespace GiupViecAPI.Services.Repositories
             {
                 throw new Exception("Tên dịch vụ đã tồn tại, vui lòng chọn tên khác.");
             }
-
-            // Map từ DTO sang Entity
+ 
             var service = _mapper.Map<Service>(dto);
 
             // Thêm vào DB
@@ -40,30 +41,70 @@ namespace GiupViecAPI.Services.Repositories
         }
 
         // 2. LẤY TẤT CẢ DỊCH VỤ
-        public async Task<IEnumerable<ServiceResponseDTO>> GetAllAsync()
+        public async Task<GiupViecAPI.Model.DTO.Shared.PagedResult<ServiceResponseDTO>> GetAllAsync(ServiceFilterDTO filter)
         {
-            var list = await _db.Services
-                .OrderBy(s => s.Price) // Sắp xếp theo giá tăng dần (hoặc theo tên)
+            var query = _db.Services.AsQueryable();
+
+            if (!string.IsNullOrEmpty(filter.Keyword))
+            {
+                var keyword = filter.Keyword.ToLower();
+                query = query.Where(s => (s.Name != null && s.Name.ToLower().Contains(keyword)) 
+                                      || (s.Description != null && s.Description.ToLower().Contains(keyword)));
+            }
+            
+            if (filter.MinPrice.HasValue)
+                query = query.Where(s => s.Price >= filter.MinPrice.Value);
+
+             if (filter.MaxPrice.HasValue)
+                query = query.Where(s => s.Price <= filter.MaxPrice.Value);
+
+            return await GetPagedResultAsync<Service, ServiceResponseDTO>(query, filter);
+        }
+
+        private async Task<GiupViecAPI.Model.DTO.Shared.PagedResult<TResult>> GetPagedResultAsync<TEntity, TResult>(IQueryable<TEntity> query, BaseFilterDTO filter)
+        {
+            if (!string.IsNullOrEmpty(filter.SortBy))
+            {
+                try
+                {
+                    query = query.OrderBy($"{filter.SortBy} {(filter.IsDescending ? "desc" : "asc")}");
+                }
+                catch {}
+            }
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .Skip((filter.PageIndex - 1) * filter.PageSize)
+                .Take(filter.PageSize)
                 .ToListAsync();
 
-            return _mapper.Map<IEnumerable<ServiceResponseDTO>>(list);
+            var resultItems = _mapper.Map<IEnumerable<TResult>>(items);
+
+            return new GiupViecAPI.Model.DTO.Shared.PagedResult<TResult>
+            {
+                Items = resultItems,
+                TotalCount = totalCount,
+                PageIndex = filter.PageIndex,
+                PageSize = filter.PageSize
+            };
         }
 
         // 3. LẤY DỊCH VỤ THEO ID
-        public async Task<ServiceResponseDTO> GetByIdAsync(int id)
+        public async Task<ServiceResponseDTO?> GetByIdAsync(int id)
         {
             var service = await _db.Services.FindAsync(id);
-
+ 
             if (service == null) return null;
-
+ 
             return _mapper.Map<ServiceResponseDTO>(service);
         }
-
+ 
         // 4. CẬP NHẬT DỊCH VỤ
-        public async Task<ServiceResponseDTO> UpdateAsync(int id, ServiceUpdateDTO dto)
+        public async Task<ServiceResponseDTO?> UpdateAsync(int id, ServiceUpdateDTO dto)
         {
             var existingService = await _db.Services.FindAsync(id);
-
+ 
             if (existingService == null) return null;
 
             // Kiểm tra trùng tên nếu người dùng thay đổi tên
@@ -74,12 +115,7 @@ namespace GiupViecAPI.Services.Repositories
             }
 
             // AutoMapper sẽ tự động lấy dữ liệu từ DTO đè vào Entity cũ
-            // Những trường nào trong DTO là null thì AutoMapper có thể cấu hình bỏ qua hoặc đè null tùy profile,
-            // nhưng logic cơ bản là map đè thuộc tính.
             _mapper.Map(dto, existingService);
-
-            // Cập nhật ngày sửa (nếu Model có trường UpdatedAt, còn không thì bỏ qua)
-            // existingService.UpdatedAt = DateTime.UtcNow; 
 
             await _db.SaveChangesAsync();
 
@@ -91,7 +127,7 @@ namespace GiupViecAPI.Services.Repositories
         {
             return await _db.Services
                 .Where(s => !string.IsNullOrEmpty(s.UnitLabel))
-                .Select(s => s.UnitLabel)
+                .Select(s => s.UnitLabel ?? "")
                 .Distinct()
                 .ToListAsync();
         }

@@ -1,0 +1,11 @@
+    <div class="chart-container relative h-[300px] w-full">
+      <div *ngIf="isLoading()" class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-10">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+      
+      <canvas baseChart
+        [data]="lineChartData"
+        [options]="lineChartOptions"
+        [type]="lineChartType">
+      </canvas>
+    </div>

@@ -40,6 +40,12 @@ export class BookingStep3Component implements OnInit {
     }
     this.autoAssign.set(this.bookingState.autoAssignHelper());
 
+    // If in posting mode, auto-advance to step 4
+    if (this.bookingState.isPostingMode()) {
+      this.router.navigate(['/booking/step4']);
+      return;
+    }
+
     this.loadHelpers();
   }
 

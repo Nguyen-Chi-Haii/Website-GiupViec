@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -7,6 +7,7 @@ import { environment } from '../../../../environments/environment';
 import { BookingStateService } from '../../../core/services/booking-state.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { RatingService } from '../../../core/services/rating.service';
+import { BookingService } from '../../../core/services/booking.service';
 import { BookingResponseDTO, RatingCreateDTO } from '@giupviec/shared';
 
 @Component({
@@ -19,6 +20,7 @@ import { BookingResponseDTO, RatingCreateDTO } from '@giupviec/shared';
 export class CustomerMyBookingsComponent implements OnInit {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
+  private readonly bookingService = inject(BookingService);
   private readonly bookingState = inject(BookingStateService);
   private readonly notification = inject(NotificationService);
   private readonly ratingService = inject(RatingService);
@@ -44,17 +46,40 @@ export class CustomerMyBookingsComponent implements OnInit {
     this.loadBookings();
   }
 
+  // Status filter
+  filterStatus = signal<string>('Confirmed');
+
+  // Filtered bookings computed
+  filteredBookings = computed(() => {
+    const status = this.filterStatus();
+    const list = this.bookings();
+    if (status === 'All') return list;
+
+    if (status === 'Pending') {
+      // Pending bao gồm cả Pending Approval (Chờ duyệt) và Pending (đã duyệt chờ nhận)
+      return list.filter(b => b.status === 'Pending');
+    }
+    
+    return list.filter(b => b.status === status);
+  });
+
+  setFilter(status: string): void {
+    this.filterStatus.set(status);
+  }
+
   loadBookings(): void {
     this.isLoading.set(true);
     this.http.get<BookingResponseDTO[]>(`${environment.apiUrl}/bookings/my`).subscribe({
       next: (data) => {
-        this.bookings.set(data);
+        // Filter out job posts from this general list
+        const confirmedOnly = data.filter(b => !b.isJobPost);
+        this.bookings.set(confirmedOnly);
         
-        this.totalBookings.set(data.length);
-        this.pendingBookings.set(data.filter(b => b.status === 'Pending').length);
-        this.confirmedBookings.set(data.filter(b => b.status === 'Confirmed').length);
-        this.completedBookings.set(data.filter(b => b.status === 'Completed').length);
-        this.cancelledBookings.set(data.filter(b => b.status === 'Cancelled' || b.status === 'Rejected').length);
+        this.totalBookings.set(confirmedOnly.length);
+        this.pendingBookings.set(confirmedOnly.filter(b => b.status === 'Pending').length);
+        this.confirmedBookings.set(confirmedOnly.filter(b => b.status === 'Confirmed').length);
+        this.completedBookings.set(confirmedOnly.filter(b => b.status === 'Completed').length);
+        this.cancelledBookings.set(confirmedOnly.filter(b => b.status === 'Cancelled' || b.status === 'Rejected').length);
         
         this.isLoading.set(false);
       },
@@ -116,15 +141,30 @@ export class CustomerMyBookingsComponent implements OnInit {
     });
   }
 
-  getStatusLabel(status: string): string {
+  getStatusLabel(booking: BookingResponseDTO): string {
+    if (booking.status === 'Pending') {
+      if (booking.approvalStatus === 'Pending') return 'Chờ duyệt';
+      if (booking.approvalStatus === 'Approved') return 'Đang tìm người';
+      if (booking.approvalStatus === 'Rejected') return 'Bị từ chối';
+    }
+    
+    // Status chính
     const labels: Record<string, string> = {
-      'Pending': 'Chờ xử lý',
-      'Confirmed': 'Đã xác nhận',
+      'Confirmed': 'Đã có người nhận',
       'Completed': 'Hoàn thành',
       'Cancelled': 'Đã hủy',
-      'Rejected': 'Từ chối'
+      'Rejected': 'Bị từ chối'
     };
-    return labels[status] || status;
+    return labels[booking.status] || booking.status;
+  }
+
+  getStatusClass(booking: BookingResponseDTO): string {
+    if (booking.status === 'Pending') {
+      if (booking.approvalStatus === 'Pending') return 'status-pending-approval';
+      if (booking.approvalStatus === 'Approved') return 'status-seeking';
+      if (booking.approvalStatus === 'Rejected') return 'status-rejected';
+    }
+    return booking.status.toLowerCase();
   }
 
   formatTime(time: string): string {
@@ -160,7 +200,7 @@ export class CustomerMyBookingsComponent implements OnInit {
         this.isConfirming.set(false);
         this.loadBookings();
       },
-      error: (err) => {
+      error: (err: any) => {
         this.notification.error(err.error?.message || 'Lỗi khi xác nhận');
         this.isConfirming.set(false);
       }
@@ -170,12 +210,12 @@ export class CustomerMyBookingsComponent implements OnInit {
   cancelBooking(booking: BookingResponseDTO): void {
     if (!confirm('Bạn có chắc muốn hủy đơn hàng này?')) return;
     
-    this.http.put(`${environment.apiUrl}/bookings/${booking.id}/status`, { status: 5 }).subscribe({
+    this.bookingService.cancelByCustomer(booking.id).subscribe({
       next: () => {
         this.notification.success('Đã hủy đơn hàng thành công.');
         this.loadBookings();
       },
-      error: (err) => {
+      error: (err: any) => {
         this.notification.error(err.error?.message || 'Có lỗi khi hủy đơn');
       }
     });

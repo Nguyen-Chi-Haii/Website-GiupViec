@@ -1,0 +1,163 @@
+<div class="page-container">
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">Bài Đăng Của Tôi</h1>
+      <p class="page-subtitle">Quản lý các bài đăng tìm người giúp việc của bạn</p>
+    </div>
+    <a routerLink="/booking/step1" class="btn btn-primary">
+      <span class="material-symbols-outlined">add</span>
+      Đăng Bài Mới
+    </a>
+  </div>
+
+  <!-- Filter Buttons -->
+  <div class="filter-section">
+    <button 
+      (click)="setFilter('hiring')" 
+      [class.active]="selectedFilter() === 'hiring'"
+      class="filter-btn">
+      Đang tuyển người
+    </button>
+    <button 
+      (click)="setFilter('pending')" 
+      [class.active]="selectedFilter() === 'pending'"
+      class="filter-btn">
+      Chờ duyệt
+    </button>
+    <button 
+      (click)="setFilter('cancelled')" 
+      [class.active]="selectedFilter() === 'cancelled'"
+      class="filter-btn">
+      Đã hủy/Từ chối
+    </button>
+    <button 
+      (click)="setFilter('all')" 
+      [class.active]="selectedFilter() === 'all'"
+      class="filter-btn">
+      Tất cả
+    </button>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Đang tải danh sách bài đăng...</p>
+    </div>
+  } @else if (filteredJobPosts().length === 0) {
+    <div class="empty-state">
+      <span class="material-symbols-outlined empty-icon">campaign</span>
+      <h3>Chưa có bài đăng nào</h3>
+      <p>Các bài đăng tìm người của bạn sẽ xuất hiện tại đây.</p>
+      <a routerLink="/booking/step1" class="btn btn-primary">Đăng Bài Ngay</a>
+    </div>
+  } @else {
+    <div class="jobs-grid">
+      @for (job of filteredJobPosts(); track job.id) {
+        <div class="job-card">
+          <div class="job-status" [ngClass]="getStatusClass(job)">
+            {{ getStatusLabel(job) }}
+          </div>
+          
+          <div class="job-info">
+            <h3 class="service-name">{{ job.serviceName }}</h3>
+            <div class="info-item">
+              <span class="material-symbols-outlined">calendar_month</span>
+              <span>{{ job.startDate | date:'dd/MM/yyyy' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="material-symbols-outlined">schedule</span>
+              <span>{{ formatTime(job.startTime) }} - {{ formatTime(job.endTime) }}</span>
+            </div>
+            <div class="info-item">
+              <span class="material-symbols-outlined">location_on</span>
+              <span class="address-text">{{ job.address }}</span>
+            </div>
+          </div>
+
+          <div class="job-footer">
+            <div class="price">{{ job.totalPrice | number }}đ</div>
+            <div class="actions">
+              <button class="btn-icon" (click)="viewJob(job)" title="Xem chi tiết">
+                <span class="material-symbols-outlined">visibility</span>
+              </button>
+              @if (job.approvalStatus !== 'Rejected') {
+                <button class="btn-icon delete" (click)="cancelJob(job)" title="Gỡ bài">
+                  <span class="material-symbols-outlined">delete</span>
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- Detail Modal -->
+@if (selectedJob()) {
+  <div class="modal-overlay" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Chi Tiết Bài Đăng #{{ selectedJob()?.id }}</h2>
+        <button class="close-btn" (click)="closeModal()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="detail-section">
+          <h3>Thông tin chung</h3>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <span class="label">Trạng thái:</span>
+              <span class="value" [ngClass]="getStatusClass(selectedJob()!)">
+                {{ getStatusLabel(selectedJob()!) }}
+              </span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Dịch vụ:</span>
+              <span class="value">{{ selectedJob()?.serviceName }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Ngày làm:</span>
+              <span class="value">{{ selectedJob()?.startDate | date:'dd/MM/yyyy' }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Giờ làm:</span>
+              <span class="value">{{ formatTime(selectedJob()?.startTime || '') }} - {{ formatTime(selectedJob()?.endTime || '') }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Địa chỉ:</span>
+              <span class="value">{{ selectedJob()?.address }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Tổng tiền:</span>
+              <span class="value price">{{ selectedJob()?.totalPrice | number }}đ</span>
+            </div>
+          </div>
+        </div>
+
+        @if (selectedJob()?.approvalStatus === 'Rejected') {
+          <div class="rejection-box">
+            <h4>Lý do từ chối:</h4>
+            <p>{{ selectedJob()?.rejectionReason || 'Không có lý do cụ thể.' }}</p>
+          </div>
+        }
+
+        @if (selectedJob()?.notes) {
+          <div class="detail-section">
+            <h3>Ghi chú bàn giao</h3>
+            <p class="notes">{{ selectedJob()?.notes }}</p>
+          </div>
+        }
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-outline" (click)="closeModal()">Đóng</button>
+        @if (selectedJob()?.approvalStatus !== 'Rejected') {
+          <button class="btn btn-danger" (click)="cancelJob(selectedJob()!)">Gỡ Bài Đăng</button>
+        }
+      </div>
+    </div>
+  </div>
+}

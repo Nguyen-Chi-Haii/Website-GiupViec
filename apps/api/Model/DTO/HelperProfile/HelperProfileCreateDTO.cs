@@ -8,7 +8,7 @@ namespace GiupViecAPI.Model.DTO.HelperProfile
         public int UserId { get; set; }
 
         [Required(ErrorMessage = "Vui lòng nhập khu vực hoạt động")]
-        public string ActiveArea { get; set; }
+        public string? ActiveArea { get; set; }
 
         // --- BỔ SUNG ---
         public string? Bio { get; set; }

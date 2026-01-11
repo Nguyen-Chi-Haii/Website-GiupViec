@@ -65,6 +65,7 @@ export interface BookingCreate {
   quantity: number;        // Thêm trường số lượng
   notes?: string;          // Ghi chú
   helperId?: number;       // ID helper (optional)
+  isJobPost?: boolean;     // Thêm cờ nhận diện bài đăng
 }
 
 // ============== Service Types ==============
@@ -158,16 +159,31 @@ export class AdminService {
   private readonly apiUrl = environment.apiUrl;
 
   // --- Statistics ---
-  getAdminStats(): Observable<AdminStats> {
-    return this.http.get<AdminStats>(`${this.apiUrl}/statistics/admin`);
+  getAdminStats(startDate?: string, endDate?: string): Observable<AdminStats> {
+    let params: any = {};
+    if (startDate) params.startDate = startDate;
+    if (endDate) params.endDate = endDate;
+    return this.http.get<AdminStats>(`${this.apiUrl}/statistics/admin`, { params });
   }
 
-  getEmployeeStats(): Observable<AdminStats> {
-    return this.http.get<AdminStats>(`${this.apiUrl}/statistics/employee`);
+  getEmployeeStats(startDate?: string, endDate?: string): Observable<AdminStats> {
+    let params: any = {};
+    if (startDate) params.startDate = startDate;
+    if (endDate) params.endDate = endDate;
+    return this.http.get<AdminStats>(`${this.apiUrl}/statistics/employee`, { params });
   }
 
-  getHelperStats(): Observable<HelperDashboardStats> {
-    return this.http.get<HelperDashboardStats>(`${this.apiUrl}/statistics/helper`);
+  getHelperStats(startDate?: string, endDate?: string): Observable<HelperDashboardStats> {
+    let params: any = {};
+    if (startDate) params.startDate = startDate;
+    if (endDate) params.endDate = endDate;
+    return this.http.get<HelperDashboardStats>(`${this.apiUrl}/statistics/helper`, { params });
+  }
+
+  getRevenueChartData(startDate: string, endDate: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/statistics/revenue-chart`, { 
+      params: { startDate, endDate } 
+    });
   }
 
   // --- Bookings ---

@@ -1,4 +1,5 @@
 ﻿using GiupViecAPI.Model.DTO.Booking;
+using GiupViecAPI.Model.DTO.Shared;
 using GiupViecAPI.Model.Enums;
 using GiupViecAPI.Services.Interface;
 using GiupViecAPI.Services.Repositories;
@@ -81,21 +82,26 @@ namespace GiupViecAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] BookingFilterDTO filter)
         {
-            var result = await _service.GetAllAsync();
+            var result = await _service.GetAllAsync(filter);
             return Ok(result);
         }
 
         // GET: api/bookings/my - Lấy đơn hàng của user hiện tại (PHẢI ĐẶT TRƯỚC /{id})
         [HttpGet("my")]
-        public async Task<IActionResult> GetMyBookings()
+        public async Task<IActionResult> GetMyBookings([FromQuery] BookingFilterDTO filter)
         {
             var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
-            if (userIdClaim == null) return Unauthorized("Không tìm thấy thông tin người dùng.");
-
-            int customerId = int.Parse(userIdClaim.Value);
-            var result = await _service.GetByCustomerIdAsync(customerId);
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int customerId))
+            {
+                return Unauthorized(new { message = "Không tìm thấy thông tin người dùng" });
+            }
+            
+            // Ensure customer only sees their own bookings
+            filter.CustomerId = customerId; 
+            
+            var result = await _service.GetByCustomerIdAsync(customerId, filter);
             return Ok(result);
         }
 
@@ -146,6 +152,97 @@ namespace GiupViecAPI.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        // --- NEW ENDPOINTS ---
+
+        [HttpGet("available")]
+        [Authorize(Roles = "Helper")]
+        public async Task<IActionResult> GetAvailableJobs([FromQuery] AvailableJobFilterDTO filter)
+        {
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized();
+            int helperId = int.Parse(userIdStr);
+
+            // Filter logic handled in service (including auto-location filter)
+            var result = await _service.GetAvailableJobsAsync(helperId, filter);
+            return Ok(result);
+        }
+
+        [HttpPost("{id}/accept")]
+        [Authorize(Roles = "Helper")]
+        public async Task<IActionResult> AcceptJob(int id)
+        {
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized();
+            int helperId = int.Parse(userIdStr);
+
+            try 
+            {
+                var result = await _service.AcceptJobAsync(id, helperId);
+                return Ok(new { message = "Nhận việc thành công!", data = result });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("my-jobs")]
+        [Authorize(Roles = "Helper")]
+        public async Task<IActionResult> GetMyJobs([FromQuery] BookingFilterDTO filter)
+        {
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized();
+            int helperId = int.Parse(userIdStr);
+
+            var result = await _service.GetHelperJobsAsync(helperId, filter);
+            return Ok(result);
+        }
+
+        [HttpGet("pending-approvals")]
+        [Authorize(Roles = "Admin,Employee")]
+        public async Task<IActionResult> GetPendingApprovals([FromQuery] BookingFilterDTO filter)
+        {
+            var result = await _service.GetPendingApprovalsAsync(filter);
+            return Ok(result);
+        }
+
+        [HttpPost("{id}/approve")]
+        [Authorize(Roles = "Admin,Employee")]
+        public async Task<IActionResult> ApproveBooking(int id, [FromBody] JobApprovalDTO dto)
+        {
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out int approvedBy)) return Unauthorized();
+
+            try
+            {
+                var result = await _service.ApproveBookingAsync(id, approvedBy, dto.Note);
+                return Ok(new { message = "Phê duyệt đơn hàng thành công!", data = result });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("{id}/reject")]
+        [Authorize(Roles = "Admin,Employee")]
+        public async Task<IActionResult> RejectBooking(int id, [FromBody] JobRejectionDTO dto)
+        {
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out int rejectedBy)) return Unauthorized();
+
+            try
+            {
+                var result = await _service.RejectBookingAsync(id, rejectedBy, dto.Reason ?? "No reason provided");
+                return Ok(new { message = "Đã từ chối đơn hàng.", data = result });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+        // ---------------------
 
         // PUT: api/bookings/5/status
         // Gom chung các action thay đổi trạng thái vào 1 endpoint

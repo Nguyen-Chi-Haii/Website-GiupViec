@@ -10,15 +10,15 @@ namespace GiupViecAPI.Model.Domain
 
         public int BookingId { get; set; }
         [ForeignKey("BookingId")]
-        public Booking Booking { get; set; }
+        public Booking? Booking { get; set; }
 
         public int CustomerId { get; set; }
         [ForeignKey("CustomerId")]
-        public User Customer { get; set; }
+        public User? Customer { get; set; }
 
         public int HelperId { get; set; }
         [ForeignKey("HelperId")]
-        public User Helper { get; set; }
+        public User? Helper { get; set; }
 
         [Range(1, 5)]
         public int Score { get; set; }

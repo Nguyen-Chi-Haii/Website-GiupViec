@@ -15,6 +15,7 @@ namespace GiupViecAPI.Data
         public DbSet<Service> Services { get; set; }
         public DbSet<Booking> Bookings { get; set; }
         public DbSet<Rating> Ratings { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -38,6 +39,27 @@ namespace GiupViecAPI.Data
                 .WithMany()
                 .HasForeignKey(r => r.HelperId)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            // Booking approval relationship
+            builder.Entity<Booking>()
+                .HasOne(b => b.ApprovedByUser)
+                .WithMany()
+                .HasForeignKey(b => b.ApprovedBy)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            // Notification relationship
+            builder.Entity<Notification>()
+                .HasOne(n => n.User)
+                .WithMany()
+                .HasForeignKey(n => n.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Indexes for performance
+            builder.Entity<Notification>()
+                .HasIndex(n => new { n.UserId, n.IsRead });
+
+            builder.Entity<Booking>()
+                .HasIndex(b => b.ApprovalStatus);
 
             // Cấu hình độ chính xác cho các trường decimal
             builder.Entity<HelperProfile>()

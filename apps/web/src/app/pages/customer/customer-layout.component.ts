@@ -3,13 +3,15 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { BookingService } from '../../core/services/booking.service';
+import { BookingStateService } from '../../core/services/booking-state.service';
 import { BookingResponseDTO } from '@giupviec/shared';
 import { RejectedBookingModalComponent } from '../../shared/components/rejected-booking-modal/rejected-booking-modal.component';
+import { NotificationBellComponent } from '../../shared/components/notification-bell/notification-bell.component';
 
 @Component({
   selector: 'app-customer-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule, RejectedBookingModalComponent],
+  imports: [CommonModule, RouterModule, RejectedBookingModalComponent, NotificationBellComponent],
   templateUrl: './customer-layout.component.html',
   styleUrl: './customer-layout.component.css'
 })
@@ -17,6 +19,7 @@ export class CustomerLayoutComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly bookingService = inject(BookingService);
+  private readonly bookingState = inject(BookingStateService);
 
   sidebarCollapsed = signal(false);
   currentUser = this.authService.currentUser;
@@ -71,6 +74,12 @@ export class CustomerLayoutComponent implements OnInit {
   getUserInitials(): string {
     const email = this.currentUser()?.email || '';
     return email.charAt(0).toUpperCase();
+  }
+
+  startJobPosting(): void {
+    this.bookingState.reset();
+    this.bookingState.setPostingMode(true);
+    this.router.navigate(['/booking/step1']);
   }
 
   logout(): void {

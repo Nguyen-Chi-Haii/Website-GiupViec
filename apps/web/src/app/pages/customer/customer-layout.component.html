@@ -21,8 +21,16 @@
 
     <nav class="sidebar-nav">
       <a routerLink="/customer" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
+        <span class="material-symbols-outlined">dashboard</span>
+        @if (!sidebarCollapsed()) { <span>Tổng Quan</span> }
+      </a>
+      <a routerLink="/customer/my-bookings" routerLinkActive="active" class="nav-item">
         <span class="material-symbols-outlined">receipt_long</span>
         @if (!sidebarCollapsed()) { <span>Đơn Của Tôi</span> }
+      </a>
+      <a routerLink="/customer/job-posts" routerLinkActive="active" class="nav-item">
+        <span class="material-symbols-outlined">campaign</span>
+        @if (!sidebarCollapsed()) { <span>Bài Đăng Của Tôi</span> }
       </a>
       <a routerLink="/customer/profile" routerLinkActive="active" class="nav-item">
         <span class="material-symbols-outlined">person</span>
@@ -53,7 +61,23 @@
 
   <!-- Main Content -->
   <main class="main-content">
-    <router-outlet></router-outlet>
+    <!-- Top Header -->
+    <header class="top-header">
+      <div class="header-left"></div>
+      <div class="header-right">
+        <!-- Search -->
+        <div class="search-box">
+          <span class="material-symbols-outlined">search</span>
+          <input type="text" placeholder="Tìm kiếm..." />
+        </div>
+        <!-- Notifications -->
+        <app-notification-bell></app-notification-bell>
+      </div>
+    </header>
+
+    <div class="content-area">
+      <router-outlet></router-outlet>
+    </div>
   </main>
 </div>
 

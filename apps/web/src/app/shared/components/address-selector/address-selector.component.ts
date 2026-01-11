@@ -72,12 +72,16 @@ export class AddressSelectorComponent implements OnInit, OnChanges {
   private parseInitialAddress(): void {
     if (!this.initialAddress || this.provinces().length === 0) return;
 
+    const normalizedAddress = this.removeVietnameseTones(this.initialAddress.toLowerCase());
     const parts = this.initialAddress.split(',').map(p => p.trim());
     
     // Try to find province
     const provinces = this.provinces();
     for (const province of provinces) {
-      if (this.initialAddress.includes(province.name)) {
+      const normalizedProvince = this.removeVietnameseTones(province.name.toLowerCase());
+      
+      // Match province name in address (ignoring case and tones)
+      if (normalizedAddress.includes(normalizedProvince)) {
         this.selectedProvinceCode = String(province.code);
         
         // Street address is usually the first part
@@ -93,9 +97,13 @@ export class AddressSelectorComponent implements OnInit, OnChanges {
 
           if (parts.length >= 2) {
             const wardName = parts[1];
-            const matchedWard = wards.find(w => 
-              this.initialAddress.includes(w.name) || wardName.includes(w.name)
-            );
+            const normalizedWardName = this.removeVietnameseTones(wardName.toLowerCase());
+            
+            const matchedWard = wards.find(w => {
+              const normalizedW = this.removeVietnameseTones(w.name.toLowerCase());
+              return normalizedAddress.includes(normalizedW) || normalizedWardName.includes(normalizedW);
+            });
+            
             if (matchedWard) {
               this.selectedWardCode = String(matchedWard.code);
             }
@@ -105,6 +113,14 @@ export class AddressSelectorComponent implements OnInit, OnChanges {
         break;
       }
     }
+  }
+
+  private removeVietnameseTones(str: string): string {
+    return str
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/đ/g, 'd')
+      .replace(/Đ/g, 'D');
   }
 
   onProvinceSelect(option: DropdownOption | null): void {

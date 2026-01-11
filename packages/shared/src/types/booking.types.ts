@@ -26,6 +26,7 @@ export interface BookingCreateDTO {
   quantity: number;         // Added for non-hourly services
   notes?: string;
   helperId?: number;        // Added to support reordering or pre-selection
+  isJobPost?: boolean;      // Added to signal job posting mode
 }
 
 export interface BookingUpdateDTO {
@@ -42,6 +43,7 @@ export interface BookingResponseDTO {
   customerId: number;
   helperId?: number;
   customerName: string;
+  customerPhone?: string;
   helperName?: string;
   serviceId: number;
   serviceName: string;
@@ -62,6 +64,9 @@ export interface BookingResponseDTO {
   helperConfirmed: boolean;
   notes?: string;
   createdAt?: string;
+  approvalStatus?: string; // Approved, Pending, Rejected
+  rejectionReason?: string;
+  isJobPost: boolean;
 }
 
 export interface BookingAssignHelperDTO {

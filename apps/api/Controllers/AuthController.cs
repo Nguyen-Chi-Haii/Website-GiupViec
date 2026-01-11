@@ -55,21 +55,19 @@ namespace GiupViecAPI.Controllers
             }
 
             // Validate password strength
-            if (dto.NewPassword.Length < 6)
+            if ((dto.NewPassword?.Length ?? 0) < 6)
             {
                 return BadRequest(new { message = "Mật khẩu mới phải có ít nhất 6 ký tự" });
             }
 
             // Get user ID from token
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim == null)
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
             {
                 return Unauthorized(new { message = "Không tìm thấy thông tin người dùng" });
             }
-
-            int userId = int.Parse(userIdClaim.Value);
-
-            var success = await _userService.ChangePasswordAsync(userId, dto.CurrentPassword, dto.NewPassword);
+ 
+            var success = await _userService.ChangePasswordAsync(userId, dto.CurrentPassword ?? string.Empty, dto.NewPassword ?? string.Empty);
 
             if (!success)
             {

@@ -38,6 +38,16 @@ export class SearchableDropdownComponent implements OnChanges {
     if (!search) {
       return this.options;
     }
+
+    // If search text matches the currently selected item exactly, don't filter
+    // This allows user to see full list when opening dropdown with a pre-selected value
+    if (this.selectedCode !== null) {
+      const selected = this.options.find(o => String(o.code) === String(this.selectedCode));
+      if (selected && selected.name.toLowerCase() === search) {
+        return this.options;
+      }
+    }
+
     return this.options.filter(opt => 
       this.removeVietnameseTones(opt.name.toLowerCase()).includes(this.removeVietnameseTones(search)) ||
       opt.name.toLowerCase().includes(search)

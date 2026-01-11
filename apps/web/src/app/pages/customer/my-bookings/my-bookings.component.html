@@ -7,27 +7,39 @@
     </a>
   </div>
 
-  <!-- Stats -->
-  <div class="stats">
-    <div class="stat">
-      <span class="stat-value">{{ totalBookings() }}</span>
-      <span class="stat-label">Tổng đơn</span>
-    </div>
-    <div class="stat">
-      <span class="stat-value pending">{{ pendingBookings() }}</span>
-      <span class="stat-label">Chờ xử lý</span>
-    </div>
-    <div class="stat">
-      <span class="stat-value confirmed">{{ confirmedBookings() }}</span>
-      <span class="stat-label">Đang thực hiện</span>
-    </div>
-    <div class="stat">
-      <span class="stat-value completed">{{ completedBookings() }}</span>
-      <span class="stat-label">Hoàn thành</span>
-    </div>
-    <div class="stat">
-      <span class="stat-value cancelled">{{ cancelledBookings() }}</span>
-      <span class="stat-label">Đã hủy</span>
+  <!-- Filters -->
+  <div class="filters-scroll-container">
+    <div class="filters">
+      <button 
+        class="filter-btn" 
+        [class.active]="filterStatus() === 'All'"
+        (click)="setFilter('All')">
+        Tất cả <span class="count">{{ totalBookings() }}</span>
+      </button>
+      <button 
+        class="filter-btn" 
+        [class.active]="filterStatus() === 'Pending'"
+        (click)="setFilter('Pending')">
+        Chờ xử lý <span class="count">{{ pendingBookings() }}</span>
+      </button>
+      <button 
+        class="filter-btn" 
+        [class.active]="filterStatus() === 'Confirmed'"
+        (click)="setFilter('Confirmed')">
+        Đang thực hiện <span class="count">{{ confirmedBookings() }}</span>
+      </button>
+      <button 
+        class="filter-btn" 
+        [class.active]="filterStatus() === 'Completed'"
+        (click)="setFilter('Completed')">
+        Hoàn thành <span class="count">{{ completedBookings() }}</span>
+      </button>
+      <button 
+        class="filter-btn" 
+        [class.active]="filterStatus() === 'Cancelled'"
+        (click)="setFilter('Cancelled')">
+        Đã hủy <span class="count">{{ cancelledBookings() }}</span>
+      </button>
     </div>
   </div>
 
@@ -42,12 +54,12 @@
     </div>
   } @else {
     <div class="bookings-list">
-      @for (booking of bookings(); track booking.id) {
+      @for (booking of filteredBookings(); track booking.id) {
         <div class="booking-card" (click)="viewBooking(booking)">
           <div class="booking-header">
             <span class="booking-id">#{{ booking.id }}</span>
-            <span class="status-badge" [class]="booking.status.toLowerCase()">
-              {{ getStatusLabel(booking.status) }}
+            <span class="status-badge" [class]="getStatusClass(booking)">
+              {{ getStatusLabel(booking) }}
             </span>
           </div>
           <h3>{{ booking.serviceName }}</h3>
@@ -79,13 +91,13 @@
               </p>
             }
           </div>
+          <div class="booking-price-row">
+            <span class="payment-badge" [class]="booking.paymentStatus.toLowerCase()">
+              {{ booking.paymentStatus === 'Paid' ? 'Đã thanh toán' : 'Chưa thanh toán' }}
+            </span>
+            <span class="price">{{ booking.totalPrice | number }}₫</span>
+          </div>
           <div class="booking-footer">
-            <div class="footer-left">
-              <span class="payment-badge" [class]="booking.paymentStatus.toLowerCase()">
-                {{ booking.paymentStatus === 'Paid' ? 'Đã thanh toán' : 'Chưa thanh toán' }}
-              </span>
-              <span class="price">{{ booking.totalPrice | number }}₫</span>
-            </div>
             <div class="footer-actions">
               @if (booking.status === 'Pending') {
                 <button class="btn-cancel" (click)="cancelBooking(booking); $event.stopPropagation()">Hủy đơn</button>
@@ -158,8 +170,8 @@
             <div class="detail-item">
               <label>Trạng thái</label>
               <p>
-                <span class="status-badge" [class]="selectedBooking()!.status.toLowerCase()">
-                  {{ getStatusLabel(selectedBooking()!.status) }}
+                <span class="status-badge" [class]="getStatusClass(selectedBooking()!)">
+                  {{ getStatusLabel(selectedBooking()!) }}
                 </span>
               </p>
             </div>

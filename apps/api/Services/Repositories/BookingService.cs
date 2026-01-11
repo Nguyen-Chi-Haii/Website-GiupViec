@@ -2,8 +2,10 @@
 using GiupViecAPI.Data;
 using GiupViecAPI.Model.Domain;
 using GiupViecAPI.Model.DTO.Booking;
+using GiupViecAPI.Model.DTO.Shared; // Added this
 using GiupViecAPI.Model.DTO.Schedule;
 using GiupViecAPI.Model.Enums;
+using System.Linq.Dynamic.Core;
 using GiupViecAPI.Services.Interface;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -16,58 +18,310 @@ namespace GiupViecAPI.Services.Repositories
         private readonly IMapper _mapper;
         private readonly UserManager<User> _userManager;
         private readonly IRecaptchaService _recaptchaService;
+        private readonly INotificationService _notificationService;
 
         public BookingService(
             GiupViecDBContext db, 
             IMapper mapper,
             UserManager<User> userManager,
-            IRecaptchaService recaptchaService)
+            IRecaptchaService recaptchaService,
+            INotificationService notificationService)
         {
             _db = db;
             _mapper = mapper;
             _userManager = userManager;
             _recaptchaService = recaptchaService;
+            _notificationService = notificationService;
         }
 
         // 1. LẤY DANH SÁCH (Dành cho Admin)
-        public async Task<IEnumerable<BookingResponseDTO>> GetAllAsync()
+        public async Task<GiupViecAPI.Model.DTO.Shared.PagedResult<BookingResponseDTO>> GetAllAsync(BookingFilterDTO filter)
         {
-            var list = await _db.Bookings
+            var query = _db.Bookings
                 .Include(b => b.Service)
-                .Include(b => b.Helper)// Lấy thông tin người làm
-                .Include(b => b.Customer) // Lấy thông tin khách
-                .OrderByDescending(b => b.CreatedAt)
-                .ToListAsync();
+                .Include(b => b.Helper)
+                .Include(b => b.Customer)
+                .AsQueryable();
 
-            return _mapper.Map<IEnumerable<BookingResponseDTO>>(list);
+            if (filter.Status.HasValue) 
+                query = query.Where(b => b.Status == filter.Status.Value);
+            
+            if (filter.StartDate.HasValue)
+                query = query.Where(b => b.StartDate >= filter.StartDate.Value);
+                
+            if (filter.EndDate.HasValue)
+                query = query.Where(b => b.EndDate <= filter.EndDate.Value);
+            
+            if (filter.CustomerId.HasValue)
+                query = query.Where(b => b.CustomerId == filter.CustomerId.Value);
+
+             if (filter.HelperId.HasValue)
+                query = query.Where(b => b.HelperId == filter.HelperId.Value);
+
+             if (filter.ServiceId.HasValue)
+                query = query.Where(b => b.ServiceId == filter.ServiceId.Value);
+
+            // Keyword search (Example: Customer Name, Service Name)
+            if (!string.IsNullOrEmpty(filter.Keyword))
+            {
+                var keyword = filter.Keyword.ToLower();
+                query = query.Where(b => (b.Service != null && b.Service.Name != null && b.Service.Name.ToLower().Contains(keyword)) 
+                                      || (b.Customer != null && b.Customer.FullName != null && b.Customer.FullName.ToLower().Contains(keyword))
+                                      || b.Id.ToString().Contains(keyword));
+            }
+
+            return await GetPagedResultAsync<Booking, BookingResponseDTO>(query, filter);
         }
 
         // 2. LẤY CHI TIẾT
-        public async Task<BookingResponseDTO> GetByIdAsync(int id)
+        public async Task<BookingResponseDTO?> GetByIdAsync(int id)
         {
             var booking = await _db.Bookings
                 .Include(b => b.Service)
                 .Include(b => b.Helper)
                 .Include(b => b.Customer)
                 .FirstOrDefaultAsync(b => b.Id == id);
-
+ 
             if (booking == null) return null;
-
+ 
             return _mapper.Map<BookingResponseDTO>(booking);
         }
 
         // 2.5 LẤY DANH SÁCH THEO CUSTOMER ID
-        public async Task<IEnumerable<BookingResponseDTO>> GetByCustomerIdAsync(int customerId)
+        public async Task<GiupViecAPI.Model.DTO.Shared.PagedResult<BookingResponseDTO>> GetByCustomerIdAsync(int customerId, BookingFilterDTO filter)
         {
-            var list = await _db.Bookings
+            var query = _db.Bookings
                 .Where(b => b.CustomerId == customerId)
                 .Include(b => b.Service)
                 .Include(b => b.Helper)
                 .Include(b => b.Customer)
-                .OrderByDescending(b => b.CreatedAt)
-                .ToListAsync();
+                .AsQueryable();
 
-            return _mapper.Map<IEnumerable<BookingResponseDTO>>(list);
+             if (filter.Status.HasValue) 
+                query = query.Where(b => b.Status == filter.Status.Value);
+            
+            // Allow keyword search for customer too (e.g. search service name)
+            if (!string.IsNullOrEmpty(filter.Keyword))
+            {
+                 var keyword = filter.Keyword.ToLower();
+                query = query.Where(b => b.Service != null && b.Service.Name != null && b.Service.Name.ToLower().Contains(keyword));
+            }
+
+            return await GetPagedResultAsync<Booking, BookingResponseDTO>(query, filter);
+        }
+
+        // --- NEW FEATURES IMPLEMENTATION ---
+
+        public async Task<GiupViecAPI.Model.DTO.Shared.PagedResult<BookingResponseDTO>> GetAvailableJobsAsync(int helperId, AvailableJobFilterDTO filter)
+        {
+            // Note: Keeping existing logic but wrapping in PagedResult helper to unify
+            var query = _db.Bookings
+                .Include(b => b.Service)
+                .Include(b => b.Customer)
+                .Where(b => b.HelperId == null)
+                .Where(b => b.ApprovalStatus == ApprovalStatus.Approved)
+                .Where(b => b.IsJobPost)
+                .Where(b => b.Status != BookingStatus.Cancelled && 
+                            b.Status != BookingStatus.Rejected && 
+                            b.Status != BookingStatus.Completed)
+                .Where(b => b.StartDate >= DateTime.Today);
+
+            if (!string.IsNullOrEmpty(filter.Province))
+            {
+                query = query.Where(b => b.Address != null && b.Address.Contains(filter.Province));
+            }
+
+            if (filter.ServiceId.HasValue)
+                query = query.Where(b => b.ServiceId == filter.ServiceId.Value);
+
+            if (filter.StartDateFrom.HasValue)
+                query = query.Where(b => b.StartDate >= filter.StartDateFrom.Value);
+
+            if (filter.StartDateTo.HasValue)
+                query = query.Where(b => b.StartDate <= filter.StartDateTo.Value);
+
+            if (filter.MinPrice.HasValue)
+                query = query.Where(b => b.TotalPrice >= filter.MinPrice.Value);
+
+            if (filter.MaxPrice.HasValue)
+                query = query.Where(b => b.TotalPrice <= filter.MaxPrice.Value);
+
+            // Re-use Generic Helper? 
+            // AvailableJobFilterDTO has specific props, but BaseFilterDTO props (Page, Sort) are there.
+            // But Sort logic was custom in previous code (switch case).
+            // Let's use the helper but map the specific sort keys if needed OR just let helper handle generic sort.
+            // Previous code had "price" and "date". Helper can handle "price" -> TotalPrice, "date" -> StartDate.
+            
+            // Map simple sort keys to actual property names for the generic helper
+             if (filter.SortBy?.ToLower() == "price") filter.SortBy = "TotalPrice";
+             if (filter.SortBy?.ToLower() == "date") filter.SortBy = "StartDate";
+
+             // Construct a BaseFilterDTO to pass to helper (since AvailableJobFilterDTO inherits it, we can just cast or pass it)
+             return await GetPagedResultAsync<Booking, BookingResponseDTO>(query, filter);
+        }
+
+        private string GetCityFromAddress(string address)
+        {
+            if (string.IsNullOrWhiteSpace(address)) return "";
+            var parts = address.Split(',');
+            return parts.Last().Trim(); // Lấy phần cuối cùng làm thành phố/tỉnh
+        }
+
+        public async Task<BookingResponseDTO?> AcceptJobAsync(int bookingId, int helperId)
+        {
+            var booking = await _db.Bookings
+                .Include(b => b.Customer)
+                .Include(b => b.Service)
+                .FirstOrDefaultAsync(b => b.Id == bookingId);
+
+            if (booking == null) throw new Exception("Công việc không tồn tại.");
+
+            if (booking.HelperId != null) throw new Exception("Công việc này đã có người nhận.");
+
+            if (booking.ApprovalStatus != ApprovalStatus.Approved) 
+                throw new Exception("Công việc chưa được phê duyệt.");
+
+            // Kiểm tra trùng lịch của Helper
+            var isConflict = await _db.Bookings.AnyAsync(b =>
+                b.HelperId == helperId &&
+                b.Status != BookingStatus.Cancelled &&
+                b.Status != BookingStatus.Rejected &&
+                b.Status != BookingStatus.Completed &&
+                b.StartDate <= booking.EndDate && b.EndDate >= booking.StartDate &&
+                b.WorkShiftStart < booking.WorkShiftEnd && b.WorkShiftEnd > booking.WorkShiftStart
+            );
+
+            if (isConflict) throw new Exception("Bạn bị trùng lịch vào khung giờ này.");
+
+            // Gán Helper
+            booking.HelperId = helperId;
+            booking.IsJobPost = false; // QUAN TRỌNG: Khi có người nhận, nó trở thành đơn hàng bình thường
+            booking.Status = BookingStatus.Confirmed; // Helper tự nhận -> Confirmed luôn
+            booking.UpdatedAt = DateTime.UtcNow;
+
+            await _db.SaveChangesAsync();
+
+            // Gửi thông báo cho Customer
+            await _notificationService.CreateNotificationAsync(
+                booking.CustomerId,
+                "Có người nhận việc!",
+                $"Người giúp việc đã nhận đơn hàng #{booking.Id} ({booking.Service?.Name ?? "Dịch vụ"}).",
+                NotificationType.BookingAccepted,
+                booking.Id,
+                "Booking"
+            );
+
+            return _mapper.Map<BookingResponseDTO>(booking);
+        }
+
+        public async Task<GiupViecAPI.Model.DTO.Shared.PagedResult<BookingResponseDTO>> GetHelperJobsAsync(int helperId, BookingFilterDTO filter)
+        {
+            var query = _db.Bookings
+                .Include(b => b.Customer)
+                .Include(b => b.Service)
+                .Include(b => b.Helper)
+                .Where(b => b.HelperId == helperId)
+                .AsQueryable();
+
+            if (filter.Status.HasValue)
+            {
+                query = query.Where(b => b.Status == filter.Status.Value);
+            }
+            
+            // Default sort logic can be overridden by filter.SortBy in helper
+            if (string.IsNullOrEmpty(filter.SortBy))
+            {
+                 filter.SortBy = "CreatedAt"; 
+            }
+
+            return await GetPagedResultAsync<Booking, BookingResponseDTO>(query, filter);
+        }
+
+        public async Task<GiupViecAPI.Model.DTO.Shared.PagedResult<BookingResponseDTO>> GetPendingApprovalsAsync(BookingFilterDTO filter)
+        {
+            var query = _db.Bookings
+                .Include(b => b.Service)
+                .Include(b => b.Customer)
+                .Where(b => b.ApprovalStatus == ApprovalStatus.Pending && b.IsJobPost)
+                .AsQueryable();
+
+             // Can add more filters here if needed (e.g. ServiceId)
+
+             if (string.IsNullOrEmpty(filter.SortBy))
+             {
+                 // Default to oldest first (to approve in order)
+                 filter.SortBy = "CreatedAt";
+                 filter.IsDescending = false; // FIFO
+             }
+            
+            return await GetPagedResultAsync<Booking, BookingResponseDTO>(query, filter);
+        }
+
+        public async Task<BookingResponseDTO?> ApproveBookingAsync(int bookingId, int approvedBy, string? note)
+        {
+            var booking = await _db.Bookings
+                .Include(b => b.Customer)
+                .FirstOrDefaultAsync(b => b.Id == bookingId);
+ 
+            if (booking == null) throw new Exception("Bài đăng không tồn tại.");
+ 
+            if (booking.ApprovalStatus != ApprovalStatus.Pending)
+                throw new Exception("Bài đăng không ở trạng thái chờ duyệt.");
+ 
+            booking.ApprovalStatus = ApprovalStatus.Approved;
+            booking.ApprovedBy = approvedBy;
+            booking.ApprovalDate = DateTime.UtcNow;
+            
+            // Nếu có note, có thể lưu vào Notes hoặc field riêng (hiện tại chưa có field ApprovalNote, nên append vào Notes)
+            if (!string.IsNullOrEmpty(note))
+            {
+                booking.Notes += $" | Admin Note: {note}";
+            }
+ 
+            booking.UpdatedAt = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+ 
+            // Gửi thông báo cho Customer
+            await _notificationService.CreateNotificationAsync(
+                booking.CustomerId,
+                "Bài đăng được duyệt!",
+                $"Bài đăng tìm việc #{booking.Id} của bạn đã được phê duyệt và hiển thị cho người giúp việc.",
+                NotificationType.BookingApproved,
+                booking.Id,
+                "Booking"
+            );
+ 
+            return _mapper.Map<BookingResponseDTO>(booking);
+        }
+
+        public async Task<BookingResponseDTO?> RejectBookingAsync(int bookingId, int rejectedBy, string reason)
+        {
+            var booking = await _db.Bookings
+                .Include(b => b.Customer)
+                .FirstOrDefaultAsync(b => b.Id == bookingId);
+
+            if (booking == null) throw new Exception("Bài đăng không tồn tại.");
+
+            booking.ApprovalStatus = ApprovalStatus.Rejected;
+            booking.ApprovedBy = rejectedBy; // Người từ chối cũng lưu vào đây
+            booking.ApprovalDate = DateTime.UtcNow;
+            booking.RejectionReason = reason;
+            booking.Status = BookingStatus.Rejected; // Cập nhật luôn status chính
+
+            booking.UpdatedAt = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+
+            // Gửi thông báo cho Customer
+            await _notificationService.CreateNotificationAsync(
+                booking.CustomerId,
+                "Bài đăng bị từ chối",
+                $"Bài đăng #{booking.Id} bị từ chối. Lý do: {reason}",
+                NotificationType.BookingRejected,
+                booking.Id,
+                "Booking"
+            );
+
+            return _mapper.Map<BookingResponseDTO>(booking);
         }
 
         // 3. TẠO ĐƠN MỚI (Tính tiền ngay tại đây thay vì Trigger)
@@ -78,45 +332,42 @@ namespace GiupViecAPI.Services.Repositories
 
             var booking = _mapper.Map<Booking>(dto);
             booking.CustomerId = customerId;
-            booking.Status = BookingStatus.Pending; // Mặc định chờ
+            booking.Status = BookingStatus.Pending; 
+            booking.ApprovalStatus = ApprovalStatus.Pending;
 
-            // --- LOGIC TÍNH TIỀN THEO ĐƠN VỊ ---
+            // 1. Tính tiền
             if (service.Unit == ServiceUnit.Hour)
             {
-                // 1. Tính theo giờ (Dọn dẹp nhà, Giặt ủi...)
                 var days = (booking.EndDate - booking.StartDate).Days + 1;
                 var hours = booking.WorkShiftEnd - booking.WorkShiftStart;
                 double hoursperday = hours.TotalHours;
 
                 if (days <= 0 || hoursperday <= 0) throw new Exception("Thời gian đặt không hợp lệ.");
                 
-                // Kiểm tra MinQuantity (Số giờ tối thiểu)
                 if (hoursperday < service.MinQuantity) 
                     throw new Exception($"Dịch vụ này yêu cầu tối thiểu {service.MinQuantity} {service.UnitLabel} mỗi ngày.");
 
-                booking.Quantity = hoursperday; // Lưu số giờ vào Quantity
+                booking.Quantity = hoursperday; 
                 booking.TotalPrice = days * (decimal)hoursperday * service.Price;
             }
             else
             {
-                // 2. Tính theo số lượng (Vệ sinh máy lạnh, m2, Nấu ăn...)
                 if (booking.Quantity < service.MinQuantity)
                     throw new Exception($"Số lượng không được nhỏ hơn {service.MinQuantity} {service.UnitLabel}.");
 
+                booking.Quantity = dto.Quantity; // Assuming dto.Quantity exists
                 booking.TotalPrice = (decimal)booking.Quantity * service.Price;
             }
 
-            // Kiểm tra ghi chú bắt buộc
+            // 2. Kiểm tra ghi chú
             if (service.RequiresNotes && string.IsNullOrWhiteSpace(booking.Notes))
             {
                 throw new Exception(service.NotePrompt ?? "Vui lòng nhập ghi chú yêu cầu cho dịch vụ này.");
             }
-            // -----------------------
 
-            // Nếu user chọn helper sẵn từ frontend
+            // 3. Nếu user chọn helper sẵn
             if (dto.HelperId.HasValue && dto.HelperId.Value > 0)
             {
-                // Kiểm tra trùng lịch
                 var isConflict = await _db.Bookings.AnyAsync(b =>
                     b.HelperId == dto.HelperId.Value &&
                     b.Status != BookingStatus.Cancelled &&
@@ -132,12 +383,17 @@ namespace GiupViecAPI.Services.Repositories
                 }
 
                 booking.HelperId = dto.HelperId.Value;
-                // Bỏ dòng chuyển sang Confirmed, giữ nguyên Pending
+                booking.IsJobPost = false;
+            }
+            else 
+            {
+                // Nếu không có helperid -> Đây là bài đăng gom đơn (Job Posting)
+                booking.IsJobPost = true;
             }
 
+            // 4. Lưu
             await _db.Bookings.AddAsync(booking);
             await _db.SaveChangesAsync();
-
 
             await _db.Entry(booking).Reference(b => b.Service).LoadAsync();
             await _db.Entry(booking).Reference(b => b.Customer).LoadAsync();
@@ -145,6 +401,10 @@ namespace GiupViecAPI.Services.Repositories
             {
                 await _db.Entry(booking).Reference(b => b.Helper).LoadAsync();
             }
+
+            // --- NOTIFICATION: New Booking ---
+            await NotifyAdminsNewBooking(booking);
+            // ---------------------------------
 
             return _mapper.Map<BookingResponseDTO>(booking);
         }
@@ -240,7 +500,12 @@ namespace GiupViecAPI.Services.Repositories
                 }
 
                 booking.HelperId = dto.HelperId.Value;
+                booking.IsJobPost = false;
                 booking.Status = BookingStatus.Confirmed; // Đã gán -> Xác nhận luôn
+            }
+            else 
+            {
+                booking.IsJobPost = true; // Không gán ngay -> là bài đăng gom đơn
             }
 
             await _db.Bookings.AddAsync(booking);
@@ -253,21 +518,28 @@ namespace GiupViecAPI.Services.Repositories
                 await _db.Entry(booking).Reference(b => b.Helper).LoadAsync();
             }
 
+            // --- NOTIFICATION: Admin Created Booking (Notify ? Maybe not needed if Admin created it) ---
+            // But maybe other admins need to know? Let's skip for AdminCreate to reduce noise/redundancy, 
+            // or maybe Notify Admins is useful for "New Order" dashboard. 
+            // Let's implement it for consistency.
+            await NotifyAdminsNewBooking(booking);
+             // ---------------------------------
+
             return _mapper.Map<BookingResponseDTO>(booking);
         }
 
         // 4. CẬP NHẬT ĐƠN (Khách sửa lịch -> Phải tính lại tiền)
-        public async Task<BookingResponseDTO> UpdateAsync(int id, BookingUpdateDTO dto)
+        public async Task<BookingResponseDTO?> UpdateAsync(int id, BookingUpdateDTO dto)
         {
             var booking = await _db.Bookings.Include(b => b.Service).FirstOrDefaultAsync(b => b.Id == id);
             if (booking == null) return null;
-
+ 
             // Chỉ cho sửa khi đơn chưa hoàn thành/hủy
             if (booking.Status == BookingStatus.Completed || booking.Status == BookingStatus.Cancelled)
             {
                 throw new Exception("Không thể sửa đơn hàng đã kết thúc.");
             }
-
+ 
             // Map dữ liệu mới
             booking.Address = dto.Address;
             booking.StartDate = dto.StartDate;
@@ -275,23 +547,23 @@ namespace GiupViecAPI.Services.Repositories
             booking.WorkShiftStart = dto.WorkShiftStart;
             booking.WorkShiftEnd = dto.WorkShiftEnd;
             booking.Notes = dto.Notes;
-
+ 
             // --- TÍNH LẠI TIỀN ---
             var days = (booking.EndDate - booking.StartDate).Days + 1;
             var hours = booking.WorkShiftEnd - booking.WorkShiftStart;
             double hoursperday = hours.TotalHours;
-            if (days > 0 && hoursperday > 0)
+            if (days > 0 && hoursperday > 0 && booking.Service != null)
             {
                 booking.TotalPrice = days * (decimal)hoursperday * booking.Service.Price;
             }
             // ---------------------
             await _db.SaveChangesAsync();
-
+ 
             return _mapper.Map<BookingResponseDTO>(booking);
         }
-
+ 
         // 5. GÁN NGƯỜI LÀM (Kiểm tra trùng lịch bằng C#)
-        public async Task<BookingResponseDTO> AssignHelperAsync(int id, int helperId)
+        public async Task<BookingResponseDTO?> AssignHelperAsync(int id, int helperId)
         {
             var booking = await _db.Bookings.FindAsync(id);
             if (booking == null) return null;
@@ -315,10 +587,32 @@ namespace GiupViecAPI.Services.Repositories
             }
 
             booking.HelperId = helperId;
+            booking.IsJobPost = false; // QUAN TRỌNG: Khi có người nhận, nó trở thành đơn hàng bình thường
             booking.Status = BookingStatus.Confirmed; // Đã có người nhận -> Confirmed
             
 
+
             await _db.SaveChangesAsync();
+
+            // --- NOTIFICATION: Helper Assigned ---
+            // 1. Notify Customer
+            await _notificationService.CreateNotificationAsync(
+                booking.CustomerId,
+                "Đơn hàng đã có người nhận",
+                $"Đơn hàng #{booking.Id} đã được gán cho nhân viên.",
+                NotificationType.BookingAccepted, 
+                booking.Id, "Booking"
+            );
+
+            // 2. Notify Helper
+            await _notificationService.CreateNotificationAsync(
+                helperId,
+                "Bạn có đơn hàng mới",
+                $"Bạn đã được gán cho đơn hàng #{booking.Id}. Vui lòng kiểm tra lịch làm việc.",
+                NotificationType.BookingConfirmed, // Using Confirmed type
+                booking.Id, "Booking"
+            );
+            // -------------------------------------
 
             return _mapper.Map<BookingResponseDTO>(booking);
         }
@@ -333,6 +627,46 @@ namespace GiupViecAPI.Services.Repositories
             
 
             await _db.SaveChangesAsync();
+
+            // --- NOTIFICATION: Status Update ---
+            if (status == BookingStatus.Cancelled)
+            {
+                // Notify Customer
+                await _notificationService.CreateNotificationAsync(
+                    booking.CustomerId,
+                    "Đơn hàng bị hủy",
+                     $"Đơn hàng #{booking.Id} đã bị hủy.",
+                     NotificationType.BookingCancelled, booking.Id, "Booking");
+                
+                // Notify Helper if assigned
+                if (booking.HelperId.HasValue)
+                {
+                     await _notificationService.CreateNotificationAsync(
+                        booking.HelperId.Value,
+                        "Đơn hàng bị hủy",
+                         $"Đơn hàng #{booking.Id} đã bị hủy.",
+                         NotificationType.BookingCancelled, booking.Id, "Booking");
+                }
+            }
+            else if (status == BookingStatus.Completed)
+            {
+                // Notify Both
+                 await _notificationService.CreateNotificationAsync(
+                    booking.CustomerId,
+                    "Đơn hàng hoàn thành",
+                     $"Đơn hàng #{booking.Id} đã hoàn thành.",
+                     NotificationType.BookingCompleted, booking.Id, "Booking");
+
+                 if (booking.HelperId.HasValue)
+                 {
+                     await _notificationService.CreateNotificationAsync(
+                        booking.HelperId.Value,
+                        "Đơn hàng hoàn thành",
+                         $"Đơn hàng #{booking.Id} đã hoàn thành.",
+                         NotificationType.BookingCompleted, booking.Id, "Booking");
+                 }
+            }
+            // -----------------------------------
             return true;
         }
 
@@ -346,6 +680,18 @@ namespace GiupViecAPI.Services.Repositories
             
 
             await _db.SaveChangesAsync();
+
+            // --- NOTIFICATION: Payment ---
+            if (booking.HelperId.HasValue)
+            {
+                await _notificationService.CreateNotificationAsync(
+                    booking.HelperId.Value,
+                    "Thanh toán được xác nhận",
+                    $"Đơn hàng #{booking.Id} đã nhận được thanh toán.",
+                    NotificationType.PaymentConfirmed, booking.Id, "Booking"
+                );
+            }
+            // ----------------------------
             return true;
         }
 
@@ -370,6 +716,23 @@ namespace GiupViecAPI.Services.Repositories
             }
 
             await _db.SaveChangesAsync();
+
+             // --- NOTIFICATION: Completion (If becomes Completed) ---
+             if (booking.Status == BookingStatus.Completed)
+             {
+                 // Notify Helper (Self is Customer, so notify Helper)
+                 if (booking.HelperId.HasValue)
+                 {
+                     await _notificationService.CreateNotificationAsync(
+                         booking.HelperId.Value,
+                         "Khách hàng xác nhận hoàn thành",
+                         $"Khách hàng đã xác nhận hoàn thành đơn #{booking.Id}.",
+                         NotificationType.BookingCompleted, booking.Id, "Booking"
+                     );
+                 }
+             }
+             // -----------------------------------------------------
+
             return true;
         }
 
@@ -394,6 +757,20 @@ namespace GiupViecAPI.Services.Repositories
             }
 
             await _db.SaveChangesAsync();
+
+             // --- NOTIFICATION: Completion (If becomes Completed) ---
+             if (booking.Status == BookingStatus.Completed)
+             {
+                 // Notify Customer (Self is Helper, notify Customer)
+                  await _notificationService.CreateNotificationAsync(
+                     booking.CustomerId,
+                     "Nhân viên xác nhận hoàn thành",
+                     $"Nhân viên đã xác nhận hoàn thành đơn #{booking.Id}. Đơn hàng đã kết thúc.",
+                     NotificationType.BookingCompleted, booking.Id, "Booking"
+                 );
+             }
+             // -----------------------------------------------------
+
             return true;
         }
 
@@ -418,7 +795,7 @@ namespace GiupViecAPI.Services.Repositories
                     EndTime = b.WorkShiftEnd.ToString(@"hh\:mm"),
                     WorkShiftStart = b.WorkShiftStart,
                     WorkShiftEnd = b.WorkShiftEnd,
-                    ServiceName = b.Service.Name,
+                    ServiceName = b.Service != null ? b.Service.Name : "Dịch vụ đã xóa",
                     CustomerName = b.Customer != null ? b.Customer.FullName : "Khách vãng lai",
                     Address = b.Address,
                     TotalPrice = b.TotalPrice,
@@ -452,7 +829,7 @@ namespace GiupViecAPI.Services.Repositories
                     EndTime = b.WorkShiftEnd.ToString(@"hh\:mm"),
                     WorkShiftStart = b.WorkShiftStart,
                     WorkShiftEnd = b.WorkShiftEnd,
-                    ServiceName = b.Service.Name,
+                    ServiceName = b.Service != null ? b.Service.Name : "Dịch vụ đã xóa",
                     CustomerName = b.Customer != null ? b.Customer.FullName : "Khách vãng lai",
                     Address = b.Address,
                     TotalPrice = b.TotalPrice,
@@ -482,18 +859,47 @@ namespace GiupViecAPI.Services.Repositories
             }
         }
 
+        // --- HELPER METHOD: Notify Admins ---
+        private async Task NotifyAdminsNewBooking(Booking booking)
+        {
+            try
+            {
+                var adminsAndEmployees = await _userManager.Users
+                    .Where(u => u.Role == UserRoles.Admin || u.Role == UserRoles.Employee)
+                    .Select(u => u.Id)
+                    .ToListAsync();
+
+                foreach (var adminId in adminsAndEmployees)
+                {
+                    await _notificationService.CreateNotificationAsync(
+                        adminId,
+                        "Đơn đặt hàng mới",
+                        $"Có đơn đặt hàng mới #{booking.Id} (Dịch vụ: #{booking.ServiceId}) cần duyệt.",
+                        NotificationType.BookingCreated,
+                        booking.Id,
+                        "Booking"
+                    );
+                }
+            }
+            catch(Exception ex) 
+            {
+                // Log error but don't fail booking creation
+                Console.WriteLine($"Error sending admin notifications: {ex.Message}");
+            }
+        }
+
         // 10. TẠO ĐƠN CHO KHÁCH CHƯA ĐĂNG NHẬP (Guest Booking)
         public async Task<GuestBookingResponseDTO> GuestCreateBookingAsync(GuestBookingCreateDTO dto)
         {
             // 1. Verify CAPTCHA
-            var captchaValid = await _recaptchaService.VerifyAsync(dto.CaptchaToken);
+            var captchaValid = await _recaptchaService.VerifyAsync(dto.CaptchaToken ?? string.Empty);
             if (!captchaValid)
             {
                 throw new Exception("Xác thực CAPTCHA thất bại. Vui lòng thử lại.");
             }
 
             // 2. Check if email already exists
-            var existingUser = await _userManager.FindByEmailAsync(dto.Email);
+            var existingUser = await _userManager.FindByEmailAsync(dto.Email ?? string.Empty);
             if (existingUser != null)
             {
                 throw new Exception("Email đã được sử dụng. Vui lòng đăng nhập hoặc sử dụng email khác.");
@@ -541,7 +947,7 @@ namespace GiupViecAPI.Services.Repositories
                 decimal hoursPerDay = (decimal)(dto.WorkShiftEnd - dto.WorkShiftStart).TotalHours;
                 
                  if (hoursPerDay < (decimal)service.MinQuantity) 
-                    throw new Exception($"Dịch vụ này yêu cầu tối thiểu {service.MinQuantity} {service.UnitLabel} mỗi ngày.");
+                    throw new Exception($"Dịch vụ này yêu cầu tối thiểu {service.MinQuantity} {service.UnitLabel} mỗi ngày."); // Fixed UnitLabel
 
                 // booking.Quantity = (double)hoursPerDay; // Will set in booking init
                  if (totalDays <= 0 || hoursPerDay <= 0) throw new Exception("Thời gian đặt không hợp lệ.");
@@ -552,7 +958,7 @@ namespace GiupViecAPI.Services.Repositories
             else
             {
                  if (dto.Quantity < service.MinQuantity)
-                     throw new Exception($"Số lượng không được nhỏ hơn {service.MinQuantity} {service.UnitLabel}.");
+                     throw new Exception($"Số lượng không được nhỏ hơn {service.MinQuantity} {service.UnitLabel}."); // Fixed UnitLabel
             }
 
             // Checking Notes
@@ -635,7 +1041,7 @@ namespace GiupViecAPI.Services.Repositories
                           $"Vui lòng đăng nhập và đổi mật khẩu ngay."
             };
 
-            if (booking.HelperId.HasValue)
+            if (booking.HelperId.HasValue && booking.Helper != null)
             {
                 await _db.Entry(booking).Reference(b => b.Helper).LoadAsync();
                 response.HelperName = booking.Helper.FullName;
@@ -661,6 +1067,42 @@ namespace GiupViecAPI.Services.Repositories
             password[9] = "23456789"[random.Next(8)];
             
             return new string(password);
+        }
+
+        private async Task<GiupViecAPI.Model.DTO.Shared.PagedResult<TResult>> GetPagedResultAsync<TEntity, TResult>(IQueryable<TEntity> query, BaseFilterDTO filter)
+        {
+            // 1. Sorting
+            if (!string.IsNullOrEmpty(filter.SortBy))
+            {
+                try
+                {
+                    query = query.OrderBy($"{filter.SortBy} {(filter.IsDescending ? "desc" : "asc")}");
+                }
+                catch
+                {
+                   // Fallback
+                }
+            }
+
+            // 2. Total Count
+            var totalCount = await query.CountAsync();
+
+            // 3. Paging
+            var items = await query
+                .Skip((filter.PageIndex - 1) * filter.PageSize)
+                .Take(filter.PageSize)
+                .ToListAsync();
+
+            // 4. Mapping
+            var resultItems = _mapper.Map<IEnumerable<TResult>>(items);
+
+            return new GiupViecAPI.Model.DTO.Shared.PagedResult<TResult>
+            {
+                Items = resultItems,
+                TotalCount = totalCount,
+                PageIndex = filter.PageIndex,
+                PageSize = filter.PageSize
+            };
         }
     }
 }

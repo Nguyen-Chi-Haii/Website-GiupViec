@@ -28,6 +28,10 @@
         <span class="material-symbols-outlined">receipt_long</span>
         @if (!sidebarCollapsed()) { <span>Quản Lý Đơn</span> }
       </a>
+      <a routerLink="/employee/approvals" routerLinkActive="active" class="nav-item">
+        <span class="material-symbols-outlined">playlist_add_check</span>
+        @if (!sidebarCollapsed()) { <span>Duyệt Bài Đăng</span> }
+      </a>
       <a routerLink="/employee/helpers" routerLinkActive="active" class="nav-item">
         <span class="material-symbols-outlined">engineering</span>
         @if (!sidebarCollapsed()) { <span>Nguời Giúp Việc</span> }
@@ -65,6 +69,22 @@
 
   <!-- Main Content -->
   <main class="main-content">
-    <router-outlet></router-outlet>
+    <!-- Top Header -->
+    <header class="top-header">
+      <div class="header-left"></div>
+      <div class="header-right">
+        <!-- Search -->
+        <div class="search-box">
+          <span class="material-symbols-outlined">search</span>
+          <input type="text" placeholder="Tìm kiếm..." />
+        </div>
+        <!-- Notifications -->
+        <app-notification-bell></app-notification-bell>
+      </div>
+    </header>
+
+    <div class="content-area">
+      <router-outlet></router-outlet>
+    </div>
   </main>
 </div>

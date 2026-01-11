@@ -56,10 +56,7 @@
           <input type="text" placeholder="Tìm kiếm..." [(ngModel)]="searchQuery" (keyup.enter)="onSearch()" />
         </div>
         <!-- Notifications -->
-        <button class="header-btn" (click)="showNotifications()" title="Thông báo">
-          <span class="material-symbols-outlined">notifications</span>
-          <span class="notification-badge"></span>
-        </button>
+        <app-notification-bell></app-notification-bell>
         <!-- Settings -->
         <button class="header-btn" (click)="showSettings()" title="Cài đặt">
           <span class="material-symbols-outlined">settings</span>

@@ -85,7 +85,7 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidAudience = builder.Configuration["Jwt:Audience"],
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? "fallback_key_for_development_only"))
     };
 });
 
@@ -97,6 +97,7 @@ builder.Services.AddScoped<IServiceService, ServiceService>();
 builder.Services.AddScoped<IHelperProfileService, HelperProfileService>();
 builder.Services.AddScoped<IStatisticsService, StatisticsService>();
 builder.Services.AddScoped<IRatingService, RatingService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 // RecaptchaService for guest booking verification
 builder.Services.AddHttpClient<IRecaptchaService, GiupViecAPI.Services.RecaptchaService>();

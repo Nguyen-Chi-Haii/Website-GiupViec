@@ -7,8 +7,8 @@ namespace GiupViecAPI.Model.DTO.Booking
     public class GuestBookingCreateDTO
     {
         // Customer Info (for new user creation)
-        public string FullName { get; set; }
-        public string Email { get; set; }
+        public string? FullName { get; set; }
+        public string? Email { get; set; }
         public string? Phone { get; set; }
         
         // Booking Info
@@ -17,13 +17,13 @@ namespace GiupViecAPI.Model.DTO.Booking
         public DateTime EndDate { get; set; }
         public TimeSpan WorkShiftStart { get; set; }
         public TimeSpan WorkShiftEnd { get; set; }
-        public string Address { get; set; }
+        public string? Address { get; set; }
         public int? HelperId { get; set; }
         public double Quantity { get; set; } = 1;
 
         public string? Notes { get; set; }
         
         // CAPTCHA token from Google reCAPTCHA v3
-        public string CaptchaToken { get; set; }
+        public string? CaptchaToken { get; set; }
     }
 }

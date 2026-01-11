@@ -40,14 +40,6 @@ export class BookingStep2Component implements OnInit {
   guestEmail = '';
   guestPhone = '';
 
-  // Dropdown data from API v2 (2-tier: Province → Ward)
-  provinces = signal<ProvinceResponse[]>([]);
-  wards = signal<WardResponse[]>([]);
-
-  // Loading states
-  isLoadingProvinces = signal(false);
-  isLoadingWards = signal(false);
-
   // Validation
   errors = signal<Record<string, string>>({});
 
@@ -74,23 +66,8 @@ export class BookingStep2Component implements OnInit {
     this.startDate = this.formatDate(today);
     this.endDate = this.formatDate(today);
 
-    // Load provinces from API v2, then restore data
-    this.loadProvinces();
-  }
-
-  private loadProvinces(): void {
-    this.isLoadingProvinces.set(true);
-    this.provincesService.getProvinces().subscribe({
-      next: (data) => {
-        this.provinces.set(data);
-        this.isLoadingProvinces.set(false);
-        this.restoreData();
-      },
-      error: () => {
-        this.isLoadingProvinces.set(false);
-        this.restoreData();
-      }
-    });
+    // Restore data
+    this.restoreData();
   }
 
   private generateTimeOptions(): void {
@@ -264,7 +241,9 @@ export class BookingStep2Component implements OnInit {
     if (!this.validate()) return;
 
     this.saveData();
-    this.router.navigate(['/booking/step3']);
+    // Default to posting mode since we skip helper selection
+    this.bookingState.setPostingMode(true);
+    this.router.navigate(['/booking/step4']);
   }
 
   private saveData(): void {

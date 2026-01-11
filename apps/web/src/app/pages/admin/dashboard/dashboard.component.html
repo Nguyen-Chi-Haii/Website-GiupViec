@@ -1,4 +1,17 @@
 <div class="dashboard">
+  <!-- Header -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+    <div>
+      <h2 class="text-2xl font-bold text-gray-800 m-0">Tổng Quan</h2>
+      <p class="text-gray-500 text-sm mt-1">Thống kê hoạt động hệ thống</p>
+    </div>
+    <app-date-range-picker 
+      [initialStartDate]="startDate()"
+      [initialEndDate]="endDate()"
+      (rangeChange)="onDateRangeChange($event)">
+    </app-date-range-picker>
+  </div>
+
   <!-- Stats Grid -->
   <div class="stats-grid">
     <div class="stat-card">
@@ -72,6 +85,19 @@
         <p class="stat-label">Đơn chờ xử lý</p>
         <h3 class="stat-value">{{ stats()?.pendingBookings || 0 }}</h3>
       </div>
+    </div>
+  </div>
+
+  <!-- Revenue Chart -->
+  <div class="section-card mb-6">
+    <div class="section-header">
+      <h3>Biểu đồ doanh thu</h3>
+    </div>
+    <div class="p-4">
+      <app-revenue-chart 
+        [startDate]="startDate()" 
+        [endDate]="endDate()">
+      </app-revenue-chart>
     </div>
   </div>
 

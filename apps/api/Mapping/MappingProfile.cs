@@ -14,8 +14,8 @@ namespace GiupViecAPI.Mapping
         {
             // --- 0. RATING MAPPING ---
             CreateMap<Rating, RatingResponseDTO>()
-                .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer.FullName))
-                .ForMember(dest => dest.HelperName, opt => opt.MapFrom(src => src.Helper.FullName));
+                .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer != null ? src.Customer.FullName : null))
+                .ForMember(dest => dest.HelperName, opt => opt.MapFrom(src => src.Helper != null ? src.Helper.FullName : null));
 
             // --- 1. USER MAPPING ---
             CreateMap<UserCreateDTO, User>()
@@ -45,16 +45,18 @@ namespace GiupViecAPI.Mapping
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             CreateMap<Booking, BookingResponseDTO>()
-                .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer.FullName))
+                .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer != null ? src.Customer.FullName : null))
+                .ForMember(dest => dest.CustomerPhone, opt => opt.MapFrom(src => src.Customer != null ? src.Customer.PhoneNumber : null))
                 .ForMember(dest => dest.HelperName, opt => opt.MapFrom(src => src.Helper != null ? src.Helper.FullName : null))
                 .ForMember(dest => dest.ServiceId, opt => opt.MapFrom(src => src.ServiceId))
-                .ForMember(dest => dest.ServiceName, opt => opt.MapFrom(src => src.Service.Name))
+                .ForMember(dest => dest.ServiceName, opt => opt.MapFrom(src => src.Service != null ? src.Service.Name : null))
                 .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.WorkShiftStart.ToString(@"hh\:mm")))
                 .ForMember(dest => dest.EndTime, opt => opt.MapFrom(src => src.WorkShiftEnd.ToString(@"hh\:mm")))
-                .ForMember(dest => dest.ServiceUnit, opt => opt.MapFrom(src => src.Service.Unit.ToString()))
-                .ForMember(dest => dest.ServiceUnitLabel, opt => opt.MapFrom(src => src.Service.UnitLabel))
+                .ForMember(dest => dest.ServiceUnit, opt => opt.MapFrom(src => src.Service != null ? src.Service.Unit.ToString() : null))
+                .ForMember(dest => dest.ServiceUnitLabel, opt => opt.MapFrom(src => src.Service != null ? src.Service.UnitLabel : null))
                 .ForMember(dest => dest.IsPaid, opt => opt.MapFrom(src => src.PaymentStatus == GiupViecAPI.Model.Enums.PaymentStatus.Paid))
                 .ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Notes))
+                .ForMember(dest => dest.IsJobPost, opt => opt.MapFrom(src => src.IsJobPost))
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt));
 
 
@@ -82,10 +84,10 @@ namespace GiupViecAPI.Mapping
 
             // 2. OUTPUT: Từ Ngày bắt đầu (Entity) -> Tính ra Số năm (DTO)
             CreateMap<HelperProfile, HelperProfileResponseDTO>()
-                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.User.FullName))
-                .ForMember(dest => dest.Avatar, opt => opt.MapFrom(src => src.User.Avatar))
-                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.User.Email))
-                .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.User.PhoneNumber))
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.User != null ? src.User.FullName : null))
+                .ForMember(dest => dest.Avatar, opt => opt.MapFrom(src => src.User != null ? src.User.Avatar : null))
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.User != null ? src.User.Email : null))
+                .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.User != null ? src.User.PhoneNumber : null))
                 .ForMember(dest => dest.ExperienceYears,
                            opt => opt.MapFrom(src => (src.CareerStartDate.Year > 1 && src.CareerStartDate <= DateTime.Now) 
                                 ? DateTime.Now.Year - src.CareerStartDate.Year : 0))
@@ -96,8 +98,8 @@ namespace GiupViecAPI.Mapping
 
             // Logic cho Suggestion DTO
             CreateMap<HelperProfile, HelperSuggestionDTO>()
-                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.User.FullName))
-                .ForMember(dest => dest.Avatar, opt => opt.MapFrom(src => src.User.Avatar))
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.User != null ? src.User.FullName : null))
+                .ForMember(dest => dest.Avatar, opt => opt.MapFrom(src => src.User != null ? src.User.Avatar : null))
                 .ForMember(dest => dest.ExperienceYears,
                            opt => opt.MapFrom(src => (src.CareerStartDate.Year > 1 && src.CareerStartDate <= DateTime.Now) 
                                 ? DateTime.Now.Year - src.CareerStartDate.Year : 0))

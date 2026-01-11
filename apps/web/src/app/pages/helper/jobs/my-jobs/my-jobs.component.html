@@ -1,0 +1,204 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h2>Công Việc Của Tôi</h2>
+      <p class="subtitle">Quản lý và theo dõi các công việc bạn đã nhận</p>
+    </div>
+    <div class="header-actions">
+      <button 
+        *ngFor="let status of statuses"
+        (click)="onFilterChange(status)"
+        [class.active]="selectedStatus() === status"
+        class="filter-btn">
+        {{ getStatusLabel(status) }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="loading-container">
+    <div class="spinner"></div>
+    <p>Đang tải công việc...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading() && jobs().length === 0" class="empty-state">
+    <span class="material-symbols-outlined empty-icon">work_outline</span>
+    <h3>Chưa có công việc</h3>
+    <p>Bạn chưa có công việc nào theo trạng thái này.</p>
+    <a routerLink="/helper/jobs/available" class="btn-primary">
+      <span class="material-symbols-outlined">search</span>
+      Tìm việc ngay
+    </a>
+  </div>
+
+  <!-- Job Cards Grid -->
+  <div *ngIf="!isLoading() && jobs().length > 0" class="cards-grid">
+    <div *ngFor="let job of jobs()" class="job-card">
+      <!-- Status Badge -->
+      <div class="card-header">
+        <span class="status-badge" [class]="getStatusColorClass(job.status)">
+          {{ getStatusLabel(job.status) }}
+        </span>
+      </div>
+
+      <!-- Service Info -->
+      <div class="card-body">
+        <h3 class="service-name">{{ job.serviceName }}</h3>
+        <p class="job-id">Mã đơn: <span>#{{ job.id }}</span></p>
+        
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="material-symbols-outlined">calendar_today</span>
+            <div class="info-content">
+              <span class="info-label">Ngày làm việc</span>
+              <span class="info-value">
+                {{ job.startDate | date:'dd/MM/yyyy' }}
+                <span *ngIf="job.startDate !== job.endDate"> - {{ job.endDate | date:'dd/MM/yyyy' }}</span>
+              </span>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <span class="material-symbols-outlined">schedule</span>
+            <div class="info-content">
+              <span class="info-label">Thời gian</span>
+              <span class="info-value">{{ job.startTime }} - {{ job.endTime }}</span>
+            </div>
+          </div>
+
+          <div class="info-item full-width">
+            <span class="material-symbols-outlined">location_on</span>
+            <div class="info-content">
+              <span class="info-label">Địa chỉ</span>
+              <span class="info-value">{{ job.address }}</span>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <span class="material-symbols-outlined">person</span>
+            <div class="info-content">
+              <span class="info-label">Khách hàng</span>
+              <span class="info-value">{{ job.customerName }}</span>
+            </div>
+          </div>
+
+          <div class="info-item price-item">
+            <span class="material-symbols-outlined">payments</span>
+            <div class="info-content">
+              <span class="info-label">Thu nhập</span>
+              <span class="info-value price">{{ job.totalPrice | number }}₫</span>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="job.notes" class="notes-section">
+          <span class="material-symbols-outlined">sticky_note_2</span>
+          <p>{{ job.notes }}</p>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="card-footer">
+        <button 
+          *ngIf="canComplete(job)"
+          (click)="confirmCompletion(job.id)"
+          class="btn-complete">
+          <span class="material-symbols-outlined">check_circle</span>
+          Xác nhận hoàn thành
+        </button>
+        <button class="btn-details" (click)="openDetailModal(job)">
+          <span class="material-symbols-outlined">visibility</span>
+          Xem chi tiết
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Detail Modal -->
+<div *ngIf="selectedJob()" class="modal-overlay" (click)="closeDetailModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Chi Tiết Công Việc #{{ selectedJob()!.id }}</h3>
+      <button class="close-btn" (click)="closeDetailModal()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="detail-grid">
+        <div class="detail-item">
+          <span class="detail-label">Dịch vụ</span>
+          <span class="detail-value">{{ selectedJob()!.serviceName }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-label">Trạng thái</span>
+          <span class="status-badge" [class]="getStatusColorClass(selectedJob()!.status)">
+            {{ getStatusLabel(selectedJob()!.status) }}
+          </span>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-label">Khách hàng</span>
+          <span class="detail-value">{{ selectedJob()!.customerName }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-label">Số điện thoại</span>
+          <span class="detail-value">{{ selectedJob()!.customerPhone }}</span>
+        </div>
+        
+        <div class="detail-item full-width">
+          <span class="detail-label">Địa chỉ</span>
+          <span class="detail-value">{{ selectedJob()!.address }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-label">Ngày làm việc</span>
+          <span class="detail-value">
+            {{ selectedJob()!.startDate | date:'dd/MM/yyyy' }}
+            <span *ngIf="selectedJob()!.startDate !== selectedJob()!.endDate">
+              - {{ selectedJob()!.endDate | date:'dd/MM/yyyy' }}
+            </span>
+          </span>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-label">Thời gian</span>
+          <span class="detail-value">{{ selectedJob()!.startTime }} - {{ selectedJob()!.endTime }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-label">Thanh toán</span>
+          <span class="detail-value" [class.text-success]="selectedJob()!.paymentStatus === 'Paid'"
+                [class.text-danger]="selectedJob()!.paymentStatus === 'Unpaid'">
+            {{ selectedJob()!.paymentStatus === 'Paid' ? 'Đã thanh toán' : 'Chưa thanh toán' }}
+          </span>
+        </div>
+        
+        <div class="detail-item price-highlight">
+          <span class="detail-label">Thu nhập</span>
+          <span class="detail-value price">{{ selectedJob()!.totalPrice | number }}₫</span>
+        </div>
+        
+        <div *ngIf="selectedJob()!.notes" class="detail-item full-width">
+          <span class="detail-label">Ghi chú</span>
+          <span class="detail-value notes">{{ selectedJob()!.notes }}</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn-outline" (click)="closeDetailModal()">Đóng</button>
+      <button 
+        *ngIf="canComplete(selectedJob()!)"
+        (click)="confirmCompletion(selectedJob()!.id)"
+        class="btn-primary">
+        <span class="material-symbols-outlined">check_circle</span>
+        Xác nhận hoàn thành
+      </button>
+    </div>
+  </div>
+</div>

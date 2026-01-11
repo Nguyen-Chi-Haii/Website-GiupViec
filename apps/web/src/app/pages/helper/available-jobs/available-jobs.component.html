@@ -1,0 +1,181 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h2>Tìm Việc Mới</h2>
+      <p class="subtitle">Các công việc phù hợp với khu vực của bạn</p>
+    </div>
+    <button (click)="loadJobs()" class="btn-refresh">
+      <span class="material-symbols-outlined">refresh</span>
+      Làm mới
+    </button>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-card">
+    <div class="filters-grid">
+      <div class="filter-item">
+        <label>Khu vực</label>
+        <select [(ngModel)]="filter.province" (change)="onFilterChange()" class="filter-select">
+          <option [ngValue]="undefined">Tất cả khu vực</option>
+          <option *ngFor="let p of provinces()" [value]="p.name">{{ p.name }}</option>
+        </select>
+      </div>
+
+      <div class="filter-item">
+        <label>Dịch vụ</label>
+        <select [(ngModel)]="filter.serviceId" (change)="onFilterChange()" class="filter-select">
+          <option [ngValue]="undefined">Tất cả dịch vụ</option>
+          <option *ngFor="let s of services()" [value]="s.id">{{ s.name }}</option>
+        </select>
+      </div>
+
+      <div class="filter-item">
+        <label>Sắp xếp theo</label>
+        <select [(ngModel)]="sortMode" (change)="onSortChange()" class="filter-select">
+          <option value="newest">Mới nhất</option>
+          <option value="price_desc">Giá cao → thấp</option>
+          <option value="price_asc">Giá thấp → cao</option>
+        </select>
+      </div>
+
+      <div class="filter-item">
+        <label>Từ ngày</label>
+        <input 
+          type="date" 
+          [(ngModel)]="filter.startDateFrom" 
+          (change)="onFilterChange()" 
+          class="filter-input">
+      </div>
+
+      <div class="filter-item">
+        <label>Đến ngày</label>
+        <input 
+          type="date" 
+          [(ngModel)]="filter.startDateTo" 
+          (change)="onFilterChange()" 
+          class="filter-input">
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="loading-container">
+    <div class="spinner"></div>
+    <p>Đang tìm kiếm công việc...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading() && jobs().length === 0" class="empty-state">
+    <span class="material-symbols-outlined empty-icon">search_off</span>
+    <h3>Không tìm thấy công việc nào</h3>
+    <p>Hãy thử thay đổi bộ lọc hoặc quay lại sau để xem công việc mới.</p>
+  </div>
+
+  <!-- Job Cards Grid -->
+  <div *ngIf="!isLoading() && jobs().length > 0" class="cards-grid">
+    <div *ngFor="let job of jobs()" class="job-card">
+      
+      <!-- Card Header -->
+      <div class="card-header">
+        <span class="service-badge">{{ job.serviceName }}</span>
+        <span class="job-id">#{{ job.id }}</span>
+      </div>
+
+      <!-- Card Body -->
+      <div class="card-body">
+        <div class="price-section">
+          <span class="material-symbols-outlined">payments</span>
+          <div>
+            <span class="price-label">Thu nhập</span>
+            <span class="price-value">{{ job.totalPrice | number }}₫</span>
+          </div>
+        </div>
+
+        <div class="info-list">
+          <div class="info-item">
+            <span class="material-symbols-outlined">schedule</span>
+            <span>{{ job.quantity }} {{ job.serviceUnitLabel || 'giờ' }}</span>
+          </div>
+
+          <div class="info-item">
+            <span class="material-symbols-outlined">calendar_today</span>
+            <span>
+              {{ job.startDate | date:'dd/MM/yyyy' }}
+              <span *ngIf="job.startDate !== job.endDate"> - {{ job.endDate | date:'dd/MM/yyyy' }}</span>
+            </span>
+          </div>
+
+          <div class="info-item">
+            <span class="material-symbols-outlined">access_time</span>
+            <span>{{ job.startTime }} - {{ job.endTime }}</span>
+          </div>
+
+          <div class="info-item full-width">
+            <span class="material-symbols-outlined">location_on</span>
+            <span class="address" [title]="job.address">{{ job.address }}</span>
+          </div>
+        </div>
+
+        <div *ngIf="job.notes" class="notes-section">
+          <span class="material-symbols-outlined">sticky_note_2</span>
+          <p>{{ job.notes }}</p>
+        </div>
+      </div>
+
+      <!-- Card Footer -->
+      <div class="card-footer">
+        <button 
+          (click)="confirmAccept(job)"
+          [disabled]="isProcessing()"
+          class="btn-accept">
+          <span *ngIf="isProcessing() && selectedJobId === job.id" class="spinner-small"></span>
+          <span class="material-symbols-outlined" *ngIf="!(isProcessing() && selectedJobId === job.id)">check_circle</span>
+          {{ (isProcessing() && selectedJobId === job.id) ? 'Đang nhận...' : 'Nhận việc ngay' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div *ngIf="showConfirmModal" class="modal-overlay" (click)="closeModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Xác nhận nhận việc</h3>
+      <button class="close-btn" (click)="closeModal()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <p class="confirm-question">Bạn có chắc chắn muốn nhận công việc này không?</p>
+      
+      <div *ngIf="jobToAccept" class="job-summary">
+        <div class="summary-item">
+          <span class="summary-label">Dịch vụ:</span>
+          <span class="summary-value">{{ jobToAccept.serviceName }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Thu nhập:</span>
+          <span class="summary-value price">{{ jobToAccept.totalPrice | number }}₫</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Thời gian:</span>
+          <span class="summary-value">{{ jobToAccept.startDate | date:'dd/MM/yyyy' }} ({{ jobToAccept.startTime }} - {{ jobToAccept.endTime }})</span>
+        </div>
+        <div class="summary-item full">
+          <span class="summary-label">Địa chỉ:</span>
+          <span class="summary-value">{{ jobToAccept.address }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="closeModal()" [disabled]="isProcessing()">Hủy</button>
+      <button class="btn-confirm" (click)="onAccept()" [disabled]="isProcessing()">
+        <span *ngIf="isProcessing()" class="spinner-small"></span>
+        {{ isProcessing() ? 'Đang xử lý...' : 'Đồng ý nhận việc' }}
+      </button>
+    </div>
+  </div>
+</div>

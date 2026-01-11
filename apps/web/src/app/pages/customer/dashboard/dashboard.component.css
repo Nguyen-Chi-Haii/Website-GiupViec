@@ -1,0 +1,279 @@
+.page {
+  padding: 1.5rem;
+  min-height: 100vh;
+  background: #f8fafc;
+}
+
+.welcome-section {
+  margin-bottom: 2rem;
+}
+
+.welcome-section h1 {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0 0 0.5rem 0;
+}
+
+.welcome-section p {
+  color: #64748b;
+  margin: 0;
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  transition: transform 0.2s;
+  border: 1px solid #e2e8f0;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+}
+
+.icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-box.blue { background: #eff6ff; color: #3b82f6; }
+.icon-box.orange { background: #fff7ed; color: #f97316; }
+.icon-box.green { background: #f0fdf4; color: #22c55e; }
+
+.icon-box .material-symbols-outlined { font-size: 24px; }
+
+.stat-info { display: flex; flex-direction: column; }
+.stat-value { font-size: 1.5rem; font-weight: 700; color: #0f172a; line-height: 1.2; }
+.stat-label { font-size: 0.875rem; color: #64748b; font-weight: 500; }
+
+/* Dashboard Content Grid */
+.dashboard-content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-content { grid-template-columns: 1fr; }
+  .column-side { order: -1; } /* Next service first on mobile */
+}
+
+/* Base Card */
+.card {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+
+.card h3 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1e293b;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+/* Quick Actions */
+.quick-actions { padding-bottom: 1.5rem; }
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  padding: 0 1.5rem;
+  margin-top: 1.25rem;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.action-btn.primary {
+  background: #13b9a5;
+  color: white;
+  box-shadow: 0 4px 6px -1px rgba(19, 185, 165, 0.2);
+}
+.action-btn.primary:hover { background: #0f9685; transform: translateY(-1px); }
+
+.action-btn.outline {
+  background: white;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+}
+.action-btn.outline:hover { background: #f8fafc; border-color: #cbd5e1; color: #334155; }
+
+/* Recent Activity */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+.card-header h3 { border: none; padding: 0; }
+.view-all { font-size: 0.875rem; color: #13b9a5; font-weight: 600; text-decoration: none; }
+
+.activity-list { padding: 0.5rem 0; }
+.activity-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #f8fafc;
+  cursor: pointer;
+  transition: background 0.2s;
+  text-decoration: none;
+}
+.activity-item:last-child { border-bottom: none; }
+.activity-item:hover { background: #f8fafc; }
+
+.activity-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.activity-icon.completed { background: #f0fdf4; color: #22c55e; }
+.activity-icon.confirmed { background: #eff6ff; color: #3b82f6; }
+
+.activity-content { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.service-name { font-weight: 600; color: #334155; font-size: 0.95rem; }
+.time { font-size: 0.8rem; color: #94a3b8; }
+
+.status-text { font-size: 0.8rem; font-weight: 600; }
+.status-text.completed { color: #22c55e; }
+.status-text.confirmed { color: #3b82f6; }
+.status-text.pending { color: #f97316; }
+.status-text.cancelled { color: #ef4444; }
+
+/* Next Service Highlight */
+.next-service {
+  background: linear-gradient(145deg, #ffffff 0%, #f0fdfa 100%);
+  border: 1px solid #ccfbf1;
+}
+
+.service-details {
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.service-icon-large {
+  width: 64px;
+  height: 64px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  box-shadow: 0 4px 6px -1px rgba(19, 185, 165, 0.1);
+}
+.service-icon-large span { font-size: 32px; color: #13b9a5; }
+
+.service-details h4 {
+  margin: 0 0 1rem 0;
+  font-size: 1.25rem;
+  color: #1e293b;
+}
+
+.service-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.service-meta p {
+  margin: 0;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+.helper-info {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+}
+
+.btn-view {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  background: white;
+  border: 1px solid #13b9a5;
+  color: #13b9a5;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.btn-view:hover { background: #f0fdfa; }
+
+.empty-next {
+  text-align: center;
+  padding: 2rem 1.5rem;
+}
+.empty-icon { font-size: 48px; color: #cbd5e1; margin-bottom: 0.5rem; display: block; }
+.empty-next p { color: #94a3b8; margin-bottom: 1.5rem; }
+.btn-book {
+  display: inline-block;
+  padding: 0.625rem 1.25rem;
+  background: #1e293b;
+  color: white;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.btn-book:hover { background: #0f172a; }
+
+.empty-text {
+    padding: 2rem;
+    text-align: center;
+    color: #94a3b8;
+    font-style: italic;
+}

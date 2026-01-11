@@ -89,4 +89,53 @@ export class BookingService {
   confirmByHelper(id: number): Observable<any> {
     return this.http.post(`${this.baseUrl}/${id}/confirm-helper`, {});
   }
+
+  // Helper: Tìm việc
+  findAvailableJobs(filter: import('../models/booking-filter.dto').AvailableJobFilterDTO): Observable<BookingResponseDTO[]> {
+    return this.http.post<BookingResponseDTO[]>(`${this.baseUrl}/available`, filter);
+  }
+
+  // Helper: Nhận việc
+  acceptJob(id: number): Observable<any> {
+    return this.http.post(`${this.baseUrl}/${id}/accept`, {});
+  }
+
+  // Admin: Lấy danh sách bài đăng gom đơn
+  getJobPosts(): Observable<BookingResponseDTO[]> {
+    return this.http.get<BookingResponseDTO[]>(this.baseUrl);
+  }
+
+  // Admin: Duyệt đơn
+  approve(id: number, note?: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/${id}/approve`, { Note: note });
+  }
+
+  // Admin: Từ chối đơn
+  reject(id: number, reason: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/${id}/reject`, { Reason: reason });
+  }
+  // Helper: Get My Jobs
+  getHelperJobs(status?: string): Observable<BookingResponseDTO[]> {
+    let params: any = {};
+    if (status && status !== 'All') {
+      params.status = status;
+    }
+    return this.http.get<BookingResponseDTO[]>(`${this.baseUrl}/my-jobs`, { params });
+  }
+
+  /**
+   * Update booking status
+   * PUT /api/bookings/{id}/status
+   */
+  updateStatus(id: number, status: number): Observable<any> {
+    return this.http.put(`${this.baseUrl}/${id}/status`, { status });
+  }
+
+  /**
+   * Cancel booking by customer
+   */
+  cancelByCustomer(id: number): Observable<any> {
+    // Status 5 is Cancelled
+    return this.updateStatus(id, 5);
+  }
 }

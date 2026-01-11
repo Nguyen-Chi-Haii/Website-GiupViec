@@ -31,12 +31,8 @@ export class EmployeeBookingsComponent implements OnInit {
   availableHelpers = signal<AvailableHelper[]>([]);
   isLoading = signal(true);
   
-  statusFilter = '';
+  statusFilter = 'Pending'; // Mặc định: Chờ xử lý
   paymentFilter = '';
-  
-  showAssignModal = signal(false);
-  assigningBooking = signal<BookingResponse | null>(null);
-  selectedHelperId = 0;
 
   // Create booking modal
   showCreateModal = signal(false);
@@ -61,8 +57,10 @@ export class EmployeeBookingsComponent implements OnInit {
   loadBookings(): void {
     this.adminService.getAllBookings().subscribe({
       next: (data) => {
-        this.bookings.set(data);
-        this.filteredBookings.set(data);
+        // Filter out job posts (unassigned postings) from the general management list
+        const bookingsOnly = data.filter(b => !b.isJobPost);
+        this.bookings.set(bookingsOnly);
+        this.filteredBookings.set(bookingsOnly);
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -102,55 +100,12 @@ export class EmployeeBookingsComponent implements OnInit {
     this.selectedBooking.set(null);
   }
 
-  openAssignModal(booking: BookingResponse): void {
-    this.assigningBooking.set(booking);
-    this.selectedHelperId = 0;
-    this.showAssignModal.set(true);
-
-    // Dynamically fetch helpers available for this booking's time slot
-    this.helperService.getAvailableHelpers({
-      serviceId: booking.serviceId,
-      startDate: booking.startDate,
-      endDate: booking.endDate,
-      workShiftStart: booking.startTime.includes(':') && booking.startTime.split(':').length === 2 ? `${booking.startTime}:00` : booking.startTime,
-      workShiftEnd: booking.endTime.includes(':') && booking.endTime.split(':').length === 2 ? `${booking.endTime}:00` : booking.endTime
-    }).subscribe({
-      next: (helpers) => {
-        this.availableHelpers.set(helpers.map(h => ({
-          id: h.userId,
-          fullName: h.fullName,
-          email: '',
-          ratingAverage: h.ratingAverage
-        })));
-      },
-      error: (err) => {
-        console.error('Error fetching available helpers:', err);
-        // Fallback to all helpers if availability check fails
-        this.loadHelpers();
-      }
-    });
-  }
-
   closeAssignModal(): void {
-    this.showAssignModal.set(false);
-    this.assigningBooking.set(null);
+    // Deprecated: assignment moved to Job Management
   }
 
   assignHelper(): void {
-    const booking = this.assigningBooking();
-    if (!booking || !this.selectedHelperId) return;
-
-    this.adminService.assignHelper({
-      bookingId: booking.id,
-      helperId: this.selectedHelperId
-    }).subscribe({
-      next: () => {
-        this.notification.success('Gán người giúp việc thành công!');
-        this.closeAssignModal();
-        this.loadBookings();
-      },
-      error: (err) => this.notification.error('Lỗi: ' + (err.error?.message || 'Không thể gán'))
-    });
+    // Deprecated: assignment moved to Job Management
   }
 
   confirmBooking(id: number): void {

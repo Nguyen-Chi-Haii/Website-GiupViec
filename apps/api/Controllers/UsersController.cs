@@ -1,4 +1,5 @@
 ﻿using GiupViecAPI.Model.DTO.User;
+using GiupViecAPI.Model.DTO.Shared;
 using GiupViecAPI.Model.Enums;
 using GiupViecAPI.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
@@ -25,9 +26,9 @@ namespace GiupViecAPI.Controllers
         // Admin và Employee được xem danh sách User
         [HttpGet]
         [Authorize(Roles = "Admin,Employee")]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] UserFilterDTO filter)
         {
-            var users = await _service.GetAllAsync();
+            var users = await _service.GetAllAsync(filter);
             return Ok(users);
         }
 
@@ -39,7 +40,12 @@ namespace GiupViecAPI.Controllers
         {
             // Logic kiểm tra quyền: Nếu không phải Admin/Employee thì ID phải trùng với ID của người đang login
             var role = User.FindFirst(ClaimTypes.Role)?.Value;
-            var currentUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            
+            if (!int.TryParse(idClaim, out int currentUserId))
+            {
+                 return Unauthorized();
+            }
 
             if (role != "Admin" && role != "Employee" && currentUserId != id)
             {
@@ -59,7 +65,12 @@ namespace GiupViecAPI.Controllers
         public async Task<IActionResult> Update(int id, [FromBody] UserUpdateDTO dto)
         {
             var role = User.FindFirst(ClaimTypes.Role)?.Value;
-            var currentUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            
+            if (!int.TryParse(idClaim, out int currentUserId))
+            {
+                 return Unauthorized();
+            }
 
             // Chỉ cho phép tự sửa chính mình hoặc Admin/Employee sửa
             if (currentUserId != id && role != "Admin" && role != "Employee")

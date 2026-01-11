@@ -46,7 +46,7 @@ export function calculateTotalPrice(pricePerHour: number, durationHours: number)
  * Validate phone number
  */
 export function isValidPhone(phone: string): boolean {
-  const regex = /^(0|\+84)[0-9]{9}$/;
+  const regex: RegExp = /^(0|\+84)[0-9]{9}$/;
   return regex.test(phone);
 }
 
@@ -54,6 +54,6 @@ export function isValidPhone(phone: string): boolean {
  * Validate email
  */
 export function isValidEmail(email: string): boolean {
-  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const regex: RegExp = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return regex.test(email);
 }

@@ -1,0 +1,127 @@
+<div class="page">
+  <div class="welcome-section">
+    <h1>Xin chào, {{ authService.currentUser()?.email }}! 👋</h1>
+    <p>Chào mừng bạn trở lại. Đây là tổng quan hoạt động của bạn.</p>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="icon-box blue">
+        <span class="material-symbols-outlined">calendar_month</span>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ stats().active }}</span>
+        <span class="stat-label">Đơn đang chạy</span>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="icon-box orange">
+        <span class="material-symbols-outlined">hourglass_empty</span>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ stats().pending }}</span>
+        <span class="stat-label">Chờ duyệt</span>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="icon-box green">
+        <span class="material-symbols-outlined">check_circle</span>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ stats().completed }}</span>
+        <span class="stat-label">Đã hoàn thành</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-content">
+    
+    <!-- Left Column -->
+    <div class="column-main">
+      
+      <!-- Quick Actions -->
+      <div class="card quick-actions">
+        <h3>Thao tác nhanh</h3>
+        <div class="actions-grid">
+          <a routerLink="/booking" class="action-btn primary">
+            <span class="material-symbols-outlined">add_circle</span>
+            Đặt dịch vụ mới
+          </a>
+          <a routerLink="/customer/my-bookings" class="action-btn outline">
+            <span class="material-symbols-outlined">receipt_long</span>
+            Quản lý đơn hàng
+          </a>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="card recent-activity">
+        <div class="card-header">
+          <h3>Hoạt động gần đây</h3>
+          <a routerLink="/customer/my-bookings" class="view-all">Xem tất cả</a>
+        </div>
+        
+        <div class="activity-list">
+          @if (recentActivity().length === 0) {
+            <div class="empty-text">Chưa có hoạt động nào.</div>
+          }
+          @for (item of recentActivity(); track item.id) {
+            <div class="activity-item" [routerLink]="['/customer/my-bookings']">
+               <div class="activity-icon" [class]="item.status.toLowerCase()">
+                 <span class="material-symbols-outlined">
+                   {{ item.status === 'Completed' ? 'check' : 'schedule' }}
+                 </span>
+               </div>
+               <div class="activity-content">
+                 <span class="service-name">{{ item.serviceName }}</span>
+                 <span class="time">{{ item.createdAt ? (item.createdAt | date:'dd/MM/yyyy HH:mm') : (item.startDate | date:'dd/MM/yyyy') }}</span>
+               </div>
+               <span class="status-text" [class]="item.status.toLowerCase()">{{ getStatusLabel(item.status) }}</span>
+            </div>
+          }
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Column: Next Service -->
+    <div class="column-side">
+      <div class="card next-service">
+        <h3>Dịch vụ tiếp theo</h3>
+        @if (nextService()) {
+          <div class="service-details">
+             <div class="service-icon-large">
+               <span class="material-symbols-outlined">cleaning_services</span> 
+             </div>
+             <h4>{{ nextService()!.serviceName }}</h4>
+             <div class="service-meta">
+               <p class="service-time">
+                 <span class="material-symbols-outlined">calendar_today</span>
+                 {{ nextService()!.startDate | date:'dd/MM/yyyy' }}
+               </p>
+               <p class="service-hours">
+                 <span class="material-symbols-outlined">schedule</span>
+                 {{ nextService()!.startTime }} - {{ nextService()!.endTime }}
+               </p>
+               <div class="helper-info" *ngIf="nextService()!.helperName">
+                  <span class="material-symbols-outlined">person</span>
+                  {{ nextService()!.helperName }}
+               </div>
+             </div>
+             <a routerLink="/customer/my-bookings" class="btn-view">Xem chi tiết</a>
+          </div>
+        } @else {
+          <div class="empty-next">
+            <span class="material-symbols-outlined empty-icon">event_busy</span>
+            <p>Bạn không có lịch hẹn sắp tới.</p>
+            <a routerLink="/booking" class="btn-book">Đặt lịch ngay</a>
+          </div>
+        }
+      </div>
+    </div>
+    
+  </div>
+</div>

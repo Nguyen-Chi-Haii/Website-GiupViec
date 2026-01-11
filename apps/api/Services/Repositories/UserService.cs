@@ -3,11 +3,13 @@ using GiupViecAPI.Data;
 using GiupViecAPI.Model.Domain;
 using GiupViecAPI.Model.DTO.Auth;
 using GiupViecAPI.Model.DTO.User;
+using GiupViecAPI.Model.DTO.Shared;
 using GiupViecAPI.Services.Interface;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq.Dynamic.Core;
 using System.Security.Claims;
 using System.Text;
 
@@ -41,25 +43,14 @@ namespace GiupViecAPI.Services.Repositories
             user.Address ??= "Chưa cập nhật";
             user.Avatar ??= "";
             user.UserName = dto.Email;
-            user.NormalizedUserName = dto.Email.ToUpper();
-            user.NormalizedEmail = dto.Email.ToUpper();
+            user.NormalizedUserName = dto.Email?.ToUpper();
+            user.NormalizedEmail = dto.Email?.ToUpper();
             user.SecurityStamp = System.Guid.NewGuid().ToString();
             user.ConcurrencyStamp = System.Guid.NewGuid().ToString();
 
-
-            // Fix NULL constraints & Identity fields
-            user.Address ??= "Chưa cập nhật";
-            user.Avatar ??= "";
-            user.UserName = dto.Email;
-            user.NormalizedUserName = dto.Email.ToUpper();
-            user.NormalizedEmail = dto.Email.ToUpper();
-            user.SecurityStamp = System.Guid.NewGuid().ToString();
-            user.ConcurrencyStamp = System.Guid.NewGuid().ToString();
-
-
-            // --- Băm mật khẩu (Hashing) ---
-            var passwordHasher = new PasswordHasher<User>();
-            user.PasswordHash = passwordHasher.HashPassword(user, dto.Password);
+            // Băm mật khẩu
+            var passwordHasher = new Microsoft.AspNetCore.Identity.PasswordHasher<User>();
+            user.PasswordHash = passwordHasher.HashPassword(user, dto.Password ?? string.Empty);
             // ------------------------------
 
             await _db.Users.AddAsync(user);
@@ -69,7 +60,8 @@ namespace GiupViecAPI.Services.Repositories
         }
 
         // 2. ĐĂNG NHẬP (Login & Generate JWT)
-        public async Task<LoginResponseDTO> LoginAsync(LoginDTO loginDto)
+        // 2. ĐĂNG NHẬP (Login & Generate JWT)
+        public async Task<LoginResponseDTO?> LoginAsync(LoginDTO loginDto)
         {
             var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == loginDto.Email);
 
@@ -78,18 +70,24 @@ namespace GiupViecAPI.Services.Repositories
 
             // Kiểm tra Mật khẩu
             var passwordHasher = new PasswordHasher<User>();
-            var result = passwordHasher.VerifyHashedPassword(user, user.PasswordHash, loginDto.Password);
+            // user.PasswordHash can be null if user created externally without password, handle strictly
+            if (string.IsNullOrEmpty(user.PasswordHash)) return null; 
+
+            var result = passwordHasher.VerifyHashedPassword(user, user.PasswordHash, loginDto.Password ?? string.Empty);
 
             if (result == PasswordVerificationResult.Failed) return null;
 
             // --- TẠO JWT TOKEN ---
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+            var jwtKey = _config["Jwt:Key"];
+            if (string.IsNullOrEmpty(jwtKey)) throw new Exception("Jwt:Key is not configured");
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Email, user.Email ?? ""),
                 new Claim(ClaimTypes.Role, user.Role.ToString()) // Quan trọng: Lưu Role vào Token
             };
 
@@ -122,7 +120,7 @@ namespace GiupViecAPI.Services.Repositories
 
             // Verify current password
             var passwordHasher = new PasswordHasher<User>();
-            var verifyResult = passwordHasher.VerifyHashedPassword(user, user.PasswordHash, currentPassword);
+            var verifyResult = passwordHasher.VerifyHashedPassword(user, user.PasswordHash ?? string.Empty, currentPassword);
             if (verifyResult == PasswordVerificationResult.Failed) return false;
 
             // Hash and set new password
@@ -135,14 +133,57 @@ namespace GiupViecAPI.Services.Repositories
         }
 
         // 3. LẤY DANH SÁCH USER
-        public async Task<IEnumerable<UserResponseDTO>> GetAllAsync()
+        public async Task<GiupViecAPI.Model.DTO.Shared.PagedResult<UserResponseDTO>> GetAllAsync(UserFilterDTO filter)
         {
-            var users = await _db.Users.OrderByDescending(u => u.CreatedAt).ToListAsync();
-            return _mapper.Map<IEnumerable<UserResponseDTO>>(users);
+            var query = _db.Users.AsQueryable();
+
+            if (!string.IsNullOrEmpty(filter.Keyword))
+            {
+                var keyword = filter.Keyword.ToLower();
+                query = query.Where(u => (u.FullName != null && u.FullName.ToLower().Contains(keyword)) 
+                                      || (u.Email != null && u.Email.ToLower().Contains(keyword)) 
+                                      || (u.PhoneNumber != null && u.PhoneNumber.Contains(keyword)));
+            }
+
+            if (!string.IsNullOrEmpty(filter.Role) && Enum.TryParse<GiupViecAPI.Model.Enums.UserRoles>(filter.Role, true, out var roleEnum))
+            {
+                query = query.Where(u => u.Role == roleEnum);
+            }
+
+            return await GetPagedResultAsync<User, UserResponseDTO>(query, filter);
+        }
+
+        private async Task<GiupViecAPI.Model.DTO.Shared.PagedResult<TResult>> GetPagedResultAsync<TEntity, TResult>(IQueryable<TEntity> query, BaseFilterDTO filter)
+        {
+            if (!string.IsNullOrEmpty(filter.SortBy))
+            {
+                try
+                {
+                    query = query.OrderBy($"{filter.SortBy} {(filter.IsDescending ? "desc" : "asc")}");
+                }
+                catch {}
+            }
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .Skip((filter.PageIndex - 1) * filter.PageSize)
+                .Take(filter.PageSize)
+                .ToListAsync();
+
+            var resultItems = _mapper.Map<IEnumerable<TResult>>(items);
+
+            return new GiupViecAPI.Model.DTO.Shared.PagedResult<TResult>
+            {
+                Items = resultItems,
+                TotalCount = totalCount,
+                PageIndex = filter.PageIndex,
+                PageSize = filter.PageSize
+            };
         }
 
         // 4. LẤY CHI TIẾT USER
-        public async Task<UserResponseDTO> GetByIdAsync(int id)
+        public async Task<UserResponseDTO?> GetByIdAsync(int id)
         {
             var user = await _db.Users.FindAsync(id);
             if (user == null) return null;
@@ -150,7 +191,7 @@ namespace GiupViecAPI.Services.Repositories
         }
 
         // 5. CẬP NHẬT USER (Bổ sung thêm cho đầy đủ)
-        public async Task<UserResponseDTO> UpdateAsync(int id, UserUpdateDTO dto)
+        public async Task<UserResponseDTO?> UpdateAsync(int id, UserUpdateDTO dto)
         {
             var user = await _db.Users.FindAsync(id);
             if (user == null) return null;

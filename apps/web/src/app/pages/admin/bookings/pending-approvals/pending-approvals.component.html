@@ -1,0 +1,221 @@
+<div class="page">
+  <div class="page-header">
+    <h2>Quản Lý Bài Đăng</h2>
+    <div class="header-actions">
+      <select [(ngModel)]="statusFilter" (change)="onFilterChange()" class="filter-select">
+        <option value="">Tất cả trạng thái</option>
+        <option value="pending_approval">Chờ duyệt</option>
+        <option value="hiring">Đang tuyển người</option>
+        <option value="cancelled">Đã hủy/Từ chối</option>
+      </select>
+      <button class="btn-primary" (click)="loadJobPosts()">
+        <span class="material-symbols-outlined">refresh</span>
+        Làm mới
+      </button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="table-container">
+      @if (isLoading()) {
+        <div class="loading">Đang tải...</div>
+      } @else {
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Mã đơn</th>
+              <th>Khách hàng</th>
+              <th>Dịch vụ</th>
+              <th>Địa chỉ</th>
+              <th>Ngày bắt đầu</th>
+              <th>Ngày kết thúc</th>
+              <th>Trạng thái</th>
+              <th>Tổng tiền</th>
+              <th>Hành động</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (job of filteredBookings(); track job.id) {
+              <tr>
+                <td class="font-medium">#{{ job.id }}</td>
+                <td>{{ job.customerName }}</td>
+                <td class="text-muted">{{ job.serviceName }}</td>
+                <td class="text-muted">{{ job.address }}</td>
+                <td class="text-muted">{{ job.startDate | date:'dd/MM/yyyy' }}</td>
+                <td class="text-muted">{{ job.endDate | date:'dd/MM/yyyy' }}</td>
+                <td>
+                  <span class="status-badge" [class]="getStatusClass(job)">
+                    {{ getStatusLabel(job) }}
+                  </span>
+                </td>
+                <td class="font-medium">{{ job.totalPrice | number }}₫</td>
+                <td>
+                  <div class="action-buttons">
+                    <button class="icon-btn" title="Xem chi tiết" (click)="openDetailModal(job)">
+                      <span class="material-symbols-outlined">visibility</span>
+                    </button>
+                    @if (getJobStatus(job) === 'pending_approval') {
+                      <button class="icon-btn success" title="Phê duyệt" (click)="openApproveModal(job)">
+                        <span class="material-symbols-outlined">check</span>
+                      </button>
+                      <button class="icon-btn danger" title="Từ chối" (click)="openRejectModal(job)">
+                        <span class="material-symbols-outlined">close</span>
+                      </button>
+                    }
+                    @if (getJobStatus(job) === 'hiring') {
+                      <button class="icon-btn primary" title="Gán người làm" (click)="openAssignModal(job)">
+                        <span class="material-symbols-outlined">person_add</span>
+                      </button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="9" class="empty-state">Không có bài đăng nào</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+  </div>
+
+  <!-- Detail Modal -->
+  @if (selectedBooking && actionType === 'view') {
+    <div class="modal-overlay" (click)="closeModal()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Chi Tiết Bài Đăng #{{ selectedBooking!.id }}</h3>
+          <button class="close-btn" (click)="closeModal()">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="detail-grid">
+            <div class="detail-item">
+              <label>Khách hàng</label>
+              <p>{{ selectedBooking!.customerName }}</p>
+            </div>
+            <div class="detail-item">
+              <label>Dịch vụ</label>
+              <p>{{ selectedBooking!.serviceName }}</p>
+            </div>
+            <div class="detail-item">
+              <label>Địa chỉ</label>
+              <p>{{ selectedBooking!.address }}</p>
+            </div>
+            <div class="detail-item">
+              <label>Thời gian</label>
+              <p>{{ selectedBooking!.startDate | date:'dd/MM/yyyy' }} - {{ selectedBooking!.endDate | date:'dd/MM/yyyy' }}</p>
+            </div>
+            <div class="detail-item">
+              <label>Khung giờ</label>
+              <p>{{ selectedBooking!.startTime }} - {{ selectedBooking!.endTime }}</p>
+            </div>
+            <div class="detail-item">
+              <label>Tổng tiền</label>
+              <p class="price">{{ selectedBooking!.totalPrice | number }}₫</p>
+            </div>
+            @if (selectedBooking!.notes) {
+              <div class="detail-item full-width">
+                <label>Ghi chú</label>
+                <p>{{ selectedBooking!.notes }}</p>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Approve Modal -->
+  @if (selectedBooking && actionType === 'approve') {
+    <div class="modal-overlay" (click)="closeModal()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Phê Duyệt Bài Đăng</h3>
+          <button class="close-btn" (click)="closeModal()">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p class="assign-info">Xác nhận phê duyệt bài đăng của <strong>{{ selectedBooking!.customerName }}</strong></p>
+          <div class="form-group">
+            <label>Ghi chú (tùy chọn)</label>
+            <textarea [(ngModel)]="note" class="form-select" rows="3" placeholder="Nhập ghi chú..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-outline" (click)="closeModal()" [disabled]="isProcessing()">Hủy</button>
+          <button class="btn-primary" (click)="onApprove()" [disabled]="isProcessing()">
+            {{ isProcessing() ? 'Đang xử lý...' : 'Phê duyệt' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Reject Modal -->
+  @if (selectedBooking && actionType === 'reject') {
+    <div class="modal-overlay" (click)="closeModal()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Từ Chối Bài Đăng</h3>
+          <button class="close-btn" (click)="closeModal()">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p class="assign-info">Vui lòng nêu rõ lý do từ chối</p>
+          <div class="form-group">
+            <label>Lý do <span style="color: #dc2626;">*</span></label>
+            <textarea [(ngModel)]="reason" class="form-select" rows="3" placeholder="Nhập lý do từ chối..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-outline" (click)="closeModal()" [disabled]="isProcessing()">Hủy</button>
+          <button class="btn-primary" (click)="onReject()" [disabled]="!reason || isProcessing()">
+            {{ isProcessing() ? 'Đang xử lý...' : 'Xác nhận' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Assign Helper Modal -->
+  @if (selectedBooking && actionType === 'assign') {
+    <div class="modal-overlay" (click)="closeModal()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Gán Người Giúp Việc</h3>
+          <button class="close-btn" (click)="closeModal()">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          @if (isFetchingHelpers()) {
+            <div class="loading">Đang tìm người phù hợp...</div>
+          } @else {
+            <p class="assign-info">Bài đăng: <strong>#{{ selectedBooking!.id }}</strong> - {{ selectedBooking!.serviceName }}</p>
+            <div class="form-group">
+              <label>Chọn người giúp việc</label>
+              <select [(ngModel)]="selectedHelperId" class="form-select">
+                <option [value]="0">-- Chọn --</option>
+                @for (helper of availableHelpers(); track helper.id) {
+                  <option [value]="helper.id">{{ helper.fullName }} (⭐ {{ helper.ratingAverage | number:'1.1-1' }})</option>
+                }
+              </select>
+            </div>
+          }
+        </div>
+        <div class="modal-footer">
+          <button class="btn-outline" (click)="closeModal()" [disabled]="isProcessing()">Hủy</button>
+          <button class="btn-primary" (click)="assignHelper()" [disabled]="!selectedHelperId || isProcessing()">
+            {{ isProcessing() ? 'Đang xử lý...' : 'Gán người làm' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

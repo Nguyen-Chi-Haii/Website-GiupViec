@@ -14,7 +14,7 @@ namespace GiupViecAPI.Model.Domain
         // --- CÁC KHÓA NGOẠI (Giữ nguyên) ---
         public int CustomerId { get; set; }
         [ForeignKey("CustomerId")]
-        public User Customer { get; set; }
+        public User? Customer { get; set; }
 
         public int? HelperId { get; set; }
         [ForeignKey("HelperId")]
@@ -22,7 +22,7 @@ namespace GiupViecAPI.Model.Domain
 
         public int ServiceId { get; set; }
         [ForeignKey("ServiceId")]
-        public Service Service { get; set; }
+        public Service? Service { get; set; }
 
         // --- THAY ĐỔI Ở ĐÂY ---
 
@@ -47,7 +47,7 @@ namespace GiupViecAPI.Model.Domain
 
         [Required]
         [MaxLength(255)]
-        public string Address { get; set; }
+        public string? Address { get; set; }
 
         public string? Notes { get; set; }
 
@@ -63,7 +63,21 @@ namespace GiupViecAPI.Model.Domain
 
         public bool IsRated { get; set; } = false;
 
+        // --- APPROVAL FIELDS (NEW) ---
+        public ApprovalStatus ApprovalStatus { get; set; } = ApprovalStatus.Pending;
+
+        public int? ApprovedBy { get; set; } // Nullable - ID của Admin/Employee phê duyệt
+        [ForeignKey("ApprovedBy")]
+        public User? ApprovedByUser { get; set; }
+
+        public DateTime? ApprovalDate { get; set; } // Nullable - Thời điểm phê duyệt
+
+        [MaxLength(500)]
+        public string? RejectionReason { get; set; } // Nullable - Lý do từ chối (nếu có)
+        // ---------------------------
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public bool IsJobPost { get; set; } = false; 
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     }
 }

@@ -1,4 +1,5 @@
 ﻿using GiupViecAPI.Model.DTO.HelperProfile;
+using GiupViecAPI.Model.DTO.Shared;
 using GiupViecAPI.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -39,6 +40,7 @@ namespace GiupViecAPI.Controllers
             try
             {
                 var result = await _service.CreateHelperWithUserAsync(dto);
+                if (result == null) return BadRequest(new { message = "Không thể tạo hồ sơ" });
                 return CreatedAtAction(nameof(GetByUserId), new { userId = result.UserId }, result);
             }
             catch (Exception ex)
@@ -104,9 +106,9 @@ namespace GiupViecAPI.Controllers
 
         // GET: api/helperprofiles
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] HelperProfileFilterDTO filter)
         {
-            var results = await _service.GetAllAsync();
+            var results = await _service.GetAllAsync(filter);
             return Ok(results);
         }
 

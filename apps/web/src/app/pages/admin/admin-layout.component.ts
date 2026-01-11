@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, RouterLinkActive, RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
+import { NotificationBellComponent } from '../../shared/components/notification-bell/notification-bell.component';
 
 interface NavItem {
   label: string;
@@ -13,7 +14,7 @@ interface NavItem {
 @Component({
   selector: 'app-admin-layout',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive, RouterOutlet, NotificationBellComponent],
   templateUrl: './admin-layout.component.html',
   styleUrl: './admin-layout.component.css'
 })
@@ -22,6 +23,7 @@ export class AdminLayoutComponent implements OnInit {
   
   navItems: NavItem[] = [
     { label: 'Tổng Quan', icon: 'dashboard', route: '/admin' },
+    { label: 'Duyệt Bài Đăng', icon: 'playlist_add_check', route: '/admin/approvals' },
     { label: 'Quản Lý Đơn Hàng', icon: 'receipt_long', route: '/admin/bookings' },
     { label: 'Quản Lý Dịch Vụ', icon: 'mop', route: '/admin/services' },
     { label: 'Người Dùng', icon: 'group', route: '/admin/users' },
@@ -50,10 +52,6 @@ export class AdminLayoutComponent implements OnInit {
     window.location.href = '/login';
   }
 
-  showNotifications(): void {
-    alert('Tính năng Thông báo đang được phát triển.');
-  }
-
   showSettings(): void {
     alert('Tính năng Cài đặt đang được phát triển.');
   }
@@ -66,3 +64,5 @@ export class AdminLayoutComponent implements OnInit {
     }
   }
 }
+
+
