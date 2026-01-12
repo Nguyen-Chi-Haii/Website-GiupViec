@@ -20,9 +20,9 @@ export class EmployeeServicesComponent implements OnInit {
   }
 
   loadServices(): void {
-    this.adminService.getAllServices().subscribe({
-      next: (data) => {
-        this.services.set(data);
+    this.adminService.getAllServices(1, 50).subscribe({
+      next: (result) => {
+        this.services.set(result.items);
         this.isLoading.set(false);
       },
       error: () => this.isLoading.set(false)

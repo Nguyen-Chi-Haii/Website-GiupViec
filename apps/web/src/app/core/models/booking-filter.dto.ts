@@ -7,6 +7,6 @@ export class AvailableJobFilterDTO {
     province?: string;
     sortBy?: string; // "date", "price"
     sortOrder?: string; // "asc", "desc"
-    skip: number = 0;
-    take: number = 20;
+    pageIndex: number = 1;
+    pageSize: number = 10;
 }

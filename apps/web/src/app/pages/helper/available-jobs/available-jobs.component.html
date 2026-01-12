@@ -135,6 +135,17 @@
       </div>
     </div>
   </div>
+
+  <!-- Pagination -->
+  <div *ngIf="totalPages() > 1" class="pagination-container" style="margin-top: 2.5rem; display: flex; justify-content: center; padding-bottom: 2rem;">
+    <app-pagination 
+      [currentPage]="filter.pageIndex"
+      [totalPages]="totalPages()"
+      [totalItems]="totalItems()"
+      [pageSize]="filter.pageSize"
+      (pageChange)="onPageChange($event)">
+    </app-pagination>
+  </div>
 </div>
 
 <!-- Confirmation Modal -->

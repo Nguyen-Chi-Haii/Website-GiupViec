@@ -55,9 +55,9 @@ export class AdminDashboardComponent implements OnInit {
     // We won't filter recent bookings by the stats date range to avoid confusion, 
     // or maybe we should? "Overview" typically implies "Stats for Period".
     // Let's keep recent bookings as global latest for now.
-    this.adminService.getAllBookings().subscribe({
-      next: (data) => {
-        this.recentBookings.set(data.slice(0, 5));
+    this.adminService.getAllBookings(1, 20).subscribe({
+      next: (result) => {
+        this.recentBookings.set(result.items.slice(0, 5));
         this.isLoading.set(false);
       },
       error: (err) => {

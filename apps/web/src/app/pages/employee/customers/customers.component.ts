@@ -37,9 +37,9 @@ export class EmployeeCustomersComponent implements OnInit {
   }
 
   loadCustomers(): void {
-    this.adminService.getAllUsers().subscribe({
-      next: (data) => {
-        const customers = data.filter(u => this.normalizeRole(u.role) === 'customer');
+    this.adminService.getAllUsers(1, 100).subscribe({
+      next: (result) => {
+        const customers = result.items.filter(u => this.normalizeRole(u.role) === 'customer');
         this.customers.set(customers);
         this.applyFilters();
         this.isLoading.set(false);

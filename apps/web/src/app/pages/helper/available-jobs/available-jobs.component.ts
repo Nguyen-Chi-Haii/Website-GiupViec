@@ -11,10 +11,12 @@ import { ToastrService } from 'ngx-toastr';
 import { VietnamProvincesService } from '../../../core/services/vietnam-provinces.service';
 import { ProvinceResponse } from '../../../core/types/vietnam-provinces.types';
 
+import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
+
 @Component({
   selector: 'app-available-jobs',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, PaginationComponent],
   templateUrl: './available-jobs.component.html',
   styleUrl: './available-jobs.component.css'
 })
@@ -33,6 +35,10 @@ export class AvailableJobsComponent implements OnInit {
 
   filter: AvailableJobFilterDTO = new AvailableJobFilterDTO();
   sortMode: string = 'newest';
+
+  // Pagination
+  totalPages = signal(1);
+  totalItems = signal(0);
 
   // Modal state
   showConfirmModal = false;
@@ -62,8 +68,10 @@ export class AvailableJobsComponent implements OnInit {
   loadJobs() {
     this.isLoading.set(true);
     this.bookingService.findAvailableJobs(this.filter).subscribe({
-      next: (res: BookingResponseDTO[]) => {
-        this.jobs.set(res);
+      next: (res) => {
+        this.jobs.set(res.items);
+        this.totalPages.set(Math.ceil(res.totalCount / res.pageSize));
+        this.totalItems.set(res.totalCount);
         this.isLoading.set(false);
       },
       error: (err: any) => {
@@ -74,8 +82,13 @@ export class AvailableJobsComponent implements OnInit {
     });
   }
 
+  onPageChange(page: number) {
+    this.filter.pageIndex = page;
+    this.loadJobs();
+  }
+
   onFilterChange() {
-    this.filter.skip = 0; // Reset pagination logic if added later
+    this.filter.pageIndex = 1; // Reset to first page
     this.loadJobs();
   }
 

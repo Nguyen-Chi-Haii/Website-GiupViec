@@ -93,22 +93,22 @@ export class CreateBookingModalComponent implements OnInit {
 
   private loadData(): void {
     // Load customers (role = Customer = 4)
-    this.adminService.getAllUsers().subscribe({
-      next: (users) => {
-        this.customers.set(users.filter(u => 
+    this.adminService.getAllUsers(1, 200).subscribe({
+      next: (result) => {
+        this.customers.set(result.items.filter(u => 
           String(u.role) === '4' || String(u.role) === 'Customer'
         ));
         // Also get helpers (fallback)
         this.availableHelpers.set(
-          users.filter(u => String(u.role) === '3' || String(u.role) === 'Helper')
+          result.items.filter(u => String(u.role) === '3' || String(u.role) === 'Helper')
             .map(h => ({ id: h.id, fullName: h.fullName }))
         );
       }
     });
 
     // Load services
-    this.adminService.getAllServices().subscribe({
-      next: (services) => this.services.set(services.filter(s => s.isActive))
+    this.adminService.getAllServices(1, 50).subscribe({
+      next: (result) => this.services.set(result.items.filter(s => s.isActive))
     });
   }
 

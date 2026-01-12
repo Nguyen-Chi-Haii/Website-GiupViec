@@ -11,5 +11,8 @@ namespace GiupViecAPI.Model.DTO.Booking
         public int? CustomerId { get; set; }
         public int? HelperId { get; set; }
         public int? ServiceId { get; set; }
+        public bool? IsJobPost { get; set; }
+        public PaymentStatus? PaymentStatus { get; set; }
+        public ApprovalStatus? ApprovalStatus { get; set; }
     }
 }

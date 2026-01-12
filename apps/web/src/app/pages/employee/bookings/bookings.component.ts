@@ -55,10 +55,10 @@ export class EmployeeBookingsComponent implements OnInit {
   }
 
   loadBookings(): void {
-    this.adminService.getAllBookings().subscribe({
-      next: (data) => {
+    this.adminService.getAllBookings(1, 50).subscribe({
+      next: (result) => {
         // Filter out job posts (unassigned postings) from the general management list
-        const bookingsOnly = data.filter(b => !b.isJobPost);
+        const bookingsOnly = result.items.filter(b => !b.isJobPost);
         this.bookings.set(bookingsOnly);
         this.filteredBookings.set(bookingsOnly);
         this.isLoading.set(false);
@@ -71,10 +71,10 @@ export class EmployeeBookingsComponent implements OnInit {
   }
 
   loadHelpers(): void {
-    this.adminService.getAllUsers().subscribe({
-      next: (users: UserResponse[]) => {
+    this.adminService.getAllUsers(1, 100).subscribe({
+      next: (result) => {
         // Support both integer and string roles
-        const helpers = users.filter(u => String(u.role) === '3' || String(u.role) === 'Helper');
+        const helpers = result.items.filter(u => String(u.role) === '3' || String(u.role) === 'Helper');
         this.availableHelpers.set(helpers.map(h => ({ id: h.id, fullName: h.fullName, email: h.email, ratingAverage: 0 })));
       },
       error: (err: Error) => console.error('Error loading helpers:', err)

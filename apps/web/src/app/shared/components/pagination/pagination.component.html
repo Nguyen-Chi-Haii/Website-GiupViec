@@ -1,0 +1,48 @@
+<div class="pagination-container">
+  <div class="pagination-info">
+    <span class="items-count">
+      Hiển thị {{ startItem }}-{{ endItem }} trong tổng số {{ totalItems }} kết quả
+    </span>
+  </div>
+  
+  <div class="pagination-controls">
+    <button 
+      class="page-btn prev-btn" 
+      [disabled]="!canGoPrevious"
+      (click)="previousPage()"
+      [class.disabled]="!canGoPrevious">
+      <span class="material-symbols-outlined">chevron_left</span>
+      Trước
+    </button>
+    
+    <div class="page-numbers">
+      @if (currentPage > 3 && totalPages > 5) {
+        <button class="page-btn" (click)="goToPage(1)">1</button>
+        <span class="ellipsis">...</span>
+      }
+      
+      @for (page of getPageNumbers(); track page) {
+        <button 
+          class="page-btn number-btn"
+          [class.active]="page === currentPage"
+          (click)="goToPage(page)">
+          {{ page }}
+        </button>
+      }
+      
+      @if (currentPage < totalPages - 2 && totalPages > 5) {
+        <span class="ellipsis">...</span>
+        <button class="page-btn" (click)="goToPage(totalPages)">{{ totalPages }}</button>
+      }
+    </div>
+    
+    <button 
+      class="page-btn next-btn" 
+      [disabled]="!canGoNext"
+      (click)="nextPage()"
+      [class.disabled]="!canGoNext">
+      Sau
+      <span class="material-symbols-outlined">chevron_right</span>
+    </button>
+  </div>
+</div>

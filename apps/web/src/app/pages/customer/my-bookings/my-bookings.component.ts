@@ -9,11 +9,12 @@ import { NotificationService } from '../../../core/services/notification.service
 import { RatingService } from '../../../core/services/rating.service';
 import { BookingService } from '../../../core/services/booking.service';
 import { BookingResponseDTO, RatingCreateDTO } from '@giupviec/shared';
+import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-my-bookings',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, PaginationComponent],
   templateUrl: './my-bookings.component.html',
   styleUrl: './my-bookings.component.css'
 })
@@ -42,6 +43,12 @@ export class CustomerMyBookingsComponent implements OnInit {
   completedBookings = signal(0);
   cancelledBookings = signal(0);
 
+  // Pagination
+  currentPage = signal(1);
+  pageSize = signal(10);
+  totalPages = signal(1);
+  totalItems = signal(0);
+
   ngOnInit(): void {
     this.loadBookings();
   }
@@ -50,36 +57,38 @@ export class CustomerMyBookingsComponent implements OnInit {
   filterStatus = signal<string>('Confirmed');
 
   // Filtered bookings computed
-  filteredBookings = computed(() => {
-    const status = this.filterStatus();
-    const list = this.bookings();
-    if (status === 'All') return list;
-
-    if (status === 'Pending') {
-      // Pending bao gồm cả Pending Approval (Chờ duyệt) và Pending (đã duyệt chờ nhận)
-      return list.filter(b => b.status === 'Pending');
-    }
-    
-    return list.filter(b => b.status === status);
-  });
+  filteredBookings = computed(() => this.bookings());
 
   setFilter(status: string): void {
     this.filterStatus.set(status);
+    this.currentPage.set(1); // Reset to page 1
+    this.loadBookings();
   }
 
   loadBookings(): void {
     this.isLoading.set(true);
-    this.http.get<BookingResponseDTO[]>(`${environment.apiUrl}/bookings/my`).subscribe({
-      next: (data) => {
-        // Filter out job posts from this general list
-        const confirmedOnly = data.filter(b => !b.isJobPost);
-        this.bookings.set(confirmedOnly);
+    const status = this.filterStatus();
+    
+    this.bookingService.getMyBookings(this.currentPage(), this.pageSize(), status, false).subscribe({
+      next: (result) => {
+        this.bookings.set(result.items);
+        this.totalPages.set(Math.ceil(result.totalCount / result.pageSize));
+        this.totalItems.set(result.totalCount);
         
-        this.totalBookings.set(confirmedOnly.length);
-        this.pendingBookings.set(confirmedOnly.filter(b => b.status === 'Pending').length);
-        this.confirmedBookings.set(confirmedOnly.filter(b => b.status === 'Confirmed').length);
-        this.completedBookings.set(confirmedOnly.filter(b => b.status === 'Completed').length);
-        this.cancelledBookings.set(confirmedOnly.filter(b => b.status === 'Cancelled' || b.status === 'Rejected').length);
+        // Note: These counts will only be accurate for the visible page if we filter by status.
+        // For a better experience, we might need a separate API for counts. 
+        // For now, let's at least ensure the active tab's count is correct.
+        if (status === 'All') {
+          this.totalBookings.set(result.totalCount);
+        } else if (status === 'Pending') {
+          this.pendingBookings.set(result.totalCount);
+        } else if (status === 'Confirmed') {
+          this.confirmedBookings.set(result.totalCount);
+        } else if (status === 'Completed') {
+          this.completedBookings.set(result.totalCount);
+        } else if (status === 'Cancelled') {
+          this.cancelledBookings.set(result.totalCount);
+        }
         
         this.isLoading.set(false);
       },
@@ -96,6 +105,11 @@ export class CustomerMyBookingsComponent implements OnInit {
 
   closeModal(): void {
     this.selectedBooking.set(null);
+  }
+
+  onPageChange(page: number) {
+    this.currentPage.set(page);
+    this.loadBookings();
   }
 
   openRatingModal(booking: BookingResponseDTO): void {

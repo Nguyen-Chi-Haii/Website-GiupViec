@@ -7,10 +7,12 @@ import { NotificationService } from '../../../core/services/notification.service
 import { BookingService } from '../../../core/services/booking.service';
 import { BookingResponseDTO } from '@giupviec/shared';
 
+import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
+
 @Component({
   selector: 'app-my-job-posts',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, PaginationComponent],
   templateUrl: './my-job-posts.component.html',
   styleUrl: './my-job-posts.component.css'
 })
@@ -23,22 +25,18 @@ export class CustomerMyJobPostsComponent implements OnInit {
   isLoading = signal(true);
   jobPosts = signal<BookingResponseDTO[]>([]);
   selectedJob = signal<BookingResponseDTO | null>(null);
+
+  // Pagination
+  currentPage = signal(1);
+  pageSize = signal(10);
+  totalPages = signal(1);
+  totalItems = signal(0);
   
   // Filter state
   selectedFilter = signal<string>('hiring'); // Mặc định: Đang tuyển người
   
-  // Computed filtered posts
-  filteredJobPosts = computed(() => {
-    const filter = this.selectedFilter();
-    const posts = this.jobPosts();
-    
-    if (filter === 'all') return posts;
-    
-    return posts.filter(post => {
-      const status = this.getJobStatus(post);
-      return status === filter;
-    });
-  });
+  // Computed filtered posts - now just returning jobPosts because server does the filtering
+  filteredJobPosts = computed(() => this.jobPosts());
 
   ngOnInit(): void {
     console.log('[MyJobPosts] Component initialized');
@@ -46,16 +44,26 @@ export class CustomerMyJobPostsComponent implements OnInit {
   }
 
   loadJobPosts(): void {
-    console.log('[MyJobPosts] Calling getMyBookings from service...');
     this.isLoading.set(true);
     
-    this.bookingService.getMyBookings().subscribe({
-      next: (data) => {
-        console.log('[MyJobPosts] Data received:', data);
-        // Filter only jobs tagged as Job Posts
-        const posts = data.filter(b => b.isJobPost === true);
-        console.log('[MyJobPosts] Filtered job posts:', posts);
-        this.jobPosts.set(posts);
+    const filter = this.selectedFilter();
+    let approvalStatus: string | undefined;
+    let status: string | undefined;
+
+    if (filter === 'pending') {
+      approvalStatus = 'Pending';
+    } else if (filter === 'hiring') {
+      approvalStatus = 'Approved';
+    } else if (filter === 'cancelled') {
+        // Map cancelled/rejected to status
+        status = 'Cancelled';
+    }
+
+    this.bookingService.getMyBookings(this.currentPage(), this.pageSize(), status, true, approvalStatus).subscribe({
+      next: (result) => {
+        this.jobPosts.set(result.items);
+        this.totalPages.set(Math.ceil(result.totalCount / result.pageSize));
+        this.totalItems.set(result.totalCount);
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -118,6 +126,13 @@ export class CustomerMyJobPostsComponent implements OnInit {
 
   setFilter(filter: string): void {
     this.selectedFilter.set(filter);
+    this.currentPage.set(1);
+    this.loadJobPosts();
+  }
+
+  onPageChange(page: number): void {
+    this.currentPage.set(page);
+    this.loadJobPosts();
   }
 
   getJobStatus(job: BookingResponseDTO): string {

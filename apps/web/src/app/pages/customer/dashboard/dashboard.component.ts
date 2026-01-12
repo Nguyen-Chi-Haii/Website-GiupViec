@@ -86,9 +86,9 @@ export class CustomerDashboardComponent implements OnInit {
 
   loadData() {
     this.isLoading.set(true);
-    this.bookingService.getMyBookings().subscribe({
-      next: (res) => {
-        this.bookings.set(res);
+    this.bookingService.getMyBookings(1, 10, 'All', false).subscribe({
+      next: (result) => {
+        this.bookings.set(result.items);
         this.isLoading.set(false);
       },
       error: (err) => {

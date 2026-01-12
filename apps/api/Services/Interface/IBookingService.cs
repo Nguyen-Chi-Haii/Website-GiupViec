@@ -32,6 +32,9 @@ namespace GiupViecAPI.Services.Interface
         // Lấy danh sách bài đăng chờ duyệt
         Task<PagedResult<BookingResponseDTO>> GetPendingApprovalsAsync(BookingFilterDTO filter);
 
+        // Lấy danh sách bài đăng công việc (Job Posts)
+        Task<PagedResult<BookingResponseDTO>> GetJobPostsAsync(BookingFilterDTO filter);
+
         // Admin phê duyệt / từ chối
         Task<BookingResponseDTO?> ApproveBookingAsync(int bookingId, int approvedBy, string? note);
         Task<BookingResponseDTO?> RejectBookingAsync(int bookingId, int rejectedBy, string reason);

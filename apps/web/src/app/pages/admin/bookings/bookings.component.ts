@@ -5,6 +5,7 @@ import { AdminService, BookingResponse, UserResponse } from '../../../core/servi
 import { NotificationService } from '../../../core/services/notification.service';
 import { CreateBookingModalComponent } from './create-booking-modal.component';
 import { HelperService } from '../../../core/services/helper.service';
+import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 
 interface AvailableHelper {
   id: number;
@@ -16,7 +17,7 @@ interface AvailableHelper {
 @Component({
   selector: 'app-admin-bookings',
   standalone: true,
-  imports: [CommonModule, FormsModule, CreateBookingModalComponent],
+  imports: [CommonModule, FormsModule, CreateBookingModalComponent, PaginationComponent],
   templateUrl: './bookings.component.html',
   styleUrl: './bookings.component.css'
 })
@@ -30,6 +31,12 @@ export class AdminBookingsComponent implements OnInit {
   selectedBooking = signal<BookingResponse | null>(null);
   availableHelpers = signal<AvailableHelper[]>([]);
   isLoading = signal(true);
+  
+  // Pagination
+  currentPage = signal(1);
+  pageSize = signal(10);
+  totalPages = signal(1);
+  totalItems = signal(0);
   
   statusFilter = 'Pending'; // Mặc định: Chờ xử lý
   paymentFilter = '';
@@ -55,12 +62,18 @@ export class AdminBookingsComponent implements OnInit {
   }
 
   loadBookings(): void {
-    this.adminService.getAllBookings().subscribe({
-      next: (data) => {
-        // Filter out job posts (unassigned postings) from the general management list
-        const bookingsOnly = data.filter(b => !b.isJobPost);
-        this.bookings.set(bookingsOnly);
-        this.filteredBookings.set(bookingsOnly);
+    this.isLoading.set(true);
+    this.adminService.getAllBookings(
+      this.currentPage(), 
+      this.pageSize(), 
+      this.statusFilter || undefined, 
+      this.paymentFilter || undefined
+    ).subscribe({
+      next: (result) => {
+        this.bookings.set(result.items);
+        this.filteredBookings.set(result.items);
+        this.totalPages.set(Math.ceil(result.totalCount / result.pageSize));
+        this.totalItems.set(result.totalCount);
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -70,11 +83,16 @@ export class AdminBookingsComponent implements OnInit {
     });
   }
 
+  onPageChange(page: number) {
+    this.currentPage.set(page);
+    this.loadBookings();
+  }
+
   loadHelpers(): void {
-    this.adminService.getAllUsers().subscribe({
-      next: (users: UserResponse[]) => {
+    this.adminService.getAllUsers(1, 100).subscribe({
+      next: (result) => {
         // Support both integer and string roles
-        const helpers = users.filter(u => String(u.role) === '3' || String(u.role) === 'Helper');
+        const helpers = result.items.filter(u => String(u.role) === '3' || String(u.role) === 'Helper');
         this.availableHelpers.set(helpers.map(h => ({ id: h.id, fullName: h.fullName, email: h.email, ratingAverage: 0 })));
       },
       error: (err: Error) => console.error('Error loading helpers:', err)
@@ -82,14 +100,8 @@ export class AdminBookingsComponent implements OnInit {
   }
 
   applyFilters(): void {
-    let result = this.bookings();
-    if (this.statusFilter) {
-      result = result.filter(b => this.normalizeStatus(b.status) === this.statusFilter.toLowerCase());
-    }
-    if (this.paymentFilter) {
-      result = result.filter(b => this.normalizePayment(b.paymentStatus) === this.paymentFilter.toLowerCase());
-    }
-    this.filteredBookings.set(result);
+    this.currentPage.set(1);
+    this.loadBookings();
   }
 
   viewBooking(booking: BookingResponse): void {

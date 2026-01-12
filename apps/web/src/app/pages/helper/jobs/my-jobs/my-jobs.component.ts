@@ -5,11 +5,12 @@ import { BookingService } from '../../../../core/services/booking.service';
 import { BookingResponseDTO } from '@giupviec/shared';
 import { ToastrService } from 'ngx-toastr';
 import { FormsModule } from '@angular/forms';
+import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-my-jobs',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, PaginationComponent],
   templateUrl: './my-jobs.component.html',
   styleUrl: './my-jobs.component.css'
 })
@@ -20,6 +21,12 @@ export class MyJobsComponent implements OnInit {
   jobs = signal<BookingResponseDTO[]>([]);
   isLoading = signal<boolean>(false);
   selectedJob = signal<BookingResponseDTO | null>(null);
+  
+  // Pagination
+  currentPage = signal(1);
+  pageSize = signal(10);
+  totalPages = signal(1);
+  totalItems = signal(0);
   
   // Status filters
   statuses = ['All', 'Confirmed', 'Completed', 'Cancelled'];
@@ -33,9 +40,11 @@ export class MyJobsComponent implements OnInit {
     this.isLoading.set(true);
     const status = this.selectedStatus();
     
-    this.bookingService.getHelperJobs(status).subscribe({
-      next: (data) => {
-        this.jobs.set(data);
+    this.bookingService.getHelperJobs(this.currentPage(), this.pageSize(), status).subscribe({
+      next: (result) => {
+        this.jobs.set(result.items);
+        this.totalPages.set(Math.ceil(result.totalCount / result.pageSize));
+        this.totalItems.set(result.totalCount);
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -48,6 +57,12 @@ export class MyJobsComponent implements OnInit {
 
   onFilterChange(status: string) {
     this.selectedStatus.set(status);
+    this.currentPage.set(1); // Reset to page 1 when filter changes
+    this.loadJobs();
+  }
+
+  onPageChange(page: number) {
+    this.currentPage.set(page);
     this.loadJobs();
   }
 

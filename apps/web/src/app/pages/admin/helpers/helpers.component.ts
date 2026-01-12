@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { AdminService, HelperProfile } from '../../../core/services/admin.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { AddressSelectorComponent, AddressResult } from '../../../shared/components/address-selector/address-selector.component';
+import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-admin-helpers',
   standalone: true,
-  imports: [CommonModule, FormsModule, AddressSelectorComponent],
+  imports: [CommonModule, FormsModule, AddressSelectorComponent, PaginationComponent],
   templateUrl: './helpers.component.html',
   styleUrl: './helpers.component.css'
 })
@@ -22,6 +23,12 @@ export class AdminHelpersComponent implements OnInit {
   showModal = signal(false);
   searchQuery = '';
   statusFilter = '';
+  
+  // Pagination
+  currentPage = signal(1);
+  pageSize = signal(10);
+  totalPages = signal(1);
+  totalItems = signal(0);
   
   // Touched state for real-time feedback
   touchedFields = signal<Set<string>>(new Set());
@@ -87,10 +94,12 @@ export class AdminHelpersComponent implements OnInit {
   }
 
   loadHelpers(): void {
-    this.adminService.getAllHelperProfiles().subscribe({
-      next: (data) => {
-        this.helpers.set(data);
-        this.filteredHelpers.set(data);
+    this.adminService.getAllHelperProfiles(this.currentPage(), this.pageSize()).subscribe({
+      next: (result) => {
+        this.helpers.set(result.items);
+        this.filteredHelpers.set(result.items);
+        this.totalPages.set(Math.ceil(result.totalCount / result.pageSize));
+        this.totalItems.set(result.totalCount);
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -121,6 +130,11 @@ export class AdminHelpersComponent implements OnInit {
     }
 
     this.filteredHelpers.set(filtered);
+  }
+
+  onPageChange(page: number) {
+    this.currentPage.set(page);
+    this.loadHelpers();
   }
 
   openCreateModal(): void {

@@ -37,9 +37,9 @@ export class CustomerLayoutComponent implements OnInit {
   }
 
   private checkNotifications(): void {
-    this.bookingService.getMyBookings().subscribe({
-      next: (bookings) => {
-        const rejected = bookings.filter(b => b.status === 'Rejected');
+    this.bookingService.getMyBookings(1, 50, 'All', false).subscribe({
+      next: (result) => {
+        const rejected = result.items.filter(b => b.status === 'Rejected');
         if (rejected.length === 0) return;
 
         // Check against localStorage

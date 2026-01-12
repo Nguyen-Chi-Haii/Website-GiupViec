@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { AdminService } from '../../../core/services/admin.service';
 import { ServiceResponse, ServiceCreateDTO, ServiceUpdateDTO, ServiceUnit } from '@giupviec/shared';
 import { NotificationService } from '../../../core/services/notification.service';
+import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-admin-services',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PaginationComponent],
   templateUrl: './services.component.html',
   styleUrl: './services.component.css'
 })
@@ -21,6 +22,12 @@ export class AdminServicesComponent implements OnInit {
   showModal = signal(false);
   isEditing = signal(false);
   editingId = 0;
+  
+  // Pagination
+  currentPage = signal(1);
+  pageSize = signal(10);
+  totalPages = signal(1);
+  totalItems = signal(0);
   
   // Touched state for real-time feedback
   touchedFields = signal<Set<string>>(new Set());
@@ -75,9 +82,11 @@ export class AdminServicesComponent implements OnInit {
   }
 
   loadServices(): void {
-    this.adminService.getAllServices().subscribe({
-      next: (data) => {
-        this.services.set(data);
+    this.adminService.getAllServices(this.currentPage(), this.pageSize()).subscribe({
+      next: (result) => {
+        this.services.set(result.items);
+        this.totalPages.set(Math.ceil(result.totalCount / result.pageSize));
+        this.totalItems.set(result.totalCount);
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -94,6 +103,11 @@ export class AdminServicesComponent implements OnInit {
       const mergedLabels = Array.from(new Set([...commonLabels, ...labels]));
       this.unitLabelsSuggestion.set(mergedLabels);
     });
+  }
+
+  onPageChange(page: number) {
+    this.currentPage.set(page);
+    this.loadServices();
   }
 
   onUnitLabelSelect(value: string): void {

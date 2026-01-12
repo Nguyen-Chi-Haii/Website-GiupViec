@@ -6,6 +6,7 @@ import { HelperService } from '../../../../core/services/helper.service';
 import { AdminService } from '../../../../core/services/admin.service';
 import { BookingResponseDTO } from '@giupviec/shared';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 
 interface AvailableHelper {
   id: number;
@@ -17,7 +18,7 @@ interface AvailableHelper {
 @Component({
   selector: 'app-pending-approvals',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PaginationComponent],
   templateUrl: './pending-approvals.component.html',
   styleUrl: './pending-approvals.component.css'
 })
@@ -31,6 +32,12 @@ export class PendingApprovalsComponent implements OnInit {
   filteredBookings = signal<BookingResponseDTO[]>([]);
   isLoading = signal(true);
   isProcessing = signal(false);
+
+  // Pagination
+  currentPage = signal(1);
+  pageSize = signal(10);
+  totalPages = signal(1);
+  totalItems = signal(0);
 
   // Filters
   statusFilter = '';
@@ -54,11 +61,25 @@ export class PendingApprovalsComponent implements OnInit {
 
   loadJobPosts() {
     this.isLoading.set(true);
-    this.bookingService.getJobPosts().subscribe({
-      next: (res) => {
-        // Only show items marked as job posts
-        const jobs = res.filter(b => b.isJobPost);
-        this.bookings.set(jobs);
+    
+    const status = this.statusFilter;
+    let approvalStatus: string | undefined;
+    let jobStatus: string | undefined;
+
+    if (status === 'pending_approval') {
+      approvalStatus = 'Pending';
+    } else if (status === 'hiring') {
+      approvalStatus = 'Approved';
+    } else if (status === 'cancelled') {
+        // Map cancelled/rejected to status
+        jobStatus = 'Cancelled';
+    }
+
+    this.bookingService.getJobPosts(this.currentPage(), this.pageSize(), approvalStatus, jobStatus).subscribe({
+      next: (result) => {
+        this.bookings.set(result.items);
+        this.totalPages.set(Math.ceil(result.totalCount / result.pageSize));
+        this.totalItems.set(result.totalCount);
         this.applyFilters();
         this.isLoading.set(false);
       },
@@ -70,18 +91,13 @@ export class PendingApprovalsComponent implements OnInit {
     });
   }
 
+  onPageChange(page: number) {
+    this.currentPage.set(page);
+    this.loadJobPosts();
+  }
+
   applyFilters() {
-    const filter = this.statusFilter;
-    let jobs = this.bookings();
-
-    if (filter && filter !== '') {
-      jobs = jobs.filter(j => {
-        const status = this.getJobStatus(j);
-        return status === filter;
-      });
-    }
-
-    this.filteredBookings.set(jobs);
+    this.filteredBookings.set(this.bookings());
   }
 
   getJobStatus(booking: BookingResponseDTO): string {
@@ -92,7 +108,8 @@ export class PendingApprovalsComponent implements OnInit {
   }
 
   onFilterChange() {
-    this.applyFilters();
+    this.currentPage.set(1);
+    this.loadJobPosts();
   }
 
   getStatusClass(job: BookingResponseDTO): string {

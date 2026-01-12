@@ -78,6 +78,17 @@
           </tbody>
         </table>
       }
+      
+      <!-- Pagination -->
+      @if (!isLoading() && filteredBookings().length > 0) {
+        <app-pagination 
+          [currentPage]="currentPage()"
+          [totalPages]="totalPages()"
+          [totalItems]="totalItems()"
+          [pageSize]="pageSize()"
+          (pageChange)="onPageChange($event)">
+        </app-pagination>
+      }
     </div>
   </div>
 

@@ -129,6 +129,19 @@
         </div>
       }
     </div>
+
+    <!-- Pagination -->
+    @if (totalPages() > 1) {
+      <div class="pagination-container" style="margin-top: 2rem; display: flex; justify-content: center;">
+        <app-pagination 
+          [currentPage]="currentPage()"
+          [totalPages]="totalPages()"
+          [totalItems]="totalItems()"
+          [pageSize]="pageSize()"
+          (pageChange)="onPageChange($event)">
+        </app-pagination>
+      </div>
+    }
   }
 
   <!-- Detail Modal -->

@@ -1,7 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
+import { PagedResult } from '../models/paged-result.interface';
 import { 
   ServiceResponse, 
   ServiceCreateDTO, 
@@ -187,8 +189,16 @@ export class AdminService {
   }
 
   // --- Bookings ---
-  getAllBookings(): Observable<SharedBookingResponse[]> {
-    return this.http.get<SharedBookingResponse[]>(`${this.apiUrl}/bookings`);
+  getAllBookings(pageIndex = 1, pageSize = 10, status?: string, paymentStatus?: string): Observable<PagedResult<SharedBookingResponse>> {
+    let params = new HttpParams()
+      .set('pageIndex', pageIndex.toString())
+      .set('pageSize', pageSize.toString())
+      .set('isJobPost', 'false'); // Always exclude unassigned job posts from general management
+    
+    if (status && status !== 'All') params = params.set('status', status);
+    if (paymentStatus && paymentStatus !== 'All') params = params.set('paymentStatus', paymentStatus);
+    
+    return this.http.get<PagedResult<SharedBookingResponse>>(`${this.apiUrl}/bookings`, { params });
   }
 
   getBookingById(id: number): Observable<SharedBookingResponse> {
@@ -218,8 +228,9 @@ export class AdminService {
   }
 
   // --- Services ---
-  getAllServices(): Observable<ServiceResponse[]> {
-    return this.http.get<ServiceResponse[]>(`${this.apiUrl}/services`);
+  getAllServices(pageIndex = 1, pageSize = 10): Observable<PagedResult<ServiceResponse>> {
+    const params = { pageIndex: pageIndex.toString(), pageSize: pageSize.toString() };
+    return this.http.get<PagedResult<ServiceResponse>>(`${this.apiUrl}/services`, { params });
   }
 
   createService(dto: ServiceCreateDTO): Observable<ServiceResponse> {
@@ -231,8 +242,9 @@ export class AdminService {
   }
 
   // --- Users ---
-  getAllUsers(): Observable<UserResponse[]> {
-    return this.http.get<UserResponse[]>(`${this.apiUrl}/users`);
+  getAllUsers(pageIndex = 1, pageSize = 10): Observable<PagedResult<UserResponse>> {
+    const params = { pageIndex: pageIndex.toString(), pageSize: pageSize.toString() };
+    return this.http.get<PagedResult<UserResponse>>(`${this.apiUrl}/users`, { params });
   }
 
   getUserById(id: number): Observable<UserResponse> {
@@ -252,8 +264,9 @@ export class AdminService {
   }
 
   // --- Helpers ---
-  getAllHelperProfiles(): Observable<HelperProfile[]> {
-    return this.http.get<HelperProfile[]>(`${this.apiUrl}/helperprofiles`);
+  getAllHelperProfiles(pageIndex = 1, pageSize = 10): Observable<PagedResult<HelperProfile>> {
+    const params = { pageIndex: pageIndex.toString(), pageSize: pageSize.toString() };
+    return this.http.get<PagedResult<HelperProfile>>(`${this.apiUrl}/helperprofiles`, { params });
   }
 
   getServiceUnitLabels(): Observable<string[]> {

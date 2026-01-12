@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { AdminService, UserResponse, UserCreate, UserUpdate } from '../../../core/services/admin.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { AddressSelectorComponent, AddressResult } from '../../../shared/components/address-selector/address-selector.component';
+import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-admin-users',
   standalone: true,
-  imports: [CommonModule, FormsModule, AddressSelectorComponent],
+  imports: [CommonModule, FormsModule, AddressSelectorComponent, PaginationComponent],
   templateUrl: './users.component.html',
   styleUrl: './users.component.css'
 })
@@ -22,6 +23,12 @@ export class AdminUsersComponent implements OnInit {
   showModal = signal(false);
   isEditing = signal(false);
   editingId = 0;
+  
+  // Pagination
+  currentPage = signal(1);
+  pageSize = signal(10);
+  totalPages = signal(1);
+  totalItems = signal(0);
   
   roleFilter = '';
   statusFilter = '';
@@ -41,12 +48,14 @@ export class AdminUsersComponent implements OnInit {
   }
 
   loadUsers(): void {
-    this.adminService.getAllUsers().subscribe({
-      next: (data) => {
+    this.adminService.getAllUsers(this.currentPage(), this.pageSize()).subscribe({
+      next: (result) => {
         // Lọc bỏ Helper ra khỏi danh sách User chung
-        const nonHelpers = data.filter(u => this.normalizeRole(u.role) !== 'helper');
+        const nonHelpers = result.items.filter(u => this.normalizeRole(u.role) !== 'helper');
         this.users.set(nonHelpers);
         this.filteredUsers.set(nonHelpers);
+        this.totalPages.set(Math.ceil(result.totalCount / result.pageSize));
+        this.totalItems.set(result.totalCount);
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -73,6 +82,11 @@ export class AdminUsersComponent implements OnInit {
       });
     }
     this.filteredUsers.set(result);
+  }
+
+  onPageChange(page: number) {
+    this.currentPage.set(page);
+    this.loadUsers();
   }
 
   openCreateModal(): void {

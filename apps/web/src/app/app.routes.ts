@@ -104,7 +104,7 @@ export const routes: Routes = [
       {
         path: 'approvals',
         loadComponent: () => import('./pages/admin/bookings/pending-approvals/pending-approvals.component').then(m => m.PendingApprovalsComponent),
-        title: 'Duyệt Bài Đăng - Admin'
+        title: 'Quản Lý Bài Đăng - Admin'
       },
       {
         path: 'services',
@@ -220,7 +220,7 @@ export const routes: Routes = [
       {
         path: 'approvals',
         loadComponent: () => import('./pages/admin/bookings/pending-approvals/pending-approvals.component').then(m => m.PendingApprovalsComponent),
-        title: 'Duyệt Bài Đăng - Nhân Viên'
+        title: 'Quản Lý Bài Đăng - Nhân Viên'
       },
       {
         path: 'services',

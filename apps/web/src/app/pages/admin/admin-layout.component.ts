@@ -23,7 +23,7 @@ export class AdminLayoutComponent implements OnInit {
   
   navItems: NavItem[] = [
     { label: 'Tổng Quan', icon: 'dashboard', route: '/admin' },
-    { label: 'Duyệt Bài Đăng', icon: 'playlist_add_check', route: '/admin/approvals' },
+    { label: 'Quản Lý Bài Đăng', icon: 'playlist_add_check', route: '/admin/approvals' },
     { label: 'Quản Lý Đơn Hàng', icon: 'receipt_long', route: '/admin/bookings' },
     { label: 'Quản Lý Dịch Vụ', icon: 'mop', route: '/admin/services' },
     { label: 'Người Dùng', icon: 'group', route: '/admin/users' },

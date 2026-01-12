@@ -42,10 +42,10 @@ export class EmployeeHelpersComponent implements OnInit {
   }
 
   loadHelpers(): void {
-    this.adminService.getAllHelperProfiles().subscribe({
-      next: (data) => {
-        this.helpers.set(data);
-        this.filteredHelpers.set(data);
+    this.adminService.getAllHelperProfiles(1, 100).subscribe({
+      next: (result) => {
+        this.helpers.set(result.items);
+        this.filteredHelpers.set(result.items);
         this.isLoading.set(false);
       },
       error: (err) => {

@@ -207,6 +207,14 @@ namespace GiupViecAPI.Controllers
             return Ok(result);
         }
 
+        [HttpGet("job-posts")]
+        [Authorize(Roles = "Admin,Employee")]
+        public async Task<IActionResult> GetJobPosts([FromQuery] BookingFilterDTO filter)
+        {
+            var result = await _service.GetJobPostsAsync(filter);
+            return Ok(result);
+        }
+
         [HttpPost("{id}/approve")]
         [Authorize(Roles = "Admin,Employee")]
         public async Task<IActionResult> ApproveBooking(int id, [FromBody] JobApprovalDTO dto)

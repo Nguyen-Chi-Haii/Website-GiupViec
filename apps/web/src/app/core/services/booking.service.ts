@@ -1,8 +1,10 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { BookingCreateDTO, BookingResponseDTO } from '@giupviec/shared';
+import { PagedResult } from '../models/paged-result.interface';
 
 // Guest booking request DTO
 export interface GuestBookingCreateDTO {
@@ -62,8 +64,9 @@ export class BookingService {
    * Get all bookings
    * GET /api/bookings
    */
-  getAll(): Observable<BookingResponseDTO[]> {
-    return this.http.get<BookingResponseDTO[]>(this.baseUrl);
+  getAll(pageIndex = 1, pageSize = 10): Observable<PagedResult<BookingResponseDTO>> {
+    const params = { pageIndex: pageIndex.toString(), pageSize: pageSize.toString() };
+    return this.http.get<PagedResult<BookingResponseDTO>>(this.baseUrl, { params });
   }
 
   /**
@@ -78,8 +81,16 @@ export class BookingService {
    * Get bookings for the current customer
    * GET /api/bookings/my
    */
-  getMyBookings(): Observable<BookingResponseDTO[]> {
-    return this.http.get<BookingResponseDTO[]>(`${this.baseUrl}/my`);
+  getMyBookings(pageIndex = 1, pageSize = 10, status?: string, isJobPost?: boolean, approvalStatus?: string): Observable<PagedResult<BookingResponseDTO>> {
+    let params = new HttpParams()
+      .set('pageIndex', pageIndex.toString())
+      .set('pageSize', pageSize.toString());
+    
+    if (status && status !== 'All') params = params.set('status', status);
+    if (isJobPost !== undefined) params = params.set('isJobPost', isJobPost.toString());
+    if (approvalStatus) params = params.set('approvalStatus', approvalStatus);
+    
+    return this.http.get<PagedResult<BookingResponseDTO>>(`${this.baseUrl}/my`, { params });
   }
 
   confirmByCustomer(id: number): Observable<any> {
@@ -91,8 +102,22 @@ export class BookingService {
   }
 
   // Helper: Tìm việc
-  findAvailableJobs(filter: import('../models/booking-filter.dto').AvailableJobFilterDTO): Observable<BookingResponseDTO[]> {
-    return this.http.post<BookingResponseDTO[]>(`${this.baseUrl}/available`, filter);
+  findAvailableJobs(filter: import('../models/booking-filter.dto').AvailableJobFilterDTO): Observable<PagedResult<BookingResponseDTO>> {
+    // Convert filter object to HttpParams
+    let params = new HttpParams()
+      .set('pageIndex', filter.pageIndex.toString())
+      .set('pageSize', filter.pageSize.toString());
+      
+    if (filter.serviceId) params = params.set('serviceId', filter.serviceId.toString());
+    if (filter.province) params = params.set('province', filter.province);
+    if (filter.minPrice) params = params.set('minPrice', filter.minPrice.toString());
+    if (filter.maxPrice) params = params.set('maxPrice', filter.maxPrice.toString());
+    if (filter.startDateFrom) params = params.set('startDateFrom', filter.startDateFrom);
+    if (filter.startDateTo) params = params.set('startDateTo', filter.startDateTo);
+    if (filter.sortBy) params = params.set('sortBy', filter.sortBy);
+    if (filter.sortOrder) params = params.set('sortOrder', filter.sortOrder);
+    
+    return this.http.get<PagedResult<BookingResponseDTO>>(`${this.baseUrl}/available`, { params });
   }
 
   // Helper: Nhận việc
@@ -101,8 +126,15 @@ export class BookingService {
   }
 
   // Admin: Lấy danh sách bài đăng gom đơn
-  getJobPosts(): Observable<BookingResponseDTO[]> {
-    return this.http.get<BookingResponseDTO[]>(this.baseUrl);
+  getJobPosts(pageIndex = 1, pageSize = 10, approvalStatus?: string, status?: string): Observable<PagedResult<BookingResponseDTO>> {
+    let params = new HttpParams()
+      .set('pageIndex', pageIndex.toString())
+      .set('pageSize', pageSize.toString());
+    
+    if (approvalStatus) params = params.set('approvalStatus', approvalStatus);
+    if (status) params = params.set('status', status);
+    
+    return this.http.get<PagedResult<BookingResponseDTO>>(`${this.baseUrl}/job-posts`, { params });
   }
 
   // Admin: Duyệt đơn
@@ -115,12 +147,15 @@ export class BookingService {
     return this.http.post(`${this.baseUrl}/${id}/reject`, { Reason: reason });
   }
   // Helper: Get My Jobs
-  getHelperJobs(status?: string): Observable<BookingResponseDTO[]> {
-    let params: any = {};
+  getHelperJobs(pageIndex = 1, pageSize = 10, status?: string): Observable<PagedResult<BookingResponseDTO>> {
+    let params: any = {
+      pageIndex: pageIndex.toString(),
+      pageSize: pageSize.toString()
+    };
     if (status && status !== 'All') {
       params.status = status;
     }
-    return this.http.get<BookingResponseDTO[]>(`${this.baseUrl}/my-jobs`, { params });
+    return this.http.get<PagedResult<BookingResponseDTO>>(`${this.baseUrl}/my-jobs`, { params });
   }
 
   /**

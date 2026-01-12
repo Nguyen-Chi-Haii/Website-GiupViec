@@ -61,6 +61,12 @@ namespace GiupViecAPI.Services.Repositories
              if (filter.ServiceId.HasValue)
                 query = query.Where(b => b.ServiceId == filter.ServiceId.Value);
 
+             if (filter.IsJobPost.HasValue)
+                query = query.Where(b => b.IsJobPost == filter.IsJobPost.Value);
+
+             if (filter.PaymentStatus.HasValue)
+                query = query.Where(b => b.PaymentStatus == filter.PaymentStatus.Value);
+
             // Keyword search (Example: Customer Name, Service Name)
             if (!string.IsNullOrEmpty(filter.Keyword))
             {
@@ -68,6 +74,13 @@ namespace GiupViecAPI.Services.Repositories
                 query = query.Where(b => (b.Service != null && b.Service.Name != null && b.Service.Name.ToLower().Contains(keyword)) 
                                       || (b.Customer != null && b.Customer.FullName != null && b.Customer.FullName.ToLower().Contains(keyword))
                                       || b.Id.ToString().Contains(keyword));
+            }
+
+            // Default sort by CreatedAt descending
+            if (string.IsNullOrEmpty(filter.SortBy))
+            {
+                filter.SortBy = "CreatedAt";
+                filter.IsDescending = true;
             }
 
             return await GetPagedResultAsync<Booking, BookingResponseDTO>(query, filter);
@@ -99,12 +112,37 @@ namespace GiupViecAPI.Services.Repositories
 
              if (filter.Status.HasValue) 
                 query = query.Where(b => b.Status == filter.Status.Value);
+
+             if (filter.ApprovalStatus.HasValue)
+                query = query.Where(b => b.ApprovalStatus == filter.ApprovalStatus.Value);
+
+            // Filter by IsJobPost logic
+            if (filter.IsJobPost.HasValue)
+            {
+                if (filter.IsJobPost.Value)
+                {
+                    // Case: Customer looking for their Job Posts (Not yet accepted)
+                    query = query.Where(b => b.IsJobPost && b.HelperId == null);
+                }
+                else
+                {
+                    // Case: Customer looking for real Bookings (Regular or Accepted Job Posts)
+                    query = query.Where(b => !b.IsJobPost || (b.IsJobPost && b.HelperId != null));
+                }
+            }
             
             // Allow keyword search for customer too (e.g. search service name)
             if (!string.IsNullOrEmpty(filter.Keyword))
             {
-                 var keyword = filter.Keyword.ToLower();
+                var keyword = filter.Keyword.ToLower();
                 query = query.Where(b => b.Service != null && b.Service.Name != null && b.Service.Name.ToLower().Contains(keyword));
+            }
+
+            // Default sort by CreatedAt descending
+            if (string.IsNullOrEmpty(filter.SortBy))
+            {
+                filter.SortBy = "CreatedAt";
+                filter.IsDescending = true;
             }
 
             return await GetPagedResultAsync<Booking, BookingResponseDTO>(query, filter);
@@ -114,12 +152,12 @@ namespace GiupViecAPI.Services.Repositories
 
         public async Task<GiupViecAPI.Model.DTO.Shared.PagedResult<BookingResponseDTO>> GetAvailableJobsAsync(int helperId, AvailableJobFilterDTO filter)
         {
-            // Note: Keeping existing logic but wrapping in PagedResult helper to unify
+            // Available jobs must be approved by Admin, have no helper yet, and be marked as job posts
             var query = _db.Bookings
                 .Include(b => b.Service)
                 .Include(b => b.Customer)
                 .Where(b => b.HelperId == null)
-                .Where(b => b.ApprovalStatus == ApprovalStatus.Approved)
+                .Where(b => b.ApprovalStatus == ApprovalStatus.Approved) 
                 .Where(b => b.IsJobPost)
                 .Where(b => b.Status != BookingStatus.Cancelled && 
                             b.Status != BookingStatus.Rejected && 
@@ -231,7 +269,8 @@ namespace GiupViecAPI.Services.Repositories
             // Default sort logic can be overridden by filter.SortBy in helper
             if (string.IsNullOrEmpty(filter.SortBy))
             {
-                 filter.SortBy = "CreatedAt"; 
+                filter.SortBy = "CreatedAt";
+                filter.IsDescending = true;
             }
 
             return await GetPagedResultAsync<Booking, BookingResponseDTO>(query, filter);
@@ -254,6 +293,46 @@ namespace GiupViecAPI.Services.Repositories
                  filter.IsDescending = false; // FIFO
              }
             
+            return await GetPagedResultAsync<Booking, BookingResponseDTO>(query, filter);
+        }
+
+        // Get Job Posts (IsJobPost = true)
+        public async Task<GiupViecAPI.Model.DTO.Shared.PagedResult<BookingResponseDTO>> GetJobPostsAsync(BookingFilterDTO filter)
+        {
+            var query = _db.Bookings
+                .Include(b => b.Service)
+                .Include(b => b.Customer)
+                .Include(b => b.Helper)
+                .Where(b => b.IsJobPost && b.HelperId == null)
+                .AsQueryable();
+
+            // Apply filters
+            if (filter.ApprovalStatus.HasValue)
+                query = query.Where(b => b.ApprovalStatus == filter.ApprovalStatus.Value);
+
+            // Apply filters
+            if (filter.Status.HasValue)
+                query = query.Where(b => b.Status == filter.Status.Value);
+
+            if (filter.ServiceId.HasValue)
+                query = query.Where(b => b.ServiceId == filter.ServiceId.Value);
+
+            // Keyword search
+            if (!string.IsNullOrEmpty(filter.Keyword))
+            {
+                var keyword = filter.Keyword.ToLower();
+                query = query.Where(b => (b.Service != null && b.Service.Name != null && b.Service.Name.ToLower().Contains(keyword))
+                                      || (b.Customer != null && b.Customer.FullName != null && b.Customer.FullName.ToLower().Contains(keyword))
+                                      || b.Id.ToString().Contains(keyword));
+            }
+
+            // Default sort by CreatedAt descending (newest first)
+            if (string.IsNullOrEmpty(filter.SortBy))
+            {
+                filter.SortBy = "CreatedAt";
+                filter.IsDescending = true;
+            }
+
             return await GetPagedResultAsync<Booking, BookingResponseDTO>(query, filter);
         }
 
