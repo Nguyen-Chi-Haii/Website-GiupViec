@@ -7,6 +7,7 @@ import { BookingStateService } from '../../core/services/booking-state.service';
 import { BookingResponseDTO } from '@giupviec/shared';
 import { RejectedBookingModalComponent } from '../../shared/components/rejected-booking-modal/rejected-booking-modal.component';
 import { NotificationBellComponent } from '../../shared/components/notification-bell/notification-bell.component';
+import { ChatService } from '../../core/services/chat.service';
 
 @Component({
   selector: 'app-customer-layout',
@@ -20,6 +21,7 @@ export class CustomerLayoutComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly bookingService = inject(BookingService);
   private readonly bookingState = inject(BookingStateService);
+  public readonly chatService = inject(ChatService);
 
   sidebarCollapsed = signal(false);
   currentUser = this.authService.currentUser;
@@ -69,6 +71,10 @@ export class CustomerLayoutComponent implements OnInit {
 
   toggleSidebar(): void {
     this.sidebarCollapsed.update(v => !v);
+  }
+
+  openChat(): void {
+    this.chatService.toggleChat(!this.chatService.isChatOpen());
   }
 
   getUserInitials(): string {

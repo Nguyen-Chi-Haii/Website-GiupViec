@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { AdminService, UserResponse, UserUpdate } from '../../../core/services/admin.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { AddressSelectorComponent, AddressResult } from '../../../shared/components/address-selector/address-selector.component';
+import { ChatService } from '../../../core/services/chat.service';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 
 @Component({
@@ -16,6 +17,7 @@ import { PaginationComponent } from '../../../shared/components/pagination/pagin
 export class EmployeeCustomersComponent implements OnInit {
   private readonly adminService = inject(AdminService);
   private readonly notification = inject(NotificationService);
+  private readonly chatService = inject(ChatService);
 
   customers = signal<UserResponse[]>([]);
   filteredCustomers = signal<UserResponse[]>([]);
@@ -151,6 +153,24 @@ export class EmployeeCustomersComponent implements OnInit {
         error: (err) => this.notification.error('Lỗi: ' + (err.error?.message || 'Không thể cập nhật'))
       });
     }
+  }
+
+  openChat(user: UserResponse): void {
+    const partner = {
+      userId: user.id,
+      fullName: user.fullName || 'User',
+      avatar: user.avatar,
+      role: user.role,
+      lastMessage: '',
+      lastMessageTime: new Date(),
+      unreadCount: 0,
+      isOnline: false
+    };
+    
+    // Set temp partner in service so ChatWidget can pick it up if not in history
+    this.chatService.tempPartner.set(partner);
+    this.chatService.selectedPartnerId.set(user.id);
+    this.chatService.toggleChat(true);
   }
 
   getInitials(name: string): string {

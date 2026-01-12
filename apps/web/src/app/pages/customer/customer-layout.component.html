@@ -36,6 +36,10 @@
         <span class="material-symbols-outlined">person</span>
         @if (!sidebarCollapsed()) { <span>Hồ Sơ</span> }
       </a>
+      <button (click)="openChat()" class="nav-item w-full text-left bg-transparent border-0 cursor-pointer">
+        <span class="material-symbols-outlined">chat</span>
+        @if (!sidebarCollapsed()) { <span>Tin nhắn</span> }
+      </button>
       <a routerLink="/booking" class="nav-item book-now">
         <span class="material-symbols-outlined">add_circle</span>
         @if (!sidebarCollapsed()) { <span>Đặt Dịch Vụ</span> }

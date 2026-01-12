@@ -48,6 +48,11 @@
         <span class="material-symbols-outlined">service_toolbox</span>
         @if (!sidebarCollapsed()) { <span>Dịch Vụ</span> }
       </a>
+      
+      <button class="nav-item" (click)="openChat($event)" style="background: transparent; border: none; cursor: pointer; width: 100%; font-family: inherit;">
+        <span class="material-symbols-outlined">chat</span>
+        @if (!sidebarCollapsed()) { <span>Tin nhắn</span> }
+      </button>
     </nav>
 
     <div class="sidebar-footer">

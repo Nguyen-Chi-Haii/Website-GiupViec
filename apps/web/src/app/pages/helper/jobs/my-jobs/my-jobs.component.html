@@ -142,7 +142,14 @@
         
         <div class="detail-item">
           <span class="detail-label">Khách hàng</span>
-          <span class="detail-value">{{ selectedJob()!.customerName }}</span>
+          <span class="detail-value">
+            {{ selectedJob()!.customerName }}
+            @if (selectedJob()!.customerId) {
+              <button class="btn-chat-small" (click)="openChat(selectedJob()!.customerId, selectedJob()!.id)">
+                <span class="material-symbols-outlined text-sm">chat</span> Chat
+              </button>
+            }
+          </span>
         </div>
         
         <div class="detail-item">

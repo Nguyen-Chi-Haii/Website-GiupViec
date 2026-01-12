@@ -1,0 +1,136 @@
+<div *ngIf="chatService.isChatOpen()" class="chat-widget-container animate-slide-up">
+    
+    <!-- Header -->
+    <div class="chat-header">
+        <h3 class="chat-title">
+            <span class="material-symbols-outlined">forum</span> Tin nhắn
+        </h3>
+        <button (click)="closeChat()" class="close-btn">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+    </div>
+
+    <div class="chat-body">
+        <!-- Sidebar: Conversations List -->
+        <div class="chat-sidebar">
+            <div class="search-box">
+                <input type="text" placeholder="Tìm kiếm..." class="search-input">
+            </div>
+            
+            <div class="conversations-list">
+                <div *ngFor="let partner of conversations()" 
+                     (click)="selectPartner(partner)"
+                     class="conversation-item"
+                     [class.active]="currentPartner()?.userId === partner.userId">
+                    
+                    <div class="avatar-container">
+                        <div class="avatar">
+                            {{ getInitials(partner.fullName) }}
+                        </div>
+                        <span *ngIf="partner.isOnline" class="online-indicator"></span>
+                    </div>
+                    
+                    <div class="conversation-info">
+                        <div class="conversation-top">
+                            <h4 class="partner-name">{{ partner.fullName }}</h4>
+                            <span class="message-time">{{ partner.lastMessageTime | date:'HH:mm' }}</span>
+                        </div>
+                        <p class="last-message" [class.unread]="partner.unreadCount > 0">
+                            {{ partner.lastMessage || 'Chưa có tin nhắn' }}
+                        </p>
+                    </div>
+                    
+                    <div *ngIf="partner.unreadCount > 0" class="unread-badge">
+                        {{ partner.unreadCount }}
+                    </div>
+                </div>
+
+                <div *ngIf="conversations().length === 0" class="empty-conversations">
+                    Chưa có cuộc hội thoại nào
+                </div>
+            </div>
+
+            <!-- Contact Support Button (Upcoming Feature) -->
+            <!-- 
+            <div class="sidebar-footer">
+                <button (click)="contactSupport()" class="support-btn">
+                    <span class="material-symbols-outlined">support_agent</span>
+                    Liên hệ hỗ trợ
+                </button>
+            </div>
+            -->
+        </div>
+
+        <!-- Main: Chat Area -->
+        <div class="chat-main">
+            <ng-container *ngIf="currentPartner() as partner; else noChatSelected">
+                <!-- Chat Partner Header -->
+                <div class="partner-header">
+                    <div class="avatar small">
+                        {{ getInitials(partner.fullName) }}
+                    </div>
+                    <div class="partner-details">
+                        <h4 class="partner-name">{{ partner.fullName }}</h4>
+                        <span class="partner-role">{{ partner.role }}</span>
+                    </div>
+                </div>
+
+                <!-- Booking Context Banner -->
+                <div *ngIf="chatService.currentBookingContext()" class="booking-context-banner">
+                    <span>
+                        <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: text-bottom;">info</span>
+                        Đang trao đổi về đơn hàng #{{ chatService.currentBookingContext() }}
+                    </span>
+                    <button (click)="chatService.currentBookingContext.set(null)" class="clear-context-btn">
+                        <span class="material-symbols-outlined" style="font-size: 16px;">close</span>
+                    </button>
+                </div>
+
+                <!-- Messages List -->
+                <div #scrollContainer class="messages-list">
+                    <div *ngFor="let msg of messages()" class="message-row" [class.sent]="msg.senderId === currentUserId">
+                        <div class="message-bubble">
+                            <p>{{ msg.content }}</p>
+                            <span class="message-meta">
+                                {{ msg.sentAt | date:'HH:mm' }}
+                                <span *ngIf="msg.senderId === currentUserId" class="material-symbols-outlined" [class.read]="msg.isRead" style="font-size: 14px; vertical-align: middle;">done_all</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input Area -->
+                <div class="chat-input-area">
+                    <form (submit)="sendMessage()" class="input-form">
+                        <input type="text" 
+                               [(ngModel)]="messageInput" 
+                               name="message" 
+                               placeholder="Nhập tin nhắn..." 
+                               class="message-input"
+                               autocomplete="off">
+                        <button type="submit" 
+                                [disabled]="!messageInput()"
+                                class="send-btn">
+                            <span class="material-symbols-outlined" style="font-size: 20px;">send</span>
+                        </button>
+                    </form>
+                </div>
+            </ng-container>
+
+            <!-- Placeholder when no chat selected -->
+            <ng-template #noChatSelected>
+                <div class="no-chat-selected">
+                    <span class="material-symbols-outlined big-icon">forum</span>
+                    <p>Chọn một cuộc hội thoại để bắt đầu</p>
+                </div>
+            </ng-template>
+        </div>
+    </div>
+</div>
+
+<!-- Floating Toggle Button (Visible when chat closed) -->
+<button *ngIf="!chatService.isChatOpen() && authService.isAuthenticated() && !authService.isAdmin()" 
+        (click)="chatService.toggleChat(true)"
+        class="chat-toggle-btn animate-bounce-subtle">
+    <span class="material-symbols-outlined">chat</span>
+</button>

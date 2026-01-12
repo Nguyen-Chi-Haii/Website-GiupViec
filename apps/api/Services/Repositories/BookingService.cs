@@ -9,6 +9,8 @@ using System.Linq.Dynamic.Core;
 using GiupViecAPI.Services.Interface;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.SignalR;
+using GiupViecAPI.Hubs;
 
 namespace GiupViecAPI.Services.Repositories
 {
@@ -18,20 +20,24 @@ namespace GiupViecAPI.Services.Repositories
         private readonly IMapper _mapper;
         private readonly UserManager<User> _userManager;
         private readonly IRecaptchaService _recaptchaService;
+
         private readonly INotificationService _notificationService;
+        private readonly IHubContext<ChatHub> _hubContext;
 
         public BookingService(
             GiupViecDBContext db, 
             IMapper mapper,
             UserManager<User> userManager,
             IRecaptchaService recaptchaService,
-            INotificationService notificationService)
+            INotificationService notificationService,
+            IHubContext<ChatHub> hubContext)
         {
             _db = db;
             _mapper = mapper;
             _userManager = userManager;
             _recaptchaService = recaptchaService;
             _notificationService = notificationService;
+            _hubContext = hubContext;
         }
 
         // 1. LẤY DANH SÁCH (Dành cho Admin)
@@ -248,6 +254,9 @@ namespace GiupViecAPI.Services.Repositories
                 booking.Id,
                 "Booking"
             );
+
+            // Auto-create Chat
+            await CreateConversationAsync(booking.Id, helperId, booking.CustomerId);
 
             return _mapper.Map<BookingResponseDTO>(booking);
         }
@@ -485,6 +494,12 @@ namespace GiupViecAPI.Services.Repositories
             await NotifyAdminsNewBooking(booking);
             // ---------------------------------
 
+            // Auto-create Chat if Helper is assigned
+            if (booking.HelperId.HasValue)
+            {
+                await CreateConversationAsync(booking.Id, booking.HelperId.Value, booking.CustomerId);
+            }
+
             return _mapper.Map<BookingResponseDTO>(booking);
         }
 
@@ -602,7 +617,14 @@ namespace GiupViecAPI.Services.Repositories
             // or maybe Notify Admins is useful for "New Order" dashboard. 
             // Let's implement it for consistency.
             await NotifyAdminsNewBooking(booking);
+            await NotifyAdminsNewBooking(booking);
              // ---------------------------------
+
+            // Auto-create Chat if Helper is assigned
+            if (booking.HelperId.HasValue)
+            {
+                await CreateConversationAsync(booking.Id, booking.HelperId.Value, booking.CustomerId);
+            }
 
             return _mapper.Map<BookingResponseDTO>(booking);
         }
@@ -692,6 +714,9 @@ namespace GiupViecAPI.Services.Repositories
                 booking.Id, "Booking"
             );
             // -------------------------------------
+
+            // Auto-create Chat
+            await CreateConversationAsync(booking.Id, helperId, booking.CustomerId);
 
             return _mapper.Map<BookingResponseDTO>(booking);
         }
@@ -796,9 +821,9 @@ namespace GiupViecAPI.Services.Repositories
 
             await _db.SaveChangesAsync();
 
-             // --- NOTIFICATION: Completion (If becomes Completed) ---
-             if (booking.Status == BookingStatus.Completed)
-             {
+            // --- NOTIFICATION: Completion (If becomes Completed) ---
+            if (booking.Status == BookingStatus.Completed)
+            {
                  // Notify Helper (Self is Customer, so notify Helper)
                  if (booking.HelperId.HasValue)
                  {
@@ -809,10 +834,63 @@ namespace GiupViecAPI.Services.Repositories
                          NotificationType.BookingCompleted, booking.Id, "Booking"
                      );
                  }
-             }
-             // -----------------------------------------------------
+            }
+            // -----------------------------------------------------
 
             return true;
+        }
+
+        private async Task CreateConversationAsync(int bookingId, int helperId, int customerId)
+        {
+             try 
+             {
+                 // Check if a conversation already exists (optional, but good practice to avoid spam)
+                 // Or just always add a "Booking Confirmed" message.
+                 
+                 var content = $"Đơn hàng #{bookingId} đã được xác nhận. Hai bạn có thể trao đổi trực tiếp tại đây.";
+                 
+                 // System message from Helper to Customer (or vice versa)
+                 var message = new Message
+                 {
+                     SenderId = helperId, // Make it look like it comes from the Helper
+                     ReceiverId = customerId,
+                     Content = content,
+                     SentAt = DateTime.UtcNow,
+                     IsRead = false,
+                     BookingId = bookingId
+                 };
+
+                 _db.Messages.Add(message);
+                 await _db.SaveChangesAsync();
+
+                 // Real-time via SignalR
+                 await _hubContext.Clients.User(customerId.ToString()).SendAsync("ReceiveMessage", new
+                 {
+                     Id = message.Id,
+                     SenderId = message.SenderId,
+                     ReceiverId = message.ReceiverId,
+                     Content = message.Content,
+                     SentAt = message.SentAt,
+                     IsRead = message.IsRead,
+                     BookingId = message.BookingId
+                 });
+                 
+                 await _hubContext.Clients.User(helperId.ToString()).SendAsync("ReceiveMessage", new
+                 {
+                     Id = message.Id,
+                     SenderId = message.SenderId,
+                     ReceiverId = message.ReceiverId,
+                     Content = message.Content,
+                     SentAt = message.SentAt,
+                     IsRead = message.IsRead,
+                     BookingId = message.BookingId
+                 });
+             }
+             catch (Exception ex)
+             {
+                 // Log error but don't fail the booking flow
+                 Console.WriteLine($"Error creating conversation: {ex.Message}");
+             }
         }
 
         public async Task<bool> ConfirmBookingByHelperAsync(int bookingId, int helperId)

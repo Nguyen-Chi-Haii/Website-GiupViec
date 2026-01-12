@@ -4,7 +4,7 @@
       <h1>Xin chào, {{ userName() }}!</h1>
       @if (profile()) {
         <span class="status-badge" [class]="profileStatusClass()">
-          {{ profile()!.status === 1 ? 'Đang hoạt động' : 'Tạm dừng/Chưa kích hoạt' }}
+          {{ profile()!.status === 'Active' ? 'Đang hoạt động' : 'Tạm dừng/Chưa kích hoạt' }}
         </span>
       }
     </div>

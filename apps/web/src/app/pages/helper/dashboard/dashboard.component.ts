@@ -104,7 +104,7 @@ export class HelperDashboardComponent implements OnInit {
   }
 
   profileStatusClass(): string {
-    return this.profile()?.status === 1 ? 'active' : 'inactive';
+    return this.profile()?.status === 'Active' ? 'active' : 'inactive';
   }
 
   getStatusLabel(status: string): string {

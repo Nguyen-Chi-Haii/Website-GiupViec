@@ -4,6 +4,7 @@ import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 
 import { NotificationBellComponent } from '../../shared/components/notification-bell/notification-bell.component';
+import { ChatService } from '../../core/services/chat.service';
 
 @Component({
   selector: 'app-helper-layout',
@@ -52,6 +53,11 @@ import { NotificationBellComponent } from '../../shared/components/notification-
             <span class="material-symbols-outlined">person</span>
             @if (!sidebarCollapsed()) { <span>Hồ Sơ Của Tôi</span> }
           </a>
+          <!-- Chat Button -->
+          <button (click)="openChat()" class="nav-item w-full text-left bg-transparent border-0 cursor-pointer">
+            <span class="material-symbols-outlined">chat</span>
+            @if (!sidebarCollapsed()) { <span>Tin nhắn</span> }
+          </button>
         </nav>
 
         <div class="sidebar-footer">
@@ -117,6 +123,7 @@ import { NotificationBellComponent } from '../../shared/components/notification-
 export class HelperLayoutComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  public readonly chatService = inject(ChatService);
 
   sidebarCollapsed = signal(false);
   currentUser = this.authService.currentUser;
@@ -130,6 +137,10 @@ export class HelperLayoutComponent implements OnInit {
 
   toggleSidebar(): void {
     this.sidebarCollapsed.update(v => !v);
+  }
+
+  openChat(): void {
+    this.chatService.toggleChat(!this.chatService.isChatOpen());
   }
 
   getUserInitials(): string {

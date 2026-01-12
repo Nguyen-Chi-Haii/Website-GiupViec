@@ -78,8 +78,9 @@ export interface UserResponse {
   id: number;
   email: string;
   fullName: string;
-  phone: string;  // Changed from phoneNumber to match backend UserResponseDTO
+  phone: string;
   address?: string;
+  avatar?: string;
   role: string;
   status: string;
   createdAt: string;
@@ -120,7 +121,7 @@ export interface HelperProfile {
   activeArea: string;
   experienceYears: number;
   hourlyRate: number;
-  status: any;
+  status: string;
 }
 
 export interface AvailableHelper {

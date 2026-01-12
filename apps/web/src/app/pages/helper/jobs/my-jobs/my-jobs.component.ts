@@ -6,6 +6,7 @@ import { BookingResponseDTO } from '@giupviec/shared';
 import { ToastrService } from 'ngx-toastr';
 import { FormsModule } from '@angular/forms';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
+import { ChatService } from '../../../../core/services/chat.service';
 
 @Component({
   selector: 'app-my-jobs',
@@ -17,6 +18,7 @@ import { PaginationComponent } from '../../../../shared/components/pagination/pa
 export class MyJobsComponent implements OnInit {
   bookingService = inject(BookingService);
   toastr = inject(ToastrService);
+  chatService = inject(ChatService);
 
   jobs = signal<BookingResponseDTO[]>([]);
   isLoading = signal<boolean>(false);
@@ -132,5 +134,11 @@ export class MyJobsComponent implements OnInit {
     jobEndTime.setHours(hours, minutes, 0, 0);
 
     return now >= jobEndTime;
+  }
+
+  openChat(customerId: number | undefined, bookingId: number): void {
+    if (!customerId) return;
+    this.chatService.openChatWith(customerId, bookingId);
+    this.closeDetailModal();
   }
 }

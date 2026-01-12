@@ -5,6 +5,7 @@ using GiupViecAPI.Model.Domain;
 using GiupViecAPI.Services; // For IRecaptchaService
 using GiupViecAPI.Services.Interface;
 using GiupViecAPI.Services.Repositories;
+using GiupViecAPI.Hubs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -60,7 +61,8 @@ builder.Services.AddCors(options =>
         {
             policy.WithOrigins("http://localhost:4200") // Địa chỉ của Angular
                   .AllowAnyHeader()
-                  .AllowAnyMethod();
+                  .AllowAnyMethod()
+                  .AllowCredentials(); // Required for SignalR
         });
 });
 
@@ -91,6 +93,21 @@ builder.Services.AddAuthentication(options =>
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? "fallback_key_for_development_only"))
     };
+    
+    // Support SignalR Auth (Token passed in QueryString)
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chathub"))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        }
+    };
 });
 
 // 5. ---> ĐĂNG KÝ DEPENDENCY INJECTION (Thiếu cái này Controller sẽ lỗi 500)
@@ -108,6 +125,9 @@ builder.Services.AddHttpClient<IRecaptchaService, GiupViecAPI.Services.Recaptcha
 
 // 6. ---> ĐĂNG KÝ AUTOMAPPER
 builder.Services.AddAutoMapper(typeof(MappingProfile));
+
+// 7. ---> SIGNALR
+builder.Services.AddSignalR();
 
 
 var app = builder.Build();
@@ -128,6 +148,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<ChatHub>("/chathub");
 
 // Seeding Data
 using (var scope = app.Services.CreateScope())

@@ -10,6 +10,7 @@ import { RatingService } from '../../../core/services/rating.service';
 import { BookingService } from '../../../core/services/booking.service';
 import { BookingResponseDTO, RatingCreateDTO } from '@giupviec/shared';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
+import { ChatService } from '../../../core/services/chat.service';
 
 @Component({
   selector: 'app-my-bookings',
@@ -25,6 +26,7 @@ export class CustomerMyBookingsComponent implements OnInit {
   private readonly bookingState = inject(BookingStateService);
   private readonly notification = inject(NotificationService);
   private readonly ratingService = inject(RatingService);
+  private readonly chatService = inject(ChatService);
 
   isLoading = signal(true);
   payingBookingId = signal<number | null>(null);
@@ -269,5 +271,12 @@ export class CustomerMyBookingsComponent implements OnInit {
     });
     
     this.router.navigate(['/booking/step1']);
+  }
+
+
+  openChat(helperId: number | undefined, bookingId: number): void {
+    if (!helperId) return;
+    this.chatService.openChatWith(helperId, bookingId);
+    this.closeModal(); // Optional: close detail modal when opening chat
   }
 }

@@ -162,7 +162,14 @@
             </div>
             <div class="detail-item">
               <label>Người giúp việc</label>
-              <p>{{ selectedBooking()!.helperName || 'Đang tìm người...' }}</p>
+              <p>
+                {{ selectedBooking()!.helperName || 'Đang tìm người...' }}
+                @if (selectedBooking()!.helperId) {
+                  <button class="btn-chat-small" (click)="openChat(selectedBooking()!.helperId, selectedBooking()!.id)">
+                    <span class="material-symbols-outlined text-sm">chat</span> Chat
+                  </button>
+                }
+              </p>
             </div>
             <div class="detail-item full-width">
               <label>Địa chỉ</label>

@@ -54,12 +54,14 @@
     <div class="jobs-grid">
       @for (job of filteredJobPosts(); track job.id) {
         <div class="job-card">
-          <div class="job-status" [ngClass]="getStatusClass(job)">
-            {{ getStatusLabel(job) }}
+          <div class="card-header">
+            <h3 class="service-name">{{ job.serviceName }}</h3>
+            <div class="job-status" [ngClass]="getStatusClass(job)">
+              {{ getStatusLabel(job) }}
+            </div>
           </div>
           
           <div class="job-info">
-            <h3 class="service-name">{{ job.serviceName }}</h3>
             <div class="info-item">
               <span class="material-symbols-outlined">calendar_month</span>
               <span>{{ job.startDate | date:'dd/MM/yyyy' }}</span>
