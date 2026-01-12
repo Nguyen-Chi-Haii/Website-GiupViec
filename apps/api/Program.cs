@@ -129,6 +129,9 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
 // 7. ---> SIGNALR
 builder.Services.AddSignalR();
 
+// 8. ---> BACKGROUND SERVICES
+builder.Services.AddHostedService<JobExpirationService>();
+
 
 var app = builder.Build();
 

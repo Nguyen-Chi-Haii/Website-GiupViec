@@ -196,6 +196,9 @@ namespace GiupViecAPI.Services.Repositories
              if (filter.MinExperience.HasValue)
                 query = query.Where(h => h.CareerStartDate <= DateTime.UtcNow.AddYears(-filter.MinExperience.Value));
 
+             if (filter.Status.HasValue)
+                query = query.Where(h => h.User != null && h.User.Status == filter.Status.Value);
+
             return await GetPagedResultAsync<HelperProfile, HelperProfileResponseDTO>(query, filter);
         }
 

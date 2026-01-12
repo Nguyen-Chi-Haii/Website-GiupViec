@@ -56,6 +56,9 @@ namespace GiupViecAPI.Services.Interface
 
         Task<List<BookingScheduleDTO>> GetHelperScheduleAsync(int helperId, DateTime fromDate, DateTime toDate);
         Task<List<BookingScheduleDTO>> GetAllSchedulesAsync(DateTime fromDate, DateTime toDate);
+        
+        // Public API for Landing Page
+        Task<List<BookingResponseDTO>> GetRecentUnassignedBookingsAsync(int count);
 
         Task CleanExpiredBookingsAsync();
     }

@@ -265,8 +265,14 @@ export class AdminService {
   }
 
   // --- Helpers ---
-  getAllHelperProfiles(pageIndex = 1, pageSize = 10): Observable<PagedResult<HelperProfile>> {
-    const params = { pageIndex: pageIndex.toString(), pageSize: pageSize.toString() };
+  getAllHelperProfiles(pageIndex = 1, pageSize = 10, keyword?: string, status?: string): Observable<PagedResult<HelperProfile>> {
+    let params = new HttpParams()
+      .set('pageIndex', pageIndex.toString())
+      .set('pageSize', pageSize.toString());
+
+    if (keyword) params = params.set('keyword', keyword);
+    if (status) params = params.set('status', status);
+
     return this.http.get<PagedResult<HelperProfile>>(`${this.apiUrl}/helperprofiles`, { params });
   }
 

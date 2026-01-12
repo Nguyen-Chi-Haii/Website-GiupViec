@@ -98,7 +98,12 @@ export class EmployeeHelpersComponent implements OnInit {
 
   loadHelpers(): void {
     this.isLoading.set(true);
-    this.adminService.getAllHelperProfiles(this.currentPage(), this.pageSize()).subscribe({
+    this.adminService.getAllHelperProfiles(
+      this.currentPage(), 
+      this.pageSize(),
+      this.searchQuery,
+      this.statusFilter
+    ).subscribe({
       next: (result) => {
         this.helpers.set(result.items);
         this.filteredHelpers.set(result.items);

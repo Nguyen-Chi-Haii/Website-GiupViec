@@ -7,6 +7,7 @@ import { HeroSectionComponent } from './components/hero-section/hero-section.com
 import { PricingSectionComponent } from './components/pricing-section/pricing-section.component';
 import { AboutSectionComponent } from './components/about-section/about-section.component';
 import { CtaSectionComponent } from './components/cta-section/cta-section.component';
+import { JobShowcaseComponent } from './components/job-showcase/job-showcase.component';
 
 @Component({
   selector: 'app-landing-page',
@@ -19,7 +20,8 @@ import { CtaSectionComponent } from './components/cta-section/cta-section.compon
     // ServicesSectionComponent,
     PricingSectionComponent,
     AboutSectionComponent,
-    CtaSectionComponent
+    CtaSectionComponent,
+    JobShowcaseComponent
   ],
   templateUrl: './landing-page.component.html',
   styleUrl: './landing-page.component.css'

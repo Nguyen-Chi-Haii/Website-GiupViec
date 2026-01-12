@@ -54,10 +54,7 @@ import { ChatService } from '../../core/services/chat.service';
             @if (!sidebarCollapsed()) { <span>Hồ Sơ Của Tôi</span> }
           </a>
           <!-- Chat Button -->
-          <button (click)="openChat()" class="nav-item w-full text-left bg-transparent border-0 cursor-pointer">
-            <span class="material-symbols-outlined">chat</span>
-            @if (!sidebarCollapsed()) { <span>Tin nhắn</span> }
-          </button>
+
         </nav>
 
         <div class="sidebar-footer">

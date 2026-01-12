@@ -94,7 +94,12 @@ export class AdminHelpersComponent implements OnInit {
   }
 
   loadHelpers(): void {
-    this.adminService.getAllHelperProfiles(this.currentPage(), this.pageSize()).subscribe({
+    this.adminService.getAllHelperProfiles(
+      this.currentPage(), 
+      this.pageSize(), 
+      this.searchQuery, 
+      this.statusFilter
+    ).subscribe({
       next: (result) => {
         this.helpers.set(result.items);
         this.filteredHelpers.set(result.items);
@@ -110,26 +115,8 @@ export class AdminHelpersComponent implements OnInit {
   }
 
   applyFilters(): void {
-    let filtered = this.helpers();
-    
-    // Search filter
-    const query = this.searchQuery.toLowerCase().trim();
-    if (query) {
-      filtered = filtered.filter(h => 
-        h.fullName.toLowerCase().includes(query) || 
-        h.email.toLowerCase().includes(query)
-      );
-    }
-
-    // Status filter
-    if (this.statusFilter) {
-      filtered = filtered.filter(h => {
-        const isActive = this.isHelperActive(h.status);
-        return this.statusFilter === 'active' ? isActive : !isActive;
-      });
-    }
-
-    this.filteredHelpers.set(filtered);
+    this.currentPage.set(1);
+    this.loadHelpers();
   }
 
   onPageChange(page: number) {

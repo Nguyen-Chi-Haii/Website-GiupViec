@@ -250,6 +250,14 @@ namespace GiupViecAPI.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpGet("public/recent")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetRecentUnassignedBookings([FromQuery] int count = 10)
+        {
+             var result = await _service.GetRecentUnassignedBookingsAsync(count);
+             return Ok(result);
+        }
         // ---------------------
 
         // PUT: api/bookings/5/status

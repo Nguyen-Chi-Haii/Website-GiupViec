@@ -38,7 +38,7 @@ export class AdminBookingsComponent implements OnInit {
   totalPages = signal(1);
   totalItems = signal(0);
   
-  statusFilter = 'Pending'; // Mặc định: Chờ xử lý
+  statusFilter = ''; // Mặc định: Tất cả
   paymentFilter = '';
 
   // Create booking modal

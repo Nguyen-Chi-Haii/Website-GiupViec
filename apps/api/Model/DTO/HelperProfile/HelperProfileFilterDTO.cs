@@ -9,5 +9,6 @@ namespace GiupViecAPI.Model.DTO.HelperProfile
         public decimal? MinHourlyRate { get; set; }
         public decimal? MaxHourlyRate { get; set; }
         public string? ActiveArea { get; set; }
+        public GiupViecAPI.Model.Enums.UserStatus? Status { get; set; }
     }
 }

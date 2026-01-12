@@ -997,6 +997,21 @@ namespace GiupViecAPI.Services.Repositories
                 }).ToListAsync();
         }
 
+        public async Task<List<BookingResponseDTO>> GetRecentUnassignedBookingsAsync(int count)
+        {
+            var bookings = await _db.Bookings
+                .Include(b => b.Service)
+                .Include(b => b.Customer)
+                .Where(b => b.HelperId == null 
+                            && b.Status == BookingStatus.Pending 
+                            && b.StartDate >= DateTime.Today)
+                .OrderByDescending(b => b.CreatedAt)
+                .Take(count)
+                .ToListAsync();
+
+            return _mapper.Map<List<BookingResponseDTO>>(bookings);
+        }
+
         // 9. QUÉT ĐƠN QUÁ HẠN (Thay thế Stored Procedure)
         public async Task CleanExpiredBookingsAsync()
         {
