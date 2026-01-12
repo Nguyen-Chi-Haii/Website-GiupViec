@@ -5,6 +5,7 @@ import { AdminService, BookingResponse, UserResponse } from '../../../core/servi
 import { NotificationService } from '../../../core/services/notification.service';
 import { CreateBookingModalComponent } from '../../admin/bookings/create-booking-modal.component';
 import { HelperService } from '../../../core/services/helper.service';
+import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 
 interface AvailableHelper {
   id: number;
@@ -16,7 +17,7 @@ interface AvailableHelper {
 @Component({
   selector: 'app-employee-bookings',
   standalone: true,
-  imports: [CommonModule, FormsModule, CreateBookingModalComponent],
+  imports: [CommonModule, FormsModule, CreateBookingModalComponent, PaginationComponent],
   templateUrl: './bookings.component.html',
   styleUrl: './bookings.component.css'
 })
@@ -31,8 +32,14 @@ export class EmployeeBookingsComponent implements OnInit {
   availableHelpers = signal<AvailableHelper[]>([]);
   isLoading = signal(true);
   
-  statusFilter = 'Pending'; // Mặc định: Chờ xử lý
+  statusFilter = '';
   paymentFilter = '';
+
+  // Pagination
+  currentPage = signal(1);
+  pageSize = signal(10);
+  totalPages = signal(1);
+  totalItems = signal(0);
 
   // Create booking modal
   showCreateModal = signal(false);
@@ -55,12 +62,13 @@ export class EmployeeBookingsComponent implements OnInit {
   }
 
   loadBookings(): void {
-    this.adminService.getAllBookings(1, 50).subscribe({
+    this.isLoading.set(true);
+    this.adminService.getAllBookings(this.currentPage(), this.pageSize(), this.statusFilter, this.paymentFilter).subscribe({
       next: (result) => {
-        // Filter out job posts (unassigned postings) from the general management list
-        const bookingsOnly = result.items.filter(b => !b.isJobPost);
-        this.bookings.set(bookingsOnly);
-        this.filteredBookings.set(bookingsOnly);
+        this.bookings.set(result.items);
+        this.filteredBookings.set(result.items);
+        this.totalPages.set(Math.ceil(result.totalCount / result.pageSize));
+        this.totalItems.set(result.totalCount);
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -82,14 +90,13 @@ export class EmployeeBookingsComponent implements OnInit {
   }
 
   applyFilters(): void {
-    let result = this.bookings();
-    if (this.statusFilter) {
-      result = result.filter(b => this.normalizeStatus(b.status) === this.statusFilter.toLowerCase());
-    }
-    if (this.paymentFilter) {
-      result = result.filter(b => this.normalizePayment(b.paymentStatus) === this.paymentFilter.toLowerCase());
-    }
-    this.filteredBookings.set(result);
+    this.currentPage.set(1);
+    this.loadBookings();
+  }
+
+  onPageChange(page: number) {
+    this.currentPage.set(page);
+    this.loadBookings();
   }
 
   viewBooking(booking: BookingResponse): void {

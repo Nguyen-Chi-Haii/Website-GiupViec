@@ -25,36 +25,36 @@
               <th>Họ tên</th>
               <th>Email</th>
               <th>Số điện thoại</th>
+              <th>Địa chỉ</th>
               <th>Trạng thái</th>
-              <th>Ngày tạo</th>
               <th>Hành động</th>
             </tr>
           </thead>
           <tbody>
-            @for (user of filteredCustomers(); track user.id) {
+            @for (customer of filteredCustomers(); track customer.id) {
               <tr>
-                <td class="font-medium">#{{ user.id }}</td>
+                <td class="font-medium">#{{ customer.id }}</td>
                 <td>
                   <div class="user-cell">
-                    <div class="user-avatar">{{ getInitials(user.fullName) }}</div>
-                    <span>{{ user.fullName }}</span>
+                    <div class="user-avatar">{{ getInitials(customer.fullName) }}</div>
+                    <span>{{ customer.fullName }}</span>
                   </div>
                 </td>
-                <td class="text-muted">{{ user.email }}</td>
-                <td>{{ user.phone || '-' }}</td>
+                <td class="text-muted">{{ customer.email }}</td>
+                <td class="text-muted">{{ customer.phone || '---' }}</td>
+                <td class="text-muted">{{ customer.address || '---' }}</td>
                 <td>
-                  <span class="status-badge" [class]="getStatusClass(user.status)">
-                    {{ getStatusLabel(user.status) }}
+                  <span class="status-badge" [class]="getStatusClass(customer.status)">
+                    {{ getStatusLabel(customer.status) }}
                   </span>
                 </td>
-                <td class="text-muted">{{ user.createdAt | date:'dd/MM/yyyy' }}</td>
                 <td>
                   <div class="action-buttons">
-                    <button class="icon-btn" title="Sửa" (click)="openEditModal(user)">
+                    <button class="icon-btn edit-btn" title="Sửa" (click)="openEditModal(customer)">
                       <span class="material-symbols-outlined">edit</span>
                     </button>
-                    <button class="icon-btn" title="Đổi trạng thái" (click)="toggleStatus(user)">
-                      <span class="material-symbols-outlined">{{ isUserActive(user.status) ? 'lock' : 'lock_open' }}</span>
+                    <button class="icon-btn" [title]="isUserActive(customer.status) ? 'Khóa' : 'Mở khóa'" (click)="toggleStatus(customer)">
+                      <span class="material-symbols-outlined">{{ isUserActive(customer.status) ? 'lock' : 'lock_open' }}</span>
                     </button>
                   </div>
                 </td>
@@ -66,6 +66,17 @@
             }
           </tbody>
         </table>
+      }
+      
+      <!-- Pagination -->
+      @if (!isLoading() && filteredCustomers().length > 0) {
+        <app-pagination 
+          [currentPage]="currentPage()"
+          [totalPages]="totalPages()"
+          [totalItems]="totalItems()"
+          [pageSize]="pageSize()"
+          (pageChange)="onPageChange($event)">
+        </app-pagination>
       }
     </div>
   </div>
@@ -84,27 +95,45 @@
           <div class="form-grid">
             <div class="form-group full-width">
               <label>Họ và tên <span class="required">*</span></label>
-              <input type="text" [(ngModel)]="formData.fullName" placeholder="Nguyễn Văn A" />
+              <input 
+                type="text" 
+                [value]="formData.fullName()" 
+                (input)="formData.fullName.set($any($event.target).value); markTouched('fullName')"
+                (blur)="markTouched('fullName')"
+                placeholder="Nguyễn Văn A" 
+                [class.error]="(touchedFields().has('fullName') || isSubmitted()) && errors()['fullName']" 
+              />
+              @if ((touchedFields().has('fullName') || isSubmitted()) && errors()['fullName']) {
+                <span class="error-text">{{ errors()['fullName'] }}</span>
+              }
             </div>
             <div class="form-group">
               <label>Email</label>
-              <input type="email" [(ngModel)]="formData.email" disabled />
+              <input type="email" [value]="formData.email()" disabled />
             </div>
             <div class="form-group">
               <label>Số điện thoại</label>
-              <input type="tel" [(ngModel)]="formData.phone" placeholder="0912345678" />
+              <input 
+                type="tel" 
+                [value]="formData.phone()" 
+                (input)="formData.phone.set($any($event.target).value)"
+                placeholder="0912345678" 
+              />
             </div>
             <div class="form-group full-width">
+              <label>Địa chỉ</label>
               <app-address-selector 
-                [initialAddress]="formData.address"
+                [initialAddress]="formData.address()"
                 (addressChange)="onAddressChange($event)"
               ></app-address-selector>
             </div>
             <div class="form-group">
               <label>Trạng thái</label>
-              <select [(ngModel)]="formData.status">
-                <option [ngValue]="1">Hoạt động</option>
-                <option [ngValue]="2">Khóa</option>
+              <select 
+                [value]="formData.status()" 
+                (change)="formData.status.set(+$any($event.target).value)">
+                <option [value]="1">Hoạt động</option>
+                <option [value]="2">Khóa</option>
               </select>
             </div>
           </div>

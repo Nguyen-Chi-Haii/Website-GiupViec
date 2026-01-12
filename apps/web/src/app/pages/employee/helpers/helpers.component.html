@@ -46,7 +46,7 @@
                   </div>
                 </td>
                 <td class="text-muted">{{ helper.email }}</td>
-                 <td class="text-muted">{{ helper.activeArea }}</td>
+                <td class="text-muted">{{ helper.activeArea }}</td>
                 <td>{{ helper.experienceYears }} năm</td>
                 <td>
                    <span class="rating">⭐ {{ helper.ratingAverage | number:'1.1-1' }}</span>
@@ -76,6 +76,17 @@
           </tbody>
         </table>
       }
+      
+      <!-- Pagination -->
+      @if (!isLoading() && filteredHelpers().length > 0) {
+        <app-pagination 
+          [currentPage]="currentPage()"
+          [totalPages]="totalPages()"
+          [totalItems]="totalItems()"
+          [pageSize]="pageSize()"
+          (pageChange)="onPageChange($event)">
+        </app-pagination>
+      }
     </div>
   </div>
 
@@ -99,39 +110,107 @@
             @if (!isEditMode()) {
               <div class="form-group full-width">
                 <label>Họ và tên <span class="required">*</span></label>
-                <input type="text" [(ngModel)]="formData.fullName" placeholder="Nguyễn Văn A" />
+                <input 
+                  type="text" 
+                  [value]="formData.fullName()" 
+                  (input)="formData.fullName.set($any($event.target).value); markTouched('fullName')"
+                  (blur)="markTouched('fullName')"
+                  placeholder="Nguyễn Văn A" 
+                  [class.error]="(touchedFields().has('fullName') || isSubmitted()) && errors()['fullName']" 
+                />
+                @if ((touchedFields().has('fullName') || isSubmitted()) && errors()['fullName']) {
+                  <span class="error-text">{{ errors()['fullName'] }}</span>
+                }
               </div>
               <div class="form-group">
                 <label>Email <span class="required">*</span></label>
-                <input type="email" [(ngModel)]="formData.email" placeholder="helper@email.com" />
+                <input 
+                  type="email" 
+                  [value]="formData.email()" 
+                  (input)="formData.email.set($any($event.target).value); markTouched('email')"
+                  (blur)="markTouched('email')"
+                  placeholder="helper@email.com" 
+                  [class.error]="(touchedFields().has('email') || isSubmitted()) && errors()['email']" 
+                />
+                @if ((touchedFields().has('email') || isSubmitted()) && errors()['email']) {
+                  <span class="error-text">{{ errors()['email'] }}</span>
+                }
               </div>
               <div class="form-group">
                 <label>Mật khẩu <span class="required">*</span></label>
-                <input type="password" [(ngModel)]="formData.password" placeholder="Tối thiểu 6 ký tự" />
+                <input 
+                  type="password" 
+                  [value]="formData.password()" 
+                  (input)="formData.password.set($any($event.target).value); markTouched('password')"
+                  (blur)="markTouched('password')"
+                  placeholder="Tối thiểu 6 ký tự" 
+                  [class.error]="(touchedFields().has('password') || isSubmitted()) && errors()['password']" 
+                />
+                @if ((touchedFields().has('password') || isSubmitted()) && errors()['password']) {
+                  <span class="error-text">{{ errors()['password'] }}</span>
+                }
               </div>
               <div class="form-group">
                 <label>Số điện thoại</label>
-                <input type="tel" [(ngModel)]="formData.phone" placeholder="0912345678" />
+                <input 
+                  type="tel" 
+                  [value]="formData.phone()" 
+                  (input)="formData.phone.set($any($event.target).value); markTouched('phone')"
+                  (blur)="markTouched('phone')"
+                  placeholder="0912345678" 
+                  [class.error]="(touchedFields().has('phone') || isSubmitted()) && errors()['phone']" 
+                />
+                @if ((touchedFields().has('phone') || isSubmitted()) && errors()['phone']) {
+                  <span class="error-text">{{ errors()['phone'] }}</span>
+                }
               </div>
             }
             <div class="form-group">
               <label>Số năm kinh nghiệm <span class="required">*</span></label>
-              <input type="number" [(ngModel)]="formData.experienceYears" min="0" max="50" placeholder="0" />
+              <input 
+                type="number" 
+                [value]="formData.experienceYears()" 
+                (input)="formData.experienceYears.set($any($event.target).value ? +$any($event.target).value : 0); markTouched('experienceYears')"
+                (blur)="markTouched('experienceYears')"
+                min="0" max="50" placeholder="0" 
+                [class.error]="(touchedFields().has('experienceYears') || isSubmitted()) && errors()['experienceYears']" 
+              />
+              @if ((touchedFields().has('experienceYears') || isSubmitted()) && errors()['experienceYears']) {
+                <span class="error-text">{{ errors()['experienceYears'] }}</span>
+              }
             </div>
             <div class="form-group">
               <label>Giá mỗi giờ (VNĐ)</label>
-              <input type="number" [(ngModel)]="formData.hourlyRate" min="0" placeholder="50000" />
+              <input 
+                type="number" 
+                [value]="formData.hourlyRate()" 
+                (input)="formData.hourlyRate.set($any($event.target).value ? +$any($event.target).value : 0); markTouched('hourlyRate')"
+                (blur)="markTouched('hourlyRate')"
+                min="0" placeholder="50000" 
+                [class.error]="(touchedFields().has('hourlyRate') || isSubmitted()) && errors()['hourlyRate']" 
+              />
+              @if ((touchedFields().has('hourlyRate') || isSubmitted()) && errors()['hourlyRate']) {
+                <span class="error-text">{{ errors()['hourlyRate'] }}</span>
+              }
             </div>
             <div class="form-group full-width">
               <label>Khu vực hoạt động <span class="required">*</span></label>
               <app-address-selector 
-                [initialAddress]="formData.activeArea"
+                [initialAddress]="formData.activeArea()"
                 (addressChange)="onAddressChange($event)"
               ></app-address-selector>
+              @if ((touchedFields().has('activeArea') || isSubmitted()) && errors()['activeArea']) {
+                <span class="error-text">{{ errors()['activeArea'] }}</span>
+              }
             </div>
             <div class="form-group full-width">
               <label>Giới thiệu (Bio)</label>
-              <textarea [(ngModel)]="formData.bio" rows="3" placeholder="Mô tả kinh nghiệm, kỹ năng..."></textarea>
+              <textarea 
+                [value]="formData.bio()" 
+                (input)="formData.bio.set($any($event.target).value)"
+                rows="3" 
+                placeholder="Mô tả kinh nghiệm, kỹ năng..."
+              ></textarea>
             </div>
           </div>
         </div>

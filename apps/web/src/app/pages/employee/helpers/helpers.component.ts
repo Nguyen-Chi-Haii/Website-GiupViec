@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { AdminService, HelperProfile } from '../../../core/services/admin.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { AddressSelectorComponent, AddressResult } from '../../../shared/components/address-selector/address-selector.component';
+import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-employee-helpers',
   standalone: true,
-  imports: [CommonModule, FormsModule, AddressSelectorComponent],
+  imports: [CommonModule, FormsModule, AddressSelectorComponent, PaginationComponent],
   templateUrl: './helpers.component.html',
   styleUrl: './helpers.component.css'
 })
@@ -23,29 +24,86 @@ export class EmployeeHelpersComponent implements OnInit {
   searchQuery = '';
   statusFilter = '';
 
+  // Pagination
+  currentPage = signal(1);
+  pageSize = signal(10);
+  totalPages = signal(1);
+  totalItems = signal(0);
+  
+  // Touched state for real-time feedback
+  touchedFields = signal<Set<string>>(new Set());
+  isSubmitted = signal(false);
+
   formData = {
-    fullName: '',
-    email: '',
-    phone: '',
-    password: '',
-    activeArea: '',
-    bio: '',
-    experienceYears: 0,
-    hourlyRate: 0
+    fullName: signal(''),
+    email: signal(''),
+    phone: signal(''),
+    password: signal(''),
+    activeArea: signal(''),
+    bio: signal(''),
+    experienceYears: signal(0),
+    hourlyRate: signal(0)
   };
 
   editingHelper = signal<HelperProfile | null>(null);
   isEditMode = computed(() => this.editingHelper() !== null);
+
+  // Computed validation errors
+  errors = computed(() => {
+    const errors: Record<string, string> = {};
+    
+    if (!this.isEditMode()) {
+      const fullName = this.formData.fullName().trim();
+      const email = this.formData.email().trim();
+      const password = this.formData.password();
+      const phone = this.formData.phone().trim().replace(/\s/g, '');
+
+      if (!fullName || fullName.length < 2) {
+        errors['fullName'] = 'Họ tên phải có ít nhất 2 ký tự';
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!email || !emailRegex.test(email)) {
+        errors['email'] = 'Email không hợp lệ';
+      }
+
+      if (!password || password.length < 6) {
+        errors['password'] = 'Mật khẩu phải có ít nhất 6 ký tự';
+      }
+
+      const phoneRegex = /^(0|\+84)[0-9]{9,10}$/;
+      if (phone && !phoneRegex.test(phone)) {
+        errors['phone'] = 'Số điện thoại không hợp lệ (10 số)';
+      }
+    }
+
+    if (this.formData.experienceYears() < 0) {
+      errors['experienceYears'] = 'Kinh nghiệm không thể âm';
+    }
+
+    if (this.formData.hourlyRate() < 0) {
+      errors['hourlyRate'] = 'Giá không thể âm';
+    }
+
+    if (!this.formData.activeArea()) {
+      errors['activeArea'] = 'Vui lòng chọn khu vực hoạt động';
+    }
+
+    return errors;
+  });
 
   ngOnInit(): void {
     this.loadHelpers();
   }
 
   loadHelpers(): void {
-    this.adminService.getAllHelperProfiles(1, 100).subscribe({
+    this.isLoading.set(true);
+    this.adminService.getAllHelperProfiles(this.currentPage(), this.pageSize()).subscribe({
       next: (result) => {
         this.helpers.set(result.items);
         this.filteredHelpers.set(result.items);
+        this.totalPages.set(Math.ceil(result.totalCount / result.pageSize));
+        this.totalItems.set(result.totalCount);
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -56,65 +114,63 @@ export class EmployeeHelpersComponent implements OnInit {
   }
 
   applyFilters(): void {
-    let filtered = this.helpers();
-    
-    // Search filter
-    const query = this.searchQuery.toLowerCase().trim();
-    if (query) {
-      filtered = filtered.filter(h => 
-        h.fullName.toLowerCase().includes(query) || 
-        h.email.toLowerCase().includes(query)
-      );
-    }
+    this.currentPage.set(1);
+    this.loadHelpers();
+  }
 
-    // Status filter
-    if (this.statusFilter) {
-      filtered = filtered.filter(h => {
-        const isActive = this.isHelperActive(h.status);
-        return this.statusFilter === 'active' ? isActive : !isActive;
-      });
-    }
-
-    this.filteredHelpers.set(filtered);
+  onPageChange(page: number) {
+    this.currentPage.set(page);
+    this.loadHelpers();
   }
 
   openCreateModal(): void {
     this.editingHelper.set(null); 
-    this.formData = {
-      fullName: '',
-      email: '',
-      phone: '',
-      password: '',
-      activeArea: '',
-      bio: '',
-      experienceYears: 0,
-      hourlyRate: 0
-    };
+    this.formData.fullName.set('');
+    this.formData.email.set('');
+    this.formData.phone.set('');
+    this.formData.password.set('');
+    this.formData.activeArea.set('');
+    this.formData.bio.set('');
+    this.formData.experienceYears.set(0);
+    this.formData.hourlyRate.set(0);
+    
+    this.touchedFields.set(new Set());
+    this.isSubmitted.set(false);
     this.showModal.set(true);
   }
 
   closeModal(): void {
     this.showModal.set(false);
     this.editingHelper.set(null);
+    this.touchedFields.set(new Set());
+    this.isSubmitted.set(false);
   }
 
   onAddressChange(result: AddressResult): void {
-    this.formData.activeArea = result.fullAddress;
+    this.formData.activeArea.set(result.fullAddress);
+    this.markTouched('activeArea');
+  }
+
+  markTouched(field: string): void {
+    if (!this.touchedFields().has(field)) {
+      this.touchedFields.update(prev => new Set(prev).add(field));
+    }
   }
 
   saveHelper(): void {
-    if (!this.formData.activeArea) {
-      this.notification.warning('Vui lòng điền khu vực hoạt động!');
+    this.isSubmitted.set(true);
+    if (Object.keys(this.errors()).length > 0) {
       return;
     }
+
     if (this.isEditMode()) {
       const helper = this.editingHelper();
       if (!helper) return;
       const updateDto = {
-        activeArea: this.formData.activeArea,
-        bio: this.formData.bio || '',
-        experienceYears: this.formData.experienceYears || 0,
-        hourlyRate: this.formData.hourlyRate || 0
+        activeArea: this.formData.activeArea(),
+        bio: this.formData.bio() || '',
+        experienceYears: this.formData.experienceYears() || 0,
+        hourlyRate: this.formData.hourlyRate() || 0
       };
       this.adminService.updateHelperProfile(helper.userId, updateDto).subscribe({
         next: () => {
@@ -125,19 +181,15 @@ export class EmployeeHelpersComponent implements OnInit {
         error: (err) => this.notification.error('Lỗi: ' + (err.error?.message || 'Không thể cập nhật'))
       });
     } else {
-      if (!this.formData.fullName || !this.formData.email || !this.formData.password) {
-        this.notification.warning('Vui lòng điền các trường bắt buộc!');
-        return;
-      }
       const dto = {
-        fullName: this.formData.fullName,
-        email: this.formData.email,
-        phone: this.formData.phone,
-        password: this.formData.password,
-        activeArea: this.formData.activeArea,
-        bio: this.formData.bio,
-        experienceYears: this.formData.experienceYears || 0,
-        hourlyRate: this.formData.hourlyRate || 0
+        fullName: this.formData.fullName(),
+        email: this.formData.email(),
+        phone: this.formData.phone(),
+        password: this.formData.password(),
+        activeArea: this.formData.activeArea(),
+        bio: this.formData.bio(),
+        experienceYears: this.formData.experienceYears() || 0,
+        hourlyRate: this.formData.hourlyRate() || 0
       };
       this.adminService.adminCreateHelper(dto).subscribe({
         next: () => {
@@ -152,13 +204,18 @@ export class EmployeeHelpersComponent implements OnInit {
 
   openEditModal(helper: HelperProfile): void {
     this.editingHelper.set(helper);
-    this.formData = {
-      fullName: '', email: '', password: '', phone: '',
-      activeArea: helper.activeArea,
-      bio: helper.bio || '',
-      experienceYears: helper.experienceYears || 0,
-      hourlyRate: helper.hourlyRate || 0
-    };
+    this.formData.fullName.set(''); 
+    this.formData.email.set('');
+    this.formData.password.set('');
+    this.formData.phone.set('');
+    
+    this.formData.activeArea.set(helper.activeArea);
+    this.formData.bio.set(helper.bio || '');
+    this.formData.experienceYears.set(helper.experienceYears || 0);
+    this.formData.hourlyRate.set(helper.hourlyRate || 0);
+    
+    this.touchedFields.set(new Set());
+    this.isSubmitted.set(false);
     this.showModal.set(true);
   }
 

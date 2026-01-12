@@ -76,7 +76,7 @@
         <!-- Search -->
         <div class="search-box">
           <span class="material-symbols-outlined">search</span>
-          <input type="text" placeholder="Tìm kiếm..." />
+          <input type="text" placeholder="Tìm kiếm..." [(ngModel)]="searchQuery" (keyup.enter)="onSearch()" />
         </div>
         <!-- Notifications -->
         <app-notification-bell></app-notification-bell>

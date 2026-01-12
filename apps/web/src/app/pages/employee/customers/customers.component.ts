@@ -1,14 +1,15 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminService, UserResponse, UserUpdate } from '../../../core/services/admin.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { AddressSelectorComponent, AddressResult } from '../../../shared/components/address-selector/address-selector.component';
+import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-employee-customers',
   standalone: true,
-  imports: [CommonModule, FormsModule, AddressSelectorComponent],
+  imports: [CommonModule, FormsModule, AddressSelectorComponent, PaginationComponent],
   templateUrl: './customers.component.html',
   styleUrl: './customers.component.css'
 })
@@ -24,24 +25,48 @@ export class EmployeeCustomersComponent implements OnInit {
   searchQuery = '';
   statusFilter = '';
 
+  // Pagination
+  currentPage = signal(1);
+  pageSize = signal(10);
+  totalPages = signal(1);
+  totalItems = signal(0);
+
+  // Touched state
+  touchedFields = signal<Set<string>>(new Set());
+  isSubmitted = signal(false);
+
   formData = {
-    fullName: '',
-    email: '',
-    phone: '',
-    address: '',
-    status: 1
+    fullName: signal(''),
+    email: signal(''),
+    phone: signal(''),
+    address: signal(''),
+    status: signal(1)
   };
+
+  errors = computed(() => {
+    const errors: Record<string, string> = {};
+    const fullName = this.formData.fullName().trim();
+    if (!fullName || fullName.length < 2) {
+      errors['fullName'] = 'Họ tên phải có ít nhất 2 ký tự';
+    }
+    return errors;
+  });
 
   ngOnInit(): void {
     this.loadCustomers();
   }
 
   loadCustomers(): void {
-    this.adminService.getAllUsers(1, 100).subscribe({
+    this.isLoading.set(true);
+    // Passing the role 'Customer' to getAllUsers if the API supports it, 
+    // but the current implementation filters locally after fetching.
+    this.adminService.getAllUsers(this.currentPage(), this.pageSize()).subscribe({
       next: (result) => {
         const customers = result.items.filter(u => this.normalizeRole(u.role) === 'customer');
         this.customers.set(customers);
-        this.applyFilters();
+        this.filteredCustomers.set(customers);
+        this.totalPages.set(Math.ceil(result.totalCount / result.pageSize));
+        this.totalItems.set(result.totalCount);
         this.isLoading.set(false);
       },
       error: () => this.isLoading.set(false)
@@ -49,59 +74,56 @@ export class EmployeeCustomersComponent implements OnInit {
   }
 
   applyFilters(): void {
-    let result = this.customers();
-    
-    // Search
-    const query = this.searchQuery.toLowerCase().trim();
-    if (query) {
-      result = result.filter(u => 
-        u.fullName.toLowerCase().includes(query) || 
-        u.email.toLowerCase().includes(query)
-      );
-    }
+    this.currentPage.set(1);
+    this.loadCustomers();
+  }
 
-    // Status
-    if (this.statusFilter) {
-      result = result.filter(u => {
-        const isActive = this.isUserActive(u.status);
-        return this.statusFilter === 'active' ? isActive : !isActive;
-      });
-    }
-
-    this.filteredCustomers.set(result);
+  onPageChange(page: number) {
+    this.currentPage.set(page);
+    this.loadCustomers();
   }
 
   openEditModal(user: UserResponse): void {
     this.editingId = user.id;
-    this.formData = {
-      fullName: user.fullName || '',
-      email: user.email || '',
-      phone: user.phone || '',
-      address: user.address || '',
-      status: this.isUserActive(user.status) ? 1 : 2
-    };
+    this.formData.fullName.set(user.fullName || '');
+    this.formData.email.set(user.email || '');
+    this.formData.phone.set(user.phone || '');
+    this.formData.address.set(user.address || '');
+    this.formData.status.set(this.isUserActive(user.status) ? 1 : 2);
+    
+    this.touchedFields.set(new Set());
+    this.isSubmitted.set(false);
     this.showModal.set(true);
   }
 
   closeModal(): void {
     this.showModal.set(false);
+    this.touchedFields.set(new Set());
+    this.isSubmitted.set(false);
   }
 
   onAddressChange(result: AddressResult): void {
-    this.formData.address = result.fullAddress;
+    this.formData.address.set(result.fullAddress);
+    this.markTouched('address');
+  }
+
+  markTouched(field: string): void {
+    if (!this.touchedFields().has(field)) {
+      this.touchedFields.update(prev => new Set(prev).add(field));
+    }
   }
 
   saveUser(): void {
-    if (!this.formData.fullName) {
-      this.notification.warning('Vui lòng điền họ và tên!');
+    this.isSubmitted.set(true);
+    if (Object.keys(this.errors()).length > 0) {
       return;
     }
 
     const dto: UserUpdate = {
-      fullName: this.formData.fullName,
-      phone: this.formData.phone,
-      address: this.formData.address,
-      status: this.formData.status
+      fullName: this.formData.fullName(),
+      phone: this.formData.phone(),
+      address: this.formData.address(),
+      status: this.formData.status()
     };
 
     this.adminService.updateUser(this.editingId, dto).subscribe({
