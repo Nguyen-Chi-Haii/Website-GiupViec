@@ -6,7 +6,11 @@
     "outDir": "./out-tsc/spec",
     "types": [
       "jasmine"
-    ]
+    ],
+    "paths": {
+      "@giupviec/shared": ["../../packages/shared/src"],
+      "@giupviec/shared/*": ["../../packages/shared/src/*"]
+    }
   },
   "include": [
     "src/**/*.d.ts",
