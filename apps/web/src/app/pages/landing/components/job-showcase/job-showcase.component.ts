@@ -33,49 +33,84 @@ interface CheckJob {
           </div>
         } @else {
           @if (jobs().length > 0) {
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              @for (job of jobs(); track job.id) {
-                <div class="job-card job-card-animate rounded-xl p-6 flex flex-col relative overflow-hidden bg-white dark:bg-[#1a2e27] dark:border-gray-700">
-                  <div class="flex items-center gap-3 mb-4">
-                    <div class="job-icon-wrapper w-10 h-10 rounded-full flex items-center justify-center">
-                      <span class="material-symbols-outlined">work</span>
-                    </div>
-                    <div>
-                      <h3 class="font-semibold text-gray-800 dark:text-white">{{ job.serviceName }}</h3>
-                      <p class="text-xs text-gray-500 dark:text-gray-400">#{{ job.id }}</p>
-                    </div>
-                  </div>
+            
+            @if (jobs().length > 5) {
+              <!-- === MARQUEE LAYOUT (> 5 jobs) === -->
+              <div class="marquee-container py-4">
+                <div class="marquee-track">
+                  <!-- Original List -->
+                  @for (job of jobs(); track job.id) {
+                    <ng-container *ngTemplateOutlet="jobCardTemplate; context: {$implicit: job}"></ng-container>
+                  }
+                  <!-- Duplicated List for Seamless Loop -->
+                  @for (job of jobs(); track 'dup-' + job.id) {
+                    <ng-container *ngTemplateOutlet="jobCardTemplate; context: {$implicit: job}"></ng-container>
+                  }
+                </div>
+              </div>
+            } @else {
+              <!-- === STATIC LAYOUT (<= 5 jobs) === -->
+              <div class="static-row">
+                @for (job of jobs(); track job.id) {
+                  <ng-container *ngTemplateOutlet="jobCardTemplate; context: {$implicit: job}"></ng-container>
+                }
+              </div>
+            }
 
-                  <div class="space-y-2 mb-6 flex-1">
-                    <div class="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-300">
-                      <span class="material-symbols-outlined text-gray-400 text-lg">location_on</span>
-                      <span class="truncate">{{ getCity(job.address) }}</span>
-                    </div>
-                    <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-                      <span class="material-symbols-outlined text-gray-400 text-lg">calendar_today</span>
-                      <span>{{ job.startDate | date:'dd/MM/yyyy' }}</span>
-                    </div>
-                    <div class="flex items-center gap-2 text-sm font-medium text-green-600 dark:text-green-400">
-                      <span class="material-symbols-outlined text-green-500 text-lg">payments</span>
-                      <span>{{ job.totalPrice | currency:'VND':'symbol':'1.0-0' }}</span>
-                    </div>
+            <!-- Reusable Job Card Template -->
+            <ng-template #jobCardTemplate let-job>
+              <div class="premium-glass-card group flex-shrink-0 w-[90vw] md:w-[380px]">
+                
+                <!-- Header -->
+                <div class="flex justify-between items-start mb-6 w-full">
+                  <div class="premium-icon-box">
+                    <span class="material-symbols-outlined">
+                      {{ getServiceIcon(job.serviceName) }}
+                    </span>
                   </div>
+                  <span class="premium-badge">
+                    #JOBS-{{ job.id }}
+                  </span>
+                </div>
 
+                <!-- Title -->
+                <h3 class="premium-title line-clamp-1">
+                  {{ job.serviceName }}
+                </h3>
+
+                <!-- Details -->
+                <div class="space-y-4 mb-8 flex-1 w-full">
+                  <div class="premium-detail-row">
+                    <span class="material-symbols-outlined text-lg">location_on</span>
+                    <span class="truncate">{{ getCity(job.address) }}</span>
+                  </div>
+                  <div class="premium-detail-row">
+                    <span class="material-symbols-outlined text-lg">calendar_today</span>
+                    <span>{{ job.startDate | date:'dd/MM/yyyy' }}</span>
+                  </div>
+                  <div class="premium-detail-row">
+                      <span class="material-symbols-outlined text-lg">verified_user</span>
+                      <span>Đã xác thực</span>
+                  </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="mt-auto w-full">
+                  <div class="flex items-end justify-between mb-4 w-full">
+                    <span class="text-xs font-medium uppercase tracking-widest text-gray-500 dark:text-gray-400">Thanh toán</span>
+                    <span class="premium-price">
+                      {{ job.totalPrice | currency:'VND':'symbol':'1.0-0' }}
+                    </span>
+                  </div>
+                  
                   <a routerLink="/register" [queryParams]="{role: 'Helper'}" 
-                     class="job-apply-btn block w-full py-2.5 text-center border border-green-500 text-green-600 dark:text-green-400 dark:border-green-400 rounded-lg font-medium transition-colors hover:bg-green-50 dark:hover:bg-green-900/20">
-                    Nhận Việc
+                      class="premium-btn">
+                    <span>Nhận Việc Ngay</span>
                   </a>
                 </div>
-              }
-            </div>
+              </div>
+            </ng-template>
 
-            <div class="mt-10 text-center">
-              <a routerLink="/register" [queryParams]="{role: 'Helper'}" 
-                 class="cta-button inline-flex items-center gap-2 px-8 py-3 text-white rounded-full font-semibold shadow-lg">
-                <span>Đăng Ký Làm Helper Ngay</span>
-                <span class="material-symbols-outlined">arrow_forward</span>
-              </a>
-            </div>
           } @else {
             <div class="empty-state-card soft-glow-shadow wave-pattern">
               <!-- Decorative Globs -->
@@ -136,14 +171,15 @@ export class JobShowcaseComponent implements OnInit {
   fetchJobs() {
     this.http.get<any[]>(`${this.apiUrl}/bookings/public/recent`).subscribe({
       next: (data) => {
-        this.jobs.set(data.map(item => ({
+        // Limit to 5 items as requested to maintain layout stability
+        const limitedData = data.slice(0, 5);
+        this.jobs.set(limitedData.map(item => ({
             id: item.id,
             serviceName: item.serviceName || item.service?.name || 'Dịch vụ',
             address: item.address,
             startDate: item.startDate,
             totalPrice: item.totalPrice
         })));
-        // this.jobs.set([]); // FORCE EMPTY FOR TESTING
         this.isLoading.set(false);
       },
       error: () => this.isLoading.set(false)
@@ -154,5 +190,15 @@ export class JobShowcaseComponent implements OnInit {
     if (!address) return 'Toàn quốc';
     const parts = address.split(',');
     return parts[parts.length - 1].trim();
+  }
+
+  getServiceIcon(name: string): string {
+    const lower = name.toLowerCase();
+    if (lower.includes('sofa')) return 'chair'; // sofa
+    if (lower.includes('lạnh')) return 'ac_unit'; // máy lạnh
+    if (lower.includes('dọn')) return 'cleaning_services'; // dọn dẹp
+    if (lower.includes('phòng')) return 'corporate_fare'; // văn phòng
+    if (lower.includes('khử')) return 'sanitizer'; // khử khuẩn
+    return 'home_work'; // default
   }
 }

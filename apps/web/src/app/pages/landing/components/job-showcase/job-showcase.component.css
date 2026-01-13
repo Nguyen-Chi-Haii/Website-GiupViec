@@ -239,3 +239,166 @@
   right: -6rem;
 }
 
+
+/* === PREMIUM STITCH DESIGN === */
+:host {
+  --primary: #10b77f;
+  --surface-dark: #19221f;
+  --card-bg-light: rgba(255, 255, 255, 0.9);
+  --card-bg-dark: rgba(25, 34, 31, 0.7);
+}
+
+.premium-glass-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem; /* p-6 */
+  border-radius: 1rem; /* rounded-2xl */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Size constraint */
+  width: 100%;
+  max-width: 380px; /* Force card-like aspect ratio */
+  margin: 0 auto;   /* Center in grid cell */
+  height: 100%;     /* Fill flex container height */
+  
+  /* Light Mode Default */
+  background: var(--card-bg-light);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(16, 183, 127, 0.1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+:host-context(.dark) .premium-glass-card, 
+.dark .premium-glass-card {
+  background: var(--card-bg-dark);
+  border: 1px solid rgba(16, 183, 127, 0.2);
+}
+
+.premium-glass-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(16, 183, 127, 0.5);
+  box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.3);
+  z-index: 20; /* Ensure it floats above other elements */
+}
+
+/* Service Icon with Glow */
+.premium-icon-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 1rem;
+  background: radial-gradient(circle, rgba(16, 183, 127, 0.2) 0%, rgba(16, 183, 127, 0) 70%);
+  border: 1px solid rgba(16, 183, 127, 0.2);
+  color: var(--primary);
+}
+
+.premium-icon-box .material-symbols-outlined {
+  font-size: 1.75rem;
+}
+
+/* Badge */
+.premium-badge {
+  background: rgba(16, 183, 127, 0.1);
+  color: var(--primary);
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid rgba(16, 183, 127, 0.2);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  /* User requested margin-bottom: 1.8rem instead of margin-top */
+  margin-bottom: 1.8rem;
+}
+
+/* Footer & Button */
+.premium-price {
+  font-size: 1.5rem; /* 2xl */
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.premium-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  height: 3rem;
+  border-radius: 0.75rem; /* rounded-xl */
+  background-color: var(--primary);
+  color: #0a0f0d; /* Dark text on green button for contrast */
+  font-weight: 700;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  text-decoration: none; /* Reset anchor styles */
+}
+
+.premium-btn:hover {
+  background-color: #0fa270;
+  box-shadow: 0 0 20px rgba(16, 183, 127, 0.5);
+  transform: translateY(-1px);
+}
+
+/* Typography Overrides (ensure visibility in both modes) */
+.premium-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #111827; /* Dark gray */
+  transition: color 0.3s;
+}
+
+:host-context(.dark) .premium-title,
+.dark .premium-title {
+  color: #ffffff;
+}
+
+.premium-glass-card:hover .premium-title {
+  color: #34d399; /* emerald-400: Brighter green for better visibility on dark */
+  text-shadow: 0 0 10px rgba(52, 211, 153, 0.2);
+}
+
+/* Static layout for few items */
+.static-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: stretch; /* Make all cards same height */
+  gap: 1.5rem;
+  overflow-x: auto;
+  padding-bottom: 2rem;
+  width: 100%;
+  
+  scrollbar-width: none; 
+  -ms-overflow-style: none;
+}
+.static-row::-webkit-scrollbar { 
+  display: none; 
+}
+
+/* Ensure card fills the height provided by align-items: stretch */
+.premium-glass-card {
+  height: 100%; 
+  /* ... existing styles ... */
+  display: flex;
+  flex-direction: column;
+}
+
+.premium-detail-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #6b7280; /* gray-500 */
+  font-size: 0.875rem;
+}
+
+:host-context(.dark) .premium-detail-row,
+.dark .premium-detail-row {
+  color: #9ca3af; /* gray-400 */
+}
