@@ -107,6 +107,15 @@ export class NotificationBellComponent implements OnInit {
     this.closeDropdown();
   }
 
+  // System Notification Helpers
+  get permissionStatus(): NotificationPermission {
+    return Notification.permission;
+  }
+
+  requestPermission() {
+    Notification.requestPermission();
+  }
+
   ngOnDestroy() {
     // Cleanup if needed
   }

@@ -30,8 +30,32 @@
       <div class="form-container">
         <!-- Header -->
         <div class="form-header">
-          <h1 class="form-title">Tạo tài khoản mới</h1>
-          <p class="form-subtitle">Tham gia cộng đồng của chúng tôi để trải nghiệm dịch vụ tốt nhất.</p>
+          <h1 class="form-title">
+            {{ role() === UserRole.Helper ? 'Đăng ký trở thành Helper' : 'Tạo tài khoản mới' }}
+          </h1>
+          <p class="form-subtitle">
+            {{ role() === UserRole.Helper ? 'Kiếm thêm thu nhập với thời gian linh hoạt.' : 'Tham gia cộng đồng của chúng tôi để trải nghiệm dịch vụ tốt nhất.' }}
+          </p>
+        </div>
+
+        <!-- Role Tabs -->
+        <div class="role-tabs">
+          <button 
+            type="button" 
+            class="role-tab" 
+            [class.active]="role() === UserRole.Customer"
+            (click)="setRole(UserRole.Customer)">
+            <span class="material-symbols-outlined">person</span>
+            Khách Hàng
+          </button>
+          <button 
+            type="button" 
+            class="role-tab" 
+            [class.active]="role() === UserRole.Helper"
+            (click)="setRole(UserRole.Helper)">
+            <span class="material-symbols-outlined">cleaning_services</span>
+            Người Giúp Việc
+          </button>
         </div>
 
         <!-- Error Message -->

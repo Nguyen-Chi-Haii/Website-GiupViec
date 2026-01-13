@@ -30,6 +30,9 @@ export class ChatService {
   private messageSubject = new Subject<ChatMessage>();
   public message$ = this.messageSubject.asObservable();
 
+  private notificationSubject = new Subject<any>();
+  public notification$ = this.notificationSubject.asObservable();
+
   constructor() {}
 
   public async startConnection(): Promise<void> {
@@ -61,6 +64,10 @@ export class ChatService {
         bookingId: data.bookingId
       };
       this.messageSubject.next(msg);
+    });
+
+    this.hubConnection.on('ReceiveNotification', (data: any) => {
+      this.notificationSubject.next(data);
     });
 
     this.hubConnection.onreconnecting(() => this.isConnected.set(false));

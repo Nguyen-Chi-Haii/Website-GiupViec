@@ -1,7 +1,7 @@
-import { Component, signal, inject, computed } from '@angular/core';
+import { Component, signal, inject, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { UserRole } from '@giupviec/shared';
 import { AuthService } from '../../../core/services/auth.service';
 import { AddressSelectorComponent, AddressResult } from '../../../shared/components/address-selector/address-selector.component';
@@ -13,7 +13,7 @@ import { AddressSelectorComponent, AddressResult } from '../../../shared/compone
   templateUrl: './register.component.html',
   styleUrl: './register.component.css'
 })
-export class RegisterComponent {
+export class RegisterComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
@@ -21,6 +21,8 @@ export class RegisterComponent {
   successMessage = signal<string | null>(null);
   
   // Form state
+  // role = signal<UserRole>(UserRole.Customer); // Need to import UserRole or use string if enum not available in template easily without import
+  role = signal<UserRole>(UserRole.Customer);
   fullName = signal('');
   email = signal('');
   phone = signal('');
@@ -36,6 +38,24 @@ export class RegisterComponent {
   // Touched state for real-time feedback
   touchedFields = signal<Set<string>>(new Set());
   isSubmitted = signal(false);
+
+  // Expose UserRole to template
+  UserRole = UserRole;
+
+  private readonly route = inject(ActivatedRoute);
+
+  ngOnInit() {
+    this.route.queryParams.subscribe(params => {
+      if (params['role'] === 'Helper') {
+        this.role.set(UserRole.Helper);
+      }
+    });
+  }
+
+  setRole(role: UserRole) {
+    this.role.set(role);
+    // Reset form errors when switching roles if needed, or keep them
+  }
 
   // Computed validation errors
   errors = computed(() => {
@@ -113,14 +133,14 @@ export class RegisterComponent {
 
     this.isLoading.set(true);
 
-    // Call API to register (always as Customer)
+    // Call API to register
     this.authService.register({
       fullName: this.fullName(),
       email: this.email(),
       phone: this.phone(),
       address: this.address() || undefined,
       password: this.password(),
-      role: UserRole.Customer,
+      role: this.role(),
       status: 1 // Active
     }).subscribe({
       next: () => {

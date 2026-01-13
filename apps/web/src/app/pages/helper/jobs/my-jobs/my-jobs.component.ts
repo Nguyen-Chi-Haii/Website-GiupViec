@@ -36,6 +36,16 @@ export class MyJobsComponent implements OnInit {
 
   ngOnInit() {
     this.loadJobs();
+
+    // Listen to real-time updates
+    this.chatService.notification$.subscribe((noti: any) => {
+      if (noti.relatedEntityType === 'Booking') {
+        // Refresh list if status changes relevant to helper
+        if (['BookingConfirmed', 'BookingCompleted', 'BookingCancelled'].includes(noti.type)) {
+           this.loadJobs();
+        }
+      }
+    });
   }
 
   loadJobs() {

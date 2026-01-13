@@ -14,9 +14,14 @@
   <div *ngIf="isOpen()" class="notification-dropdown">
     <div class="dropdown-header">
        <h3>Thông báo</h3>
-       <button class="mark-read-btn" (click)="markAllRead()" *ngIf="unreadCount() > 0">
-         Đánh dấu tất cả đã đọc
-       </button>
+       <div class="header-actions">
+         <button class="icon-btn" (click)="requestPermission()" *ngIf="permissionStatus === 'default'" title="Bật thông báo hệ thống">
+            <span class="material-symbols-outlined">notifications_active</span>
+         </button>
+         <button class="mark-read-btn" (click)="markAllRead()" *ngIf="unreadCount() > 0">
+           Đánh dấu tất cả đã đọc
+         </button>
+       </div>
     </div>
     
     <div class="notification-list">

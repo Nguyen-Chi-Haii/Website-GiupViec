@@ -31,7 +31,7 @@ export class LandingPageComponent {
   
   activeSection = signal('');
 
-  private readonly sections = ['#services', '#pricing', '#about'];
+  private readonly sections = ['#services', '#jobs', '#about'];
 
   @HostListener('window:scroll')
   onScroll(): void {

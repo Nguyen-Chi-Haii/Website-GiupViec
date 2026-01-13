@@ -55,12 +55,6 @@ namespace GiupViecAPI.Services
                 // might not translate StartDate.Add(WorkShiftStart) effectively in all providers
                 
                 var expiredJobs = await context.Bookings
-                    .Where(b => b.Status == BookingStatus.Pending && !b.IsJobPost) // Wait, strictly Job Posts? Or any Pending Booking? User said "bai dang" (Job Post).
-                    // Usually "Pending" without helper means it's available for grab or waiting assignment.
-                    // If IsJobPost is true, it might be in "Hiring" (Approved) status?
-                    // Let's check BookingStatus again. Pending = 1.
-                    // If job is "Approved" for hiring, is Status still Pending? Yes. ApprovalStatus is Approved.
-                    
                     .Where(b => b.Status == BookingStatus.Pending)
                     .Where(b => b.StartDate < now.Date) // Definitely expired (yesterday or earlier)
                     .ToListAsync(stoppingToken);

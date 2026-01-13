@@ -3,6 +3,7 @@ using GiupViecAPI.Model.Domain;
 using GiupViecAPI.Model.DTO.Notification;
 using GiupViecAPI.Model.Enums;
 using GiupViecAPI.Services.Interface;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace GiupViecAPI.Services.Repositories
@@ -10,10 +11,12 @@ namespace GiupViecAPI.Services.Repositories
     public class NotificationService : INotificationService
     {
         private readonly GiupViecDBContext _context;
+        private readonly IHubContext<GiupViecAPI.Hubs.ChatHub> _hubContext;
 
-        public NotificationService(GiupViecDBContext context)
+        public NotificationService(GiupViecDBContext context, IHubContext<GiupViecAPI.Hubs.ChatHub> hubContext)
         {
             _context = context;
+            _hubContext = hubContext;
         }
 
         public async Task CreateNotificationAsync(int userId, string title, string message, NotificationType type, int? relatedEntityId = null, string? relatedEntityType = null)
@@ -32,6 +35,21 @@ namespace GiupViecAPI.Services.Repositories
 
             _context.Notifications.Add(notification);
             await _context.SaveChangesAsync();
+
+            // Send Real-time Notification
+            var notificationDTO = new NotificationResponseDTO
+            {
+                Id = notification.Id,
+                Title = notification.Title,
+                Message = notification.Message,
+                Type = notification.Type.ToString(),
+                IsRead = notification.IsRead,
+                RelatedEntityId = notification.RelatedEntityId,
+                RelatedEntityType = notification.RelatedEntityType,
+                CreatedAt = notification.CreatedAt
+            };
+
+            await _hubContext.Clients.User(userId.ToString()).SendAsync("ReceiveNotification", notificationDTO);
         }
 
         public async Task<List<NotificationResponseDTO>> GetUserNotificationsAsync(int userId, int skip = 0, int take = 20)

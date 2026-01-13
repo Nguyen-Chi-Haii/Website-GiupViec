@@ -1,19 +1,5 @@
 <div class="page">
-  <div class="page-header">
-    <div>
-      <h2>Công Việc Của Tôi</h2>
-      <p class="subtitle">Quản lý và theo dõi các công việc bạn đã nhận</p>
-    </div>
-    <div class="header-actions">
-      <button 
-        *ngFor="let status of statuses"
-        (click)="onFilterChange(status)"
-        [class.active]="selectedStatus() === status"
-        class="filter-btn">
-        {{ getStatusLabel(status) }}
-      </button>
-    </div>
-  </div>
+  <!-- Header Removed (Handled by Layout) -->
 
   <!-- Loading State -->
   <div *ngIf="isLoading()" class="loading-container">
@@ -100,8 +86,13 @@
 
       <!-- Actions -->
       <div class="card-footer">
+        <div *ngIf="job.helperConfirmed && job.status !== 'Completed'" class="waiting-confirmation">
+          <span class="material-symbols-outlined">hourglass_top</span>
+          <span>Đã xác nhận. Chờ khách hàng...</span>
+        </div>
+
         <button 
-          *ngIf="canComplete(job)"
+          *ngIf="canComplete(job) && !job.helperConfirmed"
           (click)="confirmCompletion(job.id)"
           class="btn-complete">
           <span class="material-symbols-outlined">check_circle</span>
@@ -198,9 +189,14 @@
     </div>
     
     <div class="modal-footer">
+      <div *ngIf="selectedJob()!.helperConfirmed && selectedJob()!.status !== 'Completed'" class="waiting-confirmation mr-auto">
+        <span class="material-symbols-outlined">hourglass_top</span>
+        <span>Đã xác nhận. Chờ khách hàng...</span>
+      </div>
+
       <button class="btn-outline" (click)="closeDetailModal()">Đóng</button>
       <button 
-        *ngIf="canComplete(selectedJob()!)"
+        *ngIf="canComplete(selectedJob()!) && !selectedJob()!.helperConfirmed"
         (click)="confirmCompletion(selectedJob()!.id)"
         class="btn-primary">
         <span class="material-symbols-outlined">check_circle</span>

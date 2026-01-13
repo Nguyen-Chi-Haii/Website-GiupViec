@@ -9,6 +9,8 @@ import { BookingResponseDTO } from '@giupviec/shared';
 
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 
+import { ChatService } from '../../../core/services/chat.service';
+
 @Component({
   selector: 'app-my-job-posts',
   standalone: true,
@@ -21,6 +23,7 @@ export class CustomerMyJobPostsComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly bookingState = inject(BookingStateService);
   private readonly notification = inject(NotificationService);
+  private readonly chatService = inject(ChatService);
 
   isLoading = signal(true);
   jobPosts = signal<BookingResponseDTO[]>([]);
@@ -41,6 +44,16 @@ export class CustomerMyJobPostsComponent implements OnInit {
   ngOnInit(): void {
     console.log('[MyJobPosts] Component initialized');
     this.loadJobPosts();
+
+    // Listen to real-time updates
+    this.chatService.notification$.subscribe((noti: any) => {
+      if (noti.relatedEntityType === 'Booking') {
+        // Refresh list if status changes
+        if (['BookingApproved', 'BookingRejected', 'BookingAccepted', 'BookingCancelled'].includes(noti.type)) {
+           this.loadJobPosts();
+        }
+      }
+    });
   }
 
   loadJobPosts(): void {
@@ -54,6 +67,7 @@ export class CustomerMyJobPostsComponent implements OnInit {
       approvalStatus = 'Pending';
     } else if (filter === 'hiring') {
       approvalStatus = 'Approved';
+      status = 'Pending';
     } else if (filter === 'cancelled') {
         // Map cancelled/rejected to status
         status = 'Cancelled';

@@ -822,7 +822,7 @@ namespace GiupViecAPI.Services.Repositories
             await _db.SaveChangesAsync();
 
             // --- NOTIFICATION: Completion (If becomes Completed) ---
-            if (booking.Status == BookingStatus.Completed)
+             if (booking.Status == BookingStatus.Completed)
             {
                  // Notify Helper (Self is Customer, so notify Helper)
                  if (booking.HelperId.HasValue)
@@ -834,6 +834,9 @@ namespace GiupViecAPI.Services.Repositories
                          NotificationType.BookingCompleted, booking.Id, "Booking"
                      );
                  }
+                 
+                 // Notify Admins
+                 await NotifyAdminsBookingCompleted(booking);
             }
             // -----------------------------------------------------
 
@@ -925,6 +928,9 @@ namespace GiupViecAPI.Services.Repositories
                      $"Nhân viên đã xác nhận hoàn thành đơn #{booking.Id}. Đơn hàng đã kết thúc.",
                      NotificationType.BookingCompleted, booking.Id, "Booking"
                  );
+
+                 // Notify Admins
+                 await NotifyAdminsBookingCompleted(booking);
              }
              // -----------------------------------------------------
 
@@ -1043,10 +1049,15 @@ namespace GiupViecAPI.Services.Repositories
 
                 foreach (var adminId in adminsAndEmployees)
                 {
+                    string title = booking.IsJobPost ? "Bài đăng mới" : "Đơn đặt hàng mới";
+                    string message = booking.IsJobPost 
+                        ? $"Có bài đăng tìm việc mới #{booking.Id} (Dịch vụ: #{booking.ServiceId}) cần duyệt."
+                        : $"Có đơn đặt hàng mới #{booking.Id} (Dịch vụ: #{booking.ServiceId}) cần duyệt.";
+
                     await _notificationService.CreateNotificationAsync(
                         adminId,
-                        "Đơn đặt hàng mới",
-                        $"Có đơn đặt hàng mới #{booking.Id} (Dịch vụ: #{booking.ServiceId}) cần duyệt.",
+                        title,
+                        message,
                         NotificationType.BookingCreated,
                         booking.Id,
                         "Booking"
@@ -1057,6 +1068,33 @@ namespace GiupViecAPI.Services.Repositories
             {
                 // Log error but don't fail booking creation
                 Console.WriteLine($"Error sending admin notifications: {ex.Message}");
+            }
+        }
+
+        private async Task NotifyAdminsBookingCompleted(Booking booking)
+        {
+            try
+            {
+                var admins = await _userManager.Users
+                    .Where(u => u.Role == UserRoles.Admin)
+                    .Select(u => u.Id)
+                    .ToListAsync();
+
+                foreach (var adminId in admins)
+                {
+                    await _notificationService.CreateNotificationAsync(
+                        adminId,
+                        "Đơn hàng hoàn thành",
+                        $"Đơn hàng #{booking.Id} đã được cả khách hàng và nhân viên xác nhận hoàn thành.",
+                        NotificationType.BookingCompleted,
+                        booking.Id,
+                        "Booking"
+                    );
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error sending admin completion notifications: {ex.Message}");
             }
         }
 

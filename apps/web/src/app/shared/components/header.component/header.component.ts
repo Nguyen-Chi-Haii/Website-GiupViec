@@ -16,7 +16,7 @@ export class HeaderComponent {
 
   readonly navLinks = [
     { label: 'Dịch Vụ', href: '#services' },
-    { label: 'Bảng Giá', href: '#pricing' },
+    { label: 'Việc Làm', href: '#jobs' },
     { label: 'Giới Thiệu', href: '#about' }
   ];
 

@@ -13,6 +13,8 @@ import { ProvinceResponse } from '../../../core/types/vietnam-provinces.types';
 
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 
+import { ChatService } from '../../../core/services/chat.service';
+
 @Component({
   selector: 'app-available-jobs',
   standalone: true,
@@ -26,6 +28,7 @@ export class AvailableJobsComponent implements OnInit {
   private provincesService = inject(VietnamProvincesService);
   private toastr = inject(ToastrService);
   private router = inject(Router);
+  private chatService = inject(ChatService);
 
   jobs = signal<BookingResponseDTO[]>([]);
   services = signal<ServiceResponse[]>([]);
@@ -49,6 +52,16 @@ export class AvailableJobsComponent implements OnInit {
     this.loadServices();
     this.loadProvinces();
     this.loadJobs();
+
+    // Listen to real-time updates
+    this.chatService.notification$.subscribe((noti: any) => {
+      if (noti.relatedEntityType === 'Booking') {
+        // Refresh list if new job approved or job accepted by someone else
+        if (['BookingApproved', 'BookingAccepted'].includes(noti.type)) {
+           this.loadJobs();
+        }
+      }
+    });
   }
 
   loadProvinces() {
