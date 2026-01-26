@@ -1,6 +1,9 @@
 <div class="layout">
+  <!-- Mobile Overlay -->
+  <div class="sidebar-overlay" [class.show]="isMobileMenuOpen()" (click)="closeMobileMenu()"></div>
+
   <!-- Sidebar -->
-  <aside class="sidebar" [class.collapsed]="sidebarCollapsed()">
+  <aside class="sidebar" [class.collapsed]="sidebarCollapsed()" [class.mobile-open]="isMobileMenuOpen()">
     <div class="sidebar-header">
       <a class="logo" routerLink="/">
         <div class="logo-icon">
@@ -17,34 +20,39 @@
           {{ sidebarCollapsed() ? 'chevron_right' : 'chevron_left' }}
         </span>
       </button>
+      
+      <!-- Close button for mobile -->
+      <button class="toggle-btn mobile-close" (click)="closeMobileMenu()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
     </div>
 
     <nav class="sidebar-nav">
-      <a routerLink="/employee" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
+      <a routerLink="/employee" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item" (click)="closeMobileMenu()">
         <span class="material-symbols-outlined">dashboard</span>
         @if (!sidebarCollapsed()) { <span>Tổng Quan</span> }
       </a>
-      <a routerLink="/employee/bookings" routerLinkActive="active" class="nav-item">
+      <a routerLink="/employee/bookings" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()">
         <span class="material-symbols-outlined">receipt_long</span>
         @if (!sidebarCollapsed()) { <span>Quản Lý Đơn</span> }
       </a>
-      <a routerLink="/employee/approvals" routerLinkActive="active" class="nav-item">
+      <a routerLink="/employee/approvals" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()">
         <span class="material-symbols-outlined">playlist_add_check</span>
         @if (!sidebarCollapsed()) { <span>Quản Lý Bài Đăng</span> }
       </a>
-      <a routerLink="/employee/helpers" routerLinkActive="active" class="nav-item">
+      <a routerLink="/employee/helpers" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()">
         <span class="material-symbols-outlined">engineering</span>
         @if (!sidebarCollapsed()) { <span>Nguời Giúp Việc</span> }
       </a>
-      <a routerLink="/employee/customers" routerLinkActive="active" class="nav-item">
+      <a routerLink="/employee/customers" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()">
         <span class="material-symbols-outlined">person</span>
         @if (!sidebarCollapsed()) { <span>Khách Hàng</span> }
       </a>
-      <a routerLink="/employee/calendar" routerLinkActive="active" class="nav-item">
+      <a routerLink="/employee/calendar" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()">
         <span class="material-symbols-outlined">calendar_month</span>
         @if (!sidebarCollapsed()) { <span>Lịch Vận Hành</span> }
       </a>
-      <a routerLink="/employee/services" routerLinkActive="active" class="nav-item">
+      <a routerLink="/employee/services" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()">
         <span class="material-symbols-outlined">service_toolbox</span>
         @if (!sidebarCollapsed()) { <span>Dịch Vụ</span> }
       </a>
@@ -73,7 +81,11 @@
   <main class="main-content">
     <!-- Top Header -->
     <header class="top-header">
-      <div class="header-left"></div>
+      <div class="header-left flex items-center gap-3">
+        <button class="menu-btn" (click)="toggleMobileMenu()">
+          <span class="material-symbols-outlined">menu</span>
+        </button>
+      </div>
       <div class="header-right">
         <!-- Search -->
         <div class="search-box">

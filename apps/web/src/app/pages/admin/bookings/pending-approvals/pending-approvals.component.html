@@ -20,50 +20,55 @@
       @if (isLoading()) {
         <div class="loading">Đang tải...</div>
       } @else {
-        <table class="data-table">
+        <table class="data-table responsive-table">
           <thead>
             <tr>
-              <th>Mã đơn</th>
-              <th>Khách hàng</th>
-              <th>Dịch vụ</th>
-              <th>Địa chỉ</th>
-              <th>Ngày bắt đầu</th>
-              <th>Ngày kết thúc</th>
-              <th>Trạng thái</th>
-              <th>Tổng tiền</th>
-              <th>Hành động</th>
+              <th>ID</th>
+              <th>Khách Hàng</th>
+              <th>Dịch Vụ</th>
+              <th>Chi Tiết</th>
+              <th>Thời Gian</th>
+              <th>Địa Chỉ</th>
+              <th>Trạng Thái</th>
+              <th>Hành Động</th>
             </tr>
           </thead>
           <tbody>
-            @for (job of filteredBookings(); track job.id) {
+            @for (booking of filteredBookings(); track booking.id) {
               <tr>
-                <td class="font-medium">#{{ job.id }}</td>
-                <td>{{ job.customerName }}</td>
-                <td class="text-muted">{{ job.serviceName }}</td>
-                <td class="text-muted">{{ job.address }}</td>
-                <td class="text-muted">{{ job.startDate | date:'dd/MM/yyyy' }}</td>
-                <td class="text-muted">{{ job.endDate | date:'dd/MM/yyyy' }}</td>
-                <td>
-                  <span class="status-badge" [class]="getStatusClass(job)">
-                    {{ getStatusLabel(job) }}
+                <td class="font-medium" data-label="ID">#{{ booking.id }}</td>
+                <td data-label="Khách Hàng">{{ booking.customerName }}</td>
+                <td class="text-muted" data-label="Dịch Vụ">{{ booking.serviceName }}</td>
+                <td data-label="Chi Tiết">
+                    <div class="booking-details">
+                        <small>{{ booking.notes }}</small>
+                    </div>
+                </td>
+                <td class="text-muted" data-label="Thời Gian">
+                    {{ booking.startDate | date:'dd/MM/yyyy' }} <br>
+                    <small>{{ booking.startTime }} - {{ booking.endTime }}</small>
+                </td>
+                <td class="truncate" [title]="booking.address" data-label="Địa Chỉ">{{ booking.address }}</td>
+                <td data-label="Trạng Thái">
+                  <span class="status-badge" [class]="getStatusClass(booking)">
+                    {{ getStatusLabel(booking) }}
                   </span>
                 </td>
-                <td class="font-medium">{{ job.totalPrice | number }}₫</td>
-                <td>
+                <td data-label="Hành Động">
                   <div class="action-buttons">
-                    <button class="icon-btn" title="Xem chi tiết" (click)="openDetailModal(job)">
+                    <button class="icon-btn" title="Xem chi tiết" (click)="openDetailModal(booking)">
                       <span class="material-symbols-outlined">visibility</span>
                     </button>
-                    @if (getJobStatus(job) === 'pending_approval') {
-                      <button class="icon-btn success" title="Phê duyệt" (click)="openApproveModal(job)">
+                    @if (getJobStatus(booking) === 'pending_approval') {
+                      <button class="icon-btn success" title="Phê duyệt" (click)="openApproveModal(booking)">
                         <span class="material-symbols-outlined">check</span>
                       </button>
-                      <button class="icon-btn danger" title="Từ chối" (click)="openRejectModal(job)">
+                      <button class="icon-btn danger" title="Từ chối" (click)="openRejectModal(booking)">
                         <span class="material-symbols-outlined">close</span>
                       </button>
                     }
-                    @if (getJobStatus(job) === 'hiring') {
-                      <button class="icon-btn primary" title="Gán người làm" (click)="openAssignModal(job)">
+                    @if (getJobStatus(booking) === 'hiring') {
+                      <button class="icon-btn primary" title="Gán người làm" (click)="openAssignModal(booking)">
                         <span class="material-symbols-outlined">person_add</span>
                       </button>
                     }

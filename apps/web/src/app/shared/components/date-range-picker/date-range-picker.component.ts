@@ -138,6 +138,13 @@ export interface DateRange {
 
       .date-inputs {
         width: 100%;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      
+      .separator {
+        transform: rotate(90deg);
+        display: none; /* Hide separator in vertical layout or rotate it */
       }
     }
   `]

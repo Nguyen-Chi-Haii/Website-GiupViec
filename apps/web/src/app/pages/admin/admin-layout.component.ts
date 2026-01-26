@@ -57,6 +57,15 @@ export class AdminLayoutComponent implements OnInit {
   }
 
   searchQuery = '';
+  isSidebarOpen = false;
+
+  toggleSidebar(): void {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.isSidebarOpen = false;
+  }
 
   onSearch(): void {
     if (this.searchQuery.trim()) {

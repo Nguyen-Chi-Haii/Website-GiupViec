@@ -189,3 +189,135 @@
   text-align: center;
   color: #638884;
 }
+
+/* Responsive Design */
+
+/* Mobile: <= 480px */
+@media (max-width: 480px) {
+  .dashboard {
+    gap: 1rem;
+  }
+
+  /* Compact Stats Grid (2 columns) */
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+  
+  /* Make important cards or odd ones span full width if needed */
+  /* Here we have 6 cards, so 2x3 is perfect. 
+     If we want 'Pending' (item 6) to stand out or 'Revenue' (item 5), we can adjust.
+     Let's keep it simple 2x3 grid. */
+  
+  .stat-card {
+    padding: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .stat-icon {
+    width: 36px;
+    height: 36px;
+    margin-bottom: 0.25rem;
+  }
+
+  .stat-icon .material-symbols-outlined {
+    font-size: 18px;
+  }
+  
+  .stat-value {
+    font-size: 1.125rem;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    margin-bottom: 0;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+  
+  .data-table th, 
+  .data-table td {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  .status-badge {
+    padding: 0.2rem 0.5rem;
+    font-size: 0.7rem;
+  }
+}
+
+/* Tablets: 481px - 768px */
+@media (min-width: 481px) and (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .section-header {
+    padding: 1rem 1.25rem;
+  }
+}
+
+/* Tablets Landscape: 769px - 1024px */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Mobile Table Card Layout */
+@media (max-width: 768px) {
+  .data-table thead {
+    display: none;
+  }
+
+  .data-table tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .data-table tr {
+    display: block;
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+
+  .data-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border: none;
+    border-bottom: 1px solid #f3f4f6;
+    text-align: right;
+  }
+
+  .data-table td:last-child {
+    border-bottom: none;
+  }
+
+  .data-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #6b7280;
+    font-size: 0.85rem;
+    text-align: left;
+    margin-right: 1rem;
+  }
+  
+  .data-table td.empty-state {
+      display: block;
+      text-align: center;
+  }
+}

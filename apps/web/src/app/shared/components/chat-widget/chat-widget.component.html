@@ -10,7 +10,7 @@
         </button>
     </div>
 
-    <div class="chat-body">
+    <div class="chat-body" [class.has-active-chat]="!!currentPartner()">
         <!-- Sidebar: Conversations List -->
         <div class="chat-sidebar">
             <div class="search-box">
@@ -66,6 +66,9 @@
             <ng-container *ngIf="currentPartner() as partner; else noChatSelected">
                 <!-- Chat Partner Header -->
                 <div class="partner-header">
+                    <button class="back-btn mobile-only" (click)="backToConversations()">
+                        <span class="material-symbols-outlined">arrow_back</span>
+                    </button>
                     <div class="avatar small">
                         {{ getInitials(partner.fullName) }}
                     </div>

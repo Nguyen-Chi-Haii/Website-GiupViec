@@ -235,13 +235,60 @@
 }
 
 /* Mobile Responsive */
+/* Mobile Toggle & Overlay */
+.menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text-dark);
+}
+
+.menu-btn:hover { background: var(--gray-100); }
+
+.mobile-close { display: none; margin-left: auto; }
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  z-index: 998;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.sidebar-overlay.show { opacity: 1; visibility: visible; }
+
+/* Mobile Responsive */
 @media (max-width: 768px) {
   .sidebar {
-    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 999;
+    transform: translateX(-100%);
+    box-shadow: none;
+    width: 280px !important; /* Force width on mobile */
   }
-  .search-box {
-    display: none;
+  
+  .sidebar.mobile-open {
+    transform: translateX(0);
+    box-shadow: 4px 0 24px rgba(0,0,0,0.15);
   }
+  
+  .search-box { display: none; }
+  
+  .menu-btn { display: flex; align-items: center; justify-content: center; }
+  
+  /* Hide desktop toggle in mobile sidebar */
+  .sidebar .toggle-btn:not(.mobile-close) { display: none; }
+  
+  .mobile-close { display: block; }
 }
 
 /* Collapsed Sidebar overrides */

@@ -7,7 +7,31 @@
 .month-label { font-weight: 600; min-width: 140px; text-align: center; }
 .loading { padding: 3rem; text-align: center; color: #638884; }
 .schedule-container { display: grid; grid-template-columns: 1fr 350px; gap: 1.5rem; }
-@media (max-width: 1024px) { .schedule-container { grid-template-columns: 1fr; } }
+
+@media (max-width: 1024px) { 
+    .schedule-container { grid-template-columns: 1fr; } 
+}
+
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .month-nav {
+        width: 100%;
+        justify-content: space-between;
+        background: white;
+        padding: 0.5rem;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .month-label {
+        font-size: 1rem;
+    }
+}
 .calendar { background: white; border-radius: 12px; border: 1px solid #e5e7eb; overflow: hidden; }
 .calendar-header { display: grid; grid-template-columns: repeat(7, 1fr); background: #f6f8f8; }
 .day-header { padding: 1rem; text-align: center; font-size: 0.8rem; font-weight: 600; color: #638884; text-transform: uppercase; }

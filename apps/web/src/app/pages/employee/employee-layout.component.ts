@@ -23,6 +23,8 @@ export class EmployeeLayoutComponent implements OnInit {
   searchQuery = '';
 
   sidebarCollapsed = signal(false);
+  isMobileMenuOpen = signal(false);
+  
   currentUser = this.authService.currentUser;
 
   ngOnInit(): void {
@@ -33,6 +35,14 @@ export class EmployeeLayoutComponent implements OnInit {
 
   toggleSidebar(): void {
     this.sidebarCollapsed.update(v => !v);
+  }
+  
+  toggleMobileMenu(): void {
+    this.isMobileMenuOpen.update(v => !v);
+  }
+  
+  closeMobileMenu(): void {
+    this.isMobileMenuOpen.set(false);
   }
 
   getUserInitials(): string {

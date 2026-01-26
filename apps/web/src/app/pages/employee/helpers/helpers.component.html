@@ -23,7 +23,7 @@
       @if (isLoading()) {
         <div class="loading">Đang tải...</div>
       } @else {
-        <table class="data-table">
+        <table class="data-table responsive-table">
           <thead>
             <tr>
               <th style="width: 60px;">ID</th>
@@ -39,26 +39,26 @@
           <tbody>
             @for (helper of filteredHelpers(); track helper.id) {
               <tr>
-                <td class="font-medium">#{{ helper.id }}</td>
-                <td>
+                <td class="font-medium" data-label="ID">#{{ helper.id }}</td>
+                <td data-label="Họ tên">
                   <div class="user-cell">
                     <div class="user-avatar">{{ getInitials(helper.fullName) }}</div>
                     <span>{{ helper.fullName }}</span>
                   </div>
                 </td>
-                <td class="text-muted truncate" [title]="helper.email">{{ helper.email }}</td>
-                 <td class="text-muted truncate" [title]="helper.activeArea">{{ helper.activeArea }}</td>
-                <td>{{ helper.experienceYears }} năm</td>
-                <td>
+                <td class="text-muted truncate" [title]="helper.email" data-label="Email">{{ helper.email }}</td>
+                 <td class="text-muted truncate" [title]="helper.activeArea" data-label="Khu vực">{{ helper.activeArea }}</td>
+                <td data-label="Kinh nghiệm">{{ helper.experienceYears }} năm</td>
+                <td data-label="Đánh giá">
                    <span class="rating">⭐ {{ helper.ratingAverage | number:'1.1-1' }}</span>
                    <small class="text-muted" style="display: block; font-size: 0.7rem;">({{ helper.ratingCount || 0 }} đánh giá)</small>
                 </td>
-                <td>
+                <td data-label="Trạng thái">
                   <span class="status-badge" [class]="getStatusClass(helper.status)">
                     {{ getStatusLabel(helper.status) }}
                   </span>
                 </td>
-                <td>
+                <td data-label="Hành động">
                   <div class="action-buttons">
                   <button class="icon-btn edit-btn" title="Sửa" (click)="openEditModal(helper)">
                     <span class="material-symbols-outlined">edit</span>

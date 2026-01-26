@@ -1,6 +1,9 @@
 <div class="layout">
+  <!-- Mobile Overlay -->
+  <div class="sidebar-overlay" [class.show]="isMobileMenuOpen()" (click)="closeMobileMenu()"></div>
+
   <!-- Sidebar -->
-  <aside class="sidebar" [class.collapsed]="sidebarCollapsed()">
+  <aside class="sidebar" [class.collapsed]="sidebarCollapsed()" [class.mobile-open]="isMobileMenuOpen()">
     <div class="sidebar-header">
       <a class="logo" routerLink="/">
         <div class="logo-icon">
@@ -17,27 +20,32 @@
           {{ sidebarCollapsed() ? 'chevron_right' : 'chevron_left' }}
         </span>
       </button>
+
+      <!-- Close button for mobile -->
+      <button class="toggle-btn mobile-close" (click)="closeMobileMenu()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
     </div>
 
     <nav class="sidebar-nav">
-      <a routerLink="/customer" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
+      <a routerLink="/customer" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item" (click)="closeMobileMenu()">
         <span class="material-symbols-outlined">dashboard</span>
         @if (!sidebarCollapsed()) { <span>Tổng Quan</span> }
       </a>
-      <a routerLink="/customer/my-bookings" routerLinkActive="active" class="nav-item">
+      <a routerLink="/customer/my-bookings" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()">
         <span class="material-symbols-outlined">receipt_long</span>
         @if (!sidebarCollapsed()) { <span>Đơn Của Tôi</span> }
       </a>
-      <a routerLink="/customer/job-posts" routerLinkActive="active" class="nav-item">
+      <a routerLink="/customer/job-posts" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()">
         <span class="material-symbols-outlined">campaign</span>
         @if (!sidebarCollapsed()) { <span>Bài Đăng Của Tôi</span> }
       </a>
-      <a routerLink="/customer/profile" routerLinkActive="active" class="nav-item">
+      <a routerLink="/customer/profile" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()">
         <span class="material-symbols-outlined">person</span>
         @if (!sidebarCollapsed()) { <span>Hồ Sơ</span> }
       </a>
 
-      <a routerLink="/booking" class="nav-item book-now">
+      <a routerLink="/booking" class="nav-item book-now" (click)="closeMobileMenu()">
         <span class="material-symbols-outlined">add_circle</span>
         @if (!sidebarCollapsed()) { <span>Đặt Dịch Vụ</span> }
       </a>
@@ -64,7 +72,11 @@
   <main class="main-content">
     <!-- Top Header -->
     <header class="top-header">
-      <div class="header-left"></div>
+      <div class="header-left flex items-center gap-3">
+         <button class="menu-btn" (click)="toggleMobileMenu()">
+           <span class="material-symbols-outlined">menu</span>
+         </button>
+      </div>
       <div class="header-right">
         <!-- Search -->
         <div class="search-box">

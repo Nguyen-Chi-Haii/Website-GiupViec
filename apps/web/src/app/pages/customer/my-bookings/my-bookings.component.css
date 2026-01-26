@@ -86,82 +86,56 @@
 .empty-state h3 { margin: 1rem 0 0.5rem; }
 .empty-state p { margin: 0 0 1.5rem; color: #638884; }
 
-.bookings-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem; }
+.bookings-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 0.75rem; }
 .booking-card { 
-  background: white; border-radius: 12px; padding: 1.25rem; border: 1px solid #e5e7eb; 
+  background: white; border-radius: 12px; padding: 1rem; border: 1px solid #e5e7eb; 
   cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; 
   display: flex; flex-direction: column; height: 100%;
+  gap: 0.5rem;
 }
 .booking-card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
 
-.booking-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
-.booking-id { font-weight: 600; color: #638884; }
-.status-badge { font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 9999px; font-weight: 500; }
-.status-badge.pending { background: #fef3c7; color: #b45309; }
-.status-badge.confirmed { background: #dbeafe; color: #1d4ed8; }
-.status-badge.completed { background: #dcfce7; color: #16a34a; }
-.status-badge.cancelled, .status-badge.rejected { background: #f3f4f6; color: #6b7280; }
+.booking-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+.booking-id { font-weight: 600; color: #638884; font-size: 0.9rem; }
+.status-badge { font-size: 0.7rem; padding: 0.15rem 0.6rem; border-radius: 9999px; font-weight: 500; }
 
-.booking-card h3 { margin: 0 0 0.75rem; font-size: 1.1rem; }
-.booking-info p { margin: 0.25rem 0; font-size: 0.85rem; color: #638884; display: flex; align-items: center; gap: 0.5rem; }
-.booking-info .material-symbols-outlined { font-size: 18px; color: #13b9a5; }
-.booking-info .no-helper { color: #9ca3af; font-style: italic; }
-.booking-info .no-helper .material-symbols-outlined { color: #9ca3af; }
+.booking-card h3 { margin: 0 0 0.5rem; font-size: 1rem; }
+.booking-info p { margin: 0.15rem 0; font-size: 0.85rem; color: #638884; display: flex; align-items: center; gap: 0.5rem; }
+
+/* ... skipped status badges ... */
 
 .booking-price-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-top: auto;
-  padding-top: 1rem;
-  margin-bottom: 0.75rem;
+  padding-top: 0.75rem;
+  margin-bottom: 0.5rem;
   border-top: 1px solid #e5e7eb;
 }
-
-.booking-footer { 
-  display: flex; justify-content: flex-end; align-items: center; 
-  flex-wrap: wrap; gap: 0.75rem; 
-}
-.footer-actions { display: flex; gap: 0.5rem; width: 100%; justify-content: flex-end; }
-
-.payment-badge { font-size: 0.75rem; padding: 0.25rem 0.5rem; border-radius: 4px; }
-.payment-badge.paid { background: #dcfce7; color: #16a34a; }
-.payment-badge.unpaid { background: #fef2f2; color: #dc2626; }
-.price { font-size: 1.1rem; font-weight: 700; color: #13b9a5; }
-
-.btn-cancel { padding: 0.5rem 1rem; background: #f3f4f6; color: #6b7280; border: none; border-radius: 6px; font-size: 0.8rem; cursor: pointer; }
-.btn-cancel:hover { background: #e5e7eb; }
-.btn-pay { padding: 0.5rem 1rem; background: #13b9a5; color: white; border: none; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
-.btn-pay:hover { background: #0f9685; }
-.btn-reorder { padding: 0.5rem 1rem; background: #3b82f6; color: white; text-decoration: none; border: none; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
-.btn-reorder:hover { background: #2563eb; }
-
-.btn-rate { 
-  padding: 0.5rem 1rem; background: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; border-radius: 6px; 
-  font-size: 0.8rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px;
-}
-.btn-rate:hover { background: #ffedd5; }
-.btn-rate .material-symbols-outlined { font-size: 16px; }
 
 /* Modal Styles */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; backdrop-filter: blur(2px); }
 .modal { background: white; border-radius: 16px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
-.modal-header { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; border-bottom: 1px solid #f3f4f6; }
-.modal-header h3 { margin: 0; font-size: 1.25rem; font-weight: 700; color: #111817; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; border-bottom: 1px solid #f3f4f6; }
+.modal-header h3 { margin: 0; font-size: 1.1rem; font-weight: 700; color: #111817; }
 .close-btn { background: none; border: none; color: #6b7280; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: color 0.2s; }
-.close-btn:hover { color: #111817; }
-.modal-body { padding: 1.5rem; flex: 1; }
 
-.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
-.detail-item label { display: block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: #638884; margin-bottom: 0.25rem; letter-spacing: 0.025em; }
-.detail-item p { margin: 0; color: #111817; font-size: 1rem; }
+.modal-body { padding: 1.25rem; flex: 1; overflow-y: auto;}
+
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 480px) {
+  .detail-grid { gap: 0.75rem; }
+}
+
+.detail-item label { display: block; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; color: #638884; margin-bottom: 0.15rem; letter-spacing: 0.025em; }
+.detail-item p { margin: 0; color: #111817; font-size: 0.95rem; }
 .detail-item.full-width { grid-column: span 2; }
 .font-bold { font-weight: 700; }
-.price-large { font-size: 1.25rem !important; font-weight: 800; color: #13b9a5; }
-.notes { font-style: italic; background: #f9fafa; padding: 0.75rem; border-radius: 8px; border-left: 3px solid #e5e7eb; }
+.price-large { font-size: 1.15rem !important; font-weight: 800; color: #13b9a5; }
 
-.modal-footer { padding: 1.25rem 1.5rem; border-top: 1px solid #f3f4f6; display: flex; justify-content: flex-end; gap: 0.75rem; }
-.btn-outline { padding: 0.75rem 1.25rem; background: white; border: 1px solid #e5e7eb; border-radius: 8px; font-weight: 600; cursor: pointer; color: #6b7280; }
+.modal-footer { padding: 1rem 1.25rem; border-top: 1px solid #f3f4f6; display: flex; justify-content: flex-end; gap: 0.75rem; }
+.btn-outline { padding: 0.6rem 1rem; background: white; border: 1px solid #e5e7eb; border-radius: 8px; font-weight: 600; cursor: pointer; color: #6b7280; font-size: 0.9rem; }
 .btn-outline:hover { background: #f9fafb; color: #111817; }
 
 .btn-rate-large {

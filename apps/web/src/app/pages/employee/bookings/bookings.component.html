@@ -27,7 +27,7 @@
       @if (isLoading()) {
         <div class="loading">Đang tải...</div>
       } @else {
-        <table class="data-table">
+        <table class="data-table responsive-table">
           <thead>
             <tr>
               <th>Mã đơn</th>
@@ -45,30 +45,30 @@
           <tbody>
             @for (booking of filteredBookings(); track booking.id) {
               <tr>
-                <td class="font-medium">#{{ booking.id }}</td>
-                <td>{{ booking.customerName }}</td>
-                <td class="text-muted">{{ booking.serviceName }}</td>
-                <td>
+                <td class="font-medium" data-label="Mã đơn">#{{ booking.id }}</td>
+                <td data-label="Khách hàng">{{ booking.customerName }}</td>
+                <td class="text-muted" data-label="Dịch vụ">{{ booking.serviceName }}</td>
+                <td data-label="Người giúp việc">
                   @if (booking.helperName) {
                     {{ booking.helperName }}
                   } @else {
                     <span class="text-warning">Chưa gán</span>
                   }
                 </td>
-                <td class="text-muted">{{ booking.startDate | date:'dd/MM/yyyy' }}</td>
-                <td class="text-muted">{{ booking.endDate | date:'dd/MM/yyyy' }}</td>
-                <td>
+                <td class="text-muted" data-label="Ngày bắt đầu">{{ booking.startDate | date:'dd/MM/yyyy' }}</td>
+                <td class="text-muted" data-label="Ngày kết thúc">{{ booking.endDate | date:'dd/MM/yyyy' }}</td>
+                <td data-label="Trạng thái">
                   <span class="status-badge" [class]="getStatusClass(booking.status)">
                     {{ getStatusLabel(booking.status) }}
                   </span>
                 </td>
-                <td>
+                <td data-label="Thanh toán">
                   <span class="payment-badge" [class]="getPaymentClass(booking.paymentStatus)">
                     {{ getPaymentLabel(booking.paymentStatus) }}
                   </span>
                 </td>
-                <td class="font-medium">{{ booking.totalPrice | number }}₫</td>
-                <td>
+                <td class="font-medium" data-label="Tổng tiền">{{ booking.totalPrice | number }}₫</td>
+                <td data-label="Hành động">
                   <div class="action-buttons">
                     <button class="icon-btn" title="Xem chi tiết" (click)="viewBooking(booking)">
                       <span class="material-symbols-outlined">visibility</span>

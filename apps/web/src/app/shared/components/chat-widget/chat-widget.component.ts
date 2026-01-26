@@ -163,6 +163,11 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
     }, 100);
   }
 
+  backToConversations() {
+    this.currentPartner.set(null);
+    this.chatService.selectedPartnerId.set(null);
+  }
+
   // --- Click Outside to Close ---
   private eRef = inject(ElementRef);
   

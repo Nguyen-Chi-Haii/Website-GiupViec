@@ -82,31 +82,32 @@
   background-color: white;
   border-radius: 1rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  padding: 2rem;
+  padding: 1.25rem; /* Reduced from 2rem */
 }
 
 .card-header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem; /* Reduced from 2rem */
 }
 
 .header-icon {
-  font-size: 3rem;
+  font-size: 2.5rem; /* Reduced from 3rem */
   color: var(--primary);
   margin-bottom: 0.5rem;
 }
 
 .card-title {
-  font-size: 1.75rem;
+  font-size: 1.5rem; /* Reduced from 1.75rem */
   font-weight: 800;
   color: var(--text-dark);
   margin: 0 0 0.5rem;
 }
 
 .card-subtitle {
-  font-size: 1rem;
+  font-size: 0.9rem; /* Smaller subtitle */
   color: #638884;
   margin: 0;
+  line-height: 1.4;
 }
 
 /* Messages */
@@ -155,32 +156,32 @@
 .summary-sections {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  gap: 1rem; /* Reduced from 1.5rem */
+  margin-bottom: 1.5rem;
 }
 
 .summary-section {
   background-color: #f9fafb;
   border-radius: 0.75rem;
-  padding: 1.25rem;
+  padding: 1rem; /* Reduced from 1.25rem */
 }
 
 .section-header {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 1rem;
-  padding-bottom: 0.75rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
   border-bottom: 1px solid #e5e7eb;
 }
 
 .section-header .material-symbols-outlined {
   color: var(--primary);
-  font-size: 1.25rem;
+  font-size: 1.1rem; /* Smaller icon */
 }
 
 .section-header h3 {
-  font-size: 1rem;
+  font-size: 0.95rem; /* Smaller title */
   font-weight: 700;
   color: var(--text-dark);
   margin: 0;
@@ -189,13 +190,14 @@
 .section-content {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.5rem; /* Reduced gap */
 }
 
 .info-row {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  font-size: 0.9rem; /* Smaller base font size */
 }
 
 .info-row.full {
@@ -204,20 +206,22 @@
 }
 
 .info-row .label {
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   color: #638884;
   flex-shrink: 0;
 }
 
 .info-row .value {
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   font-weight: 600;
   color: var(--text-dark);
   text-align: right;
+  max-width: 65%; /* Prevent long text break layout */
 }
 
 .info-row.full .value {
   text-align: left;
+  max-width: 100%;
 }
 
 .info-row .value.highlight {
@@ -228,6 +232,7 @@
   font-weight: 400;
   font-style: italic;
   color: #638884;
+  font-size: 0.8rem;
 }
 
 /* Price Section */

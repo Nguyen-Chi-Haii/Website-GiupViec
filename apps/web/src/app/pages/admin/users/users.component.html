@@ -25,7 +25,7 @@
       @if (isLoading()) {
         <div class="loading">Đang tải...</div>
       } @else {
-        <table class="data-table">
+        <table class="data-table responsive-table">
           <thead>
             <tr>
               <th>ID</th>
@@ -41,27 +41,27 @@
           <tbody>
             @for (user of filteredUsers(); track user.id) {
               <tr>
-                <td class="font-medium">#{{ user.id }}</td>
-                <td>
+                <td class="font-medium" data-label="ID">#{{ user.id }}</td>
+                <td data-label="Họ tên">
                   <div class="user-cell">
                     <div class="user-avatar">{{ getInitials(user.fullName) }}</div>
                     <span>{{ user.fullName }}</span>
                   </div>
                 </td>
-                <td class="text-muted">{{ user.email }}</td>
-                <td>{{ user.phone || '-' }}</td>
-                <td>
+                <td class="text-muted" data-label="Email">{{ user.email }}</td>
+                <td data-label="Số điện thoại">{{ user.phone || '-' }}</td>
+                <td data-label="Vai trò">
                   <span class="role-badge" [class]="getRoleClass(user.role)">
                     {{ getRoleLabel(user.role) }}
                   </span>
                 </td>
-                <td>
+                <td data-label="Trạng thái">
                   <span class="status-badge" [class]="getStatusClass(user.status)">
                     {{ getStatusLabel(user.status) }}
                   </span>
                 </td>
-                <td class="text-muted">{{ user.createdAt | date:'dd/MM/yyyy' }}</td>
-                <td>
+                <td class="text-muted" data-label="Ngày tạo">{{ user.createdAt | date:'dd/MM/yyyy' }}</td>
+                <td data-label="Hành động">
                   <div class="action-buttons">
                     <button class="icon-btn" title="Sửa" (click)="openEditModal(user)">
                       <span class="material-symbols-outlined">edit</span>

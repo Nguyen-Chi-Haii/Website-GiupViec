@@ -102,9 +102,26 @@ export class PendingApprovalsComponent implements OnInit {
 
   getJobStatus(booking: BookingResponseDTO): string {
     if (booking.approvalStatus === 'Pending') return 'pending_approval';
-    if (booking.approvalStatus === 'Approved' && !booking.helperId) return 'hiring';
     if (booking.status === 'Rejected' || booking.status === 'Cancelled') return 'cancelled';
+    
+    // Check if expired (Approved but no helper and time passed)
+    if (booking.approvalStatus === 'Approved' && !booking.helperId) {
+        if (this.isExpired(booking)) return 'expired';
+        return 'hiring';
+    }
+    
     return 'other';
+  }
+
+  isExpired(booking: BookingResponseDTO): boolean {
+    if (!booking.startDate || !booking.startTime) return false;
+    // Parse start date time
+    const start = new Date(booking.startDate);
+    const timeParts = booking.startTime.split(':');
+    if (timeParts.length >= 2) {
+        start.setHours(+timeParts[0], +timeParts[1], 0, 0);
+    }
+    return new Date() > start;
   }
 
   onFilterChange() {
@@ -122,7 +139,8 @@ export class PendingApprovalsComponent implements OnInit {
     const labels: Record<string, string> = {
       'pending_approval': 'Chờ duyệt',
       'hiring': 'Đang tuyển',
-      'cancelled': 'Đã hủy'
+      'cancelled': 'Đã hủy',
+      'expired': 'Quá hạn'
     };
     return labels[status] || status;
   }

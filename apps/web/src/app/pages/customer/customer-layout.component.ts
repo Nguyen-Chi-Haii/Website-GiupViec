@@ -73,6 +73,16 @@ export class CustomerLayoutComponent implements OnInit {
     this.sidebarCollapsed.update(v => !v);
   }
 
+  isMobileMenuOpen = signal(false);
+
+  toggleMobileMenu(): void {
+    this.isMobileMenuOpen.update(v => !v);
+  }
+
+  closeMobileMenu(): void {
+    this.isMobileMenuOpen.set(false);
+  }
+
   openChat(): void {
     this.chatService.toggleChat(!this.chatService.isChatOpen());
   }

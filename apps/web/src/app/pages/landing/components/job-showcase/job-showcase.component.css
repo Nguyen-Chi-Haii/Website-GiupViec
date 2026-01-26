@@ -262,6 +262,9 @@
   margin: 0 auto;   /* Center in grid cell */
   height: 100%;     /* Fill flex container height */
   
+  /* Scroll Snap */
+  scroll-snap-align: center;
+  
   /* Light Mode Default */
   background: var(--card-bg-light);
   backdrop-filter: blur(12px);
@@ -364,20 +367,32 @@
 }
 
 /* Static layout for few items */
+/* Static layout for few items */
 .static-row {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
-  justify-content: center;
+  justify-content: flex-start; /* Better for scrolling than center */
   align-items: stretch; /* Make all cards same height */
-  gap: 1.5rem;
+  gap: 1rem;
   overflow-x: auto;
-  padding-bottom: 2rem;
+  padding: 1rem 1rem 2rem 1rem; /* Padding for shadow and spacing */
   width: 100%;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
   
   scrollbar-width: none; 
   -ms-overflow-style: none;
 }
+
+@media (min-width: 768px) {
+  .static-row {
+    justify-content: center;
+    padding-bottom: 2rem;
+    gap: 1.5rem;
+  }
+}
+
 .static-row::-webkit-scrollbar { 
   display: none; 
 }

@@ -1,13 +1,21 @@
 <div class="admin-layout">
+  <!-- Mobile Sidebar Overlay -->
+  <div class="sidebar-overlay" [class.show]="isSidebarOpen" (click)="closeSidebar()"></div>
+
   <!-- Sidebar -->
-  <aside class="sidebar">
+  <aside class="sidebar" [class.mobile-open]="isSidebarOpen">
     <!-- Logo Area -->
     <div class="sidebar-header">
       <div class="logo">
         <div class="logo-icon">
           <span class="material-symbols-outlined">cleaning_services</span>
         </div>
-        <h1 class="logo-text">GiúpViệc Admin</h1>
+        <div class="flex flex-col">
+           <h1 class="logo-text">GiúpViệc Admin</h1>
+        </div>
+        <button class="close-sidebar-btn md:hidden ml-auto" (click)="closeSidebar()">
+            <span class="material-symbols-outlined">close</span>
+        </button>
       </div>
     </div>
 
@@ -19,6 +27,7 @@
           [routerLink]="item.route"
           routerLinkActive="active"
           [routerLinkActiveOptions]="{exact: item.route === '/admin'}"
+          (click)="closeSidebar()"
         >
           <span class="material-symbols-outlined">{{ item.icon }}</span>
           <span class="nav-label">{{ item.label }}</span>
@@ -46,7 +55,10 @@
   <main class="main-content">
     <!-- Top Header -->
     <header class="top-header">
-      <div class="header-left">
+      <div class="header-left flex items-center gap-3">
+        <button class="menu-toggle-btn md:hidden" (click)="toggleSidebar()">
+             <span class="material-symbols-outlined">menu</span>
+        </button>
         <!-- Removed duplicate title - each page has its own -->
       </div>
       <div class="header-right">

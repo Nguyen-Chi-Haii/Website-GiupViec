@@ -1,5 +1,16 @@
 <div class="page">
-  <!-- Header Removed (Handled by Layout) -->
+  <div class="page-header">
+    <h2>Lịch Làm Việc</h2>
+    <div class="month-nav">
+      <button (click)="prevMonth()">
+        <span class="material-symbols-outlined">chevron_left</span>
+      </button>
+      <span class="month-label">{{ currentMonthLabel() }}</span>
+      <button (click)="nextMonth()">
+        <span class="material-symbols-outlined">chevron_right</span>
+      </button>
+    </div>
+  </div>
 
   @if (isLoading()) {
     <div class="loading">Đang tải...</div>

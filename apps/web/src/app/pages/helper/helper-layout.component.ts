@@ -12,8 +12,11 @@ import { ChatService } from '../../core/services/chat.service';
   imports: [CommonModule, RouterModule, NotificationBellComponent],
   template: `
     <div class="layout">
+      <!-- Mobile Overlay -->
+      <div class="sidebar-overlay" [class.show]="isMobileMenuOpen()" (click)="closeMobileMenu()"></div>
+
       <!-- Sidebar -->
-      <aside class="sidebar" [class.collapsed]="sidebarCollapsed()">
+      <aside class="sidebar" [class.collapsed]="sidebarCollapsed()" [class.mobile-open]="isMobileMenuOpen()">
         <div class="sidebar-header">
           <a class="logo" routerLink="/">
             <div class="logo-icon">
@@ -30,26 +33,30 @@ import { ChatService } from '../../core/services/chat.service';
               {{ sidebarCollapsed() ? 'chevron_right' : 'chevron_left' }}
             </span>
           </button>
+          <!-- Close button for mobile -->
+          <button class="toggle-btn mobile-close" (click)="closeMobileMenu()">
+            <span class="material-symbols-outlined">close</span>
+          </button>
         </div>
 
         <nav class="sidebar-nav">
-          <a routerLink="/helper" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
+          <a routerLink="/helper" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item" (click)="closeMobileMenu()">
             <span class="material-symbols-outlined">dashboard</span>
             @if (!sidebarCollapsed()) { <span>Tổng Quan</span> }
           </a>
-          <a routerLink="/helper/schedule" routerLinkActive="active" class="nav-item">
+          <a routerLink="/helper/schedule" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()">
             <span class="material-symbols-outlined">calendar_month</span>
             @if (!sidebarCollapsed()) { <span>Lịch Làm Việc</span> }
           </a>
-          <a routerLink="/helper/jobs" routerLinkActive="active" class="nav-item">
+          <a routerLink="/helper/jobs" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()">
             <span class="material-symbols-outlined">search</span>
             @if (!sidebarCollapsed()) { <span>Tìm Việc Mới</span> }
           </a>
-          <a routerLink="/helper/my-jobs" routerLinkActive="active" class="nav-item">
+          <a routerLink="/helper/my-jobs" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()">
             <span class="material-symbols-outlined">work</span>
             @if (!sidebarCollapsed()) { <span>Công Việc Của Tôi</span> }
           </a>
-          <a routerLink="/helper/profile" routerLinkActive="active" class="nav-item">
+          <a routerLink="/helper/profile" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()">
             <span class="material-symbols-outlined">person</span>
             @if (!sidebarCollapsed()) { <span>Hồ Sơ Của Tôi</span> }
           </a>
@@ -78,7 +85,12 @@ import { ChatService } from '../../core/services/chat.service';
       <main class="main-content">
         <!-- Header for Mobile/Title -->
         <header class="flex justify-between items-center mb-6 bg-white p-4 rounded-xl shadow-sm sticky top-0 z-10">
-           <h1 class="text-xl font-bold text-gray-800">{{ getPageTitle() }}</h1>
+           <div class="flex items-center gap-3">
+             <button class="menu-btn" (click)="toggleMobileMenu()">
+               <span class="material-symbols-outlined">menu</span>
+             </button>
+             <h1 class="text-xl font-bold text-gray-800">{{ getPageTitle() }}</h1>
+           </div>
            <div class="flex items-center gap-4">
               <app-notification-bell></app-notification-bell>
            </div>
@@ -115,6 +127,22 @@ import { ChatService } from '../../core/services/chat.service';
     .sidebar.collapsed .nav-item { justify-content: center; padding: 0.75rem; }
     .sidebar.collapsed .user-info { justify-content: center; }
     .sidebar.collapsed .logout-btn { justify-content: center; padding: 0.75rem; }
+
+    /* Mobile Toggle & Overlay */
+    .menu-btn { display: none; background: none; border: none; padding: 0.5rem; border-radius: 8px; cursor: pointer; color: #111817; }
+    .menu-btn:hover { background: #f6f8f8; }
+    .mobile-close { display: none; margin-left: auto; }
+    .sidebar-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(2px); z-index: 998; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+    .sidebar-overlay.show { opacity: 1; visibility: visible; }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .sidebar { position: fixed; top: 0; left: 0; bottom: 0; z-index: 999; transform: translateX(-100%); box-shadow: none; width: 280px !important; }
+      .sidebar.mobile-open { transform: translateX(0); box-shadow: 4px 0 24px rgba(0,0,0,0.15); }
+      .menu-btn { display: flex; align-items: center; justify-content: center; }
+      .sidebar .toggle-btn:not(.mobile-close) { display: none; }
+      .mobile-close { display: block; }
+    }
   `]
 })
 export class HelperLayoutComponent implements OnInit {
@@ -134,6 +162,16 @@ export class HelperLayoutComponent implements OnInit {
 
   toggleSidebar(): void {
     this.sidebarCollapsed.update(v => !v);
+  }
+
+  isMobileMenuOpen = signal(false);
+
+  toggleMobileMenu(): void {
+    this.isMobileMenuOpen.update(v => !v);
+  }
+
+  closeMobileMenu(): void {
+    this.isMobileMenuOpen.set(false);
   }
 
   openChat(): void {
