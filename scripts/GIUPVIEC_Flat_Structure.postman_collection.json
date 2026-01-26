@@ -1,0 +1,1399 @@
+{
+  "info": {
+    "_postman_id": "giupviec-flat-v2",
+    "name": "GiupViec Final Seed v2 (Real Names & Multi-day Jobs)",
+    "description": "Generated Collection with independent requests. Realistic names and multi-day job logic.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Admin Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+              "var jsonData = pm.response.json();",
+              "pm.test(\"Token exists\", function () { pm.expect(jsonData.token).to.not.be.undefined; });",
+              "pm.environment.set(\"token\", jsonData.token);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"admin@admin.com\",\n  \"password\": \"Admin@123\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      }
+    },
+    {
+      "name": "2. Get Services (Check)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/services",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "services"
+          ]
+        }
+      }
+    },
+    {
+      "name": "3.1 Create User: Nguyễn Văn Hưng",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"User created (200/201)\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });",
+              "var jsonData = pm.response.json();",
+              "pm.test(\"User ID returned\", function () { pm.expect(jsonData.id).to.not.be.null; });",
+              "pm.environment.set(\"user1_id\", jsonData.id);",
+              "console.log(\"User 1 created with ID: \" + jsonData.id);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"fullName\": \"Nguyễn Văn Hưng\",\n  \"email\": \"customer1@gmail.com\",\n  \"phone\": \"0911111111\",\n  \"password\": \"User@123\",\n  \"address\": \"10 Kim Mã, Phường Kim Mã, Thành phố Hà Nội\",\n  \"role\": 4,\n  \"status\": 1\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/register",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "register"
+          ]
+        }
+      }
+    },
+    {
+      "name": "4.1.1 Create Job 1 (2026-01-27 to 2026-01-30)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Job created (200/201)\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": {{user1_id}},\n  \"serviceId\": 1,\n  \"startDate\": \"2026-01-27\",\n  \"endDate\": \"2026-01-30\",\n  \"workShiftStart\": \"09:00:00\",\n  \"workShiftEnd\": \"11:00:00\",\n  \"address\": \"10 Kim Mã, Phường Kim Mã, Thành phố Hà Nội\",\n  \"quantity\": 1,\n  \"isJobPost\": true,\n  \"notes\": \"Công việc kéo dài 3 ngày, bắt đầu từ 2026-01-27\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/bookings/admin",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "bookings",
+            "admin"
+          ]
+        }
+      }
+    },
+    {
+      "name": "4.1.2 Create Job 2 (2026-01-30 to 2026-02-02)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Job created (200/201)\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": {{user1_id}},\n  \"serviceId\": 3,\n  \"startDate\": \"2026-01-30\",\n  \"endDate\": \"2026-02-02\",\n  \"workShiftStart\": \"16:00:00\",\n  \"workShiftEnd\": \"18:00:00\",\n  \"address\": \"10 Kim Mã, Phường Kim Mã, Thành phố Hà Nội\",\n  \"quantity\": 1,\n  \"isJobPost\": true,\n  \"notes\": \"Công việc kéo dài 3 ngày, bắt đầu từ 2026-01-30\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/bookings/admin",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "bookings",
+            "admin"
+          ]
+        }
+      }
+    },
+    {
+      "name": "4.1.3 Create Job 3 (2026-01-29 to 2026-02-02)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Job created (200/201)\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": {{user1_id}},\n  \"serviceId\": 4,\n  \"startDate\": \"2026-01-29\",\n  \"endDate\": \"2026-02-02\",\n  \"workShiftStart\": \"12:00:00\",\n  \"workShiftEnd\": \"14:00:00\",\n  \"address\": \"10 Kim Mã, Phường Kim Mã, Thành phố Hà Nội\",\n  \"quantity\": 1,\n  \"isJobPost\": true,\n  \"notes\": \"Công việc kéo dài 4 ngày, bắt đầu từ 2026-01-29\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/bookings/admin",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "bookings",
+            "admin"
+          ]
+        }
+      }
+    },
+    {
+      "name": "4.1.4 Create Job 4 (2026-01-31 to 2026-02-03)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Job created (200/201)\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": {{user1_id}},\n  \"serviceId\": 2,\n  \"startDate\": \"2026-01-31\",\n  \"endDate\": \"2026-02-03\",\n  \"workShiftStart\": \"14:00:00\",\n  \"workShiftEnd\": \"16:00:00\",\n  \"address\": \"10 Kim Mã, Phường Kim Mã, Thành phố Hà Nội\",\n  \"quantity\": 1,\n  \"isJobPost\": true,\n  \"notes\": \"Công việc kéo dài 3 ngày, bắt đầu từ 2026-01-31\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/bookings/admin",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "bookings",
+            "admin"
+          ]
+        }
+      }
+    },
+    {
+      "name": "4.1.5 Create Job 5 (2026-01-27 to 2026-01-31)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Job created (200/201)\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": {{user1_id}},\n  \"serviceId\": 2,\n  \"startDate\": \"2026-01-27\",\n  \"endDate\": \"2026-01-31\",\n  \"workShiftStart\": \"09:00:00\",\n  \"workShiftEnd\": \"11:00:00\",\n  \"address\": \"10 Kim Mã, Phường Kim Mã, Thành phố Hà Nội\",\n  \"quantity\": 1,\n  \"isJobPost\": true,\n  \"notes\": \"Công việc kéo dài 4 ngày, bắt đầu từ 2026-01-27\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/bookings/admin",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "bookings",
+            "admin"
+          ]
+        }
+      }
+    },
+    {
+      "name": "3.2 Create User: Trần Thị Mai",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"User created (200/201)\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });",
+              "var jsonData = pm.response.json();",
+              "pm.test(\"User ID returned\", function () { pm.expect(jsonData.id).to.not.be.null; });",
+              "pm.environment.set(\"user2_id\", jsonData.id);",
+              "console.log(\"User 2 created with ID: \" + jsonData.id);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"fullName\": \"Trần Thị Mai\",\n  \"email\": \"customer2@gmail.com\",\n  \"phone\": \"0922222222\",\n  \"password\": \"User@123\",\n  \"address\": \"20 Đội Cấn, Phường Đội Cấn, Thành phố Hà Nội\",\n  \"role\": 4,\n  \"status\": 1\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/register",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "register"
+          ]
+        }
+      }
+    },
+    {
+      "name": "4.2.1 Create Job 1 (2026-01-30 to 2026-02-04)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Job created (200/201)\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": {{user2_id}},\n  \"serviceId\": 4,\n  \"startDate\": \"2026-01-30\",\n  \"endDate\": \"2026-02-04\",\n  \"workShiftStart\": \"16:00:00\",\n  \"workShiftEnd\": \"18:00:00\",\n  \"address\": \"20 Đội Cấn, Phường Đội Cấn, Thành phố Hà Nội\",\n  \"quantity\": 1,\n  \"isJobPost\": true,\n  \"notes\": \"Công việc kéo dài 5 ngày, bắt đầu từ 2026-01-30\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/bookings/admin",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "bookings",
+            "admin"
+          ]
+        }
+      }
+    },
+    {
+      "name": "4.2.2 Create Job 2 (2026-01-30 to 2026-02-04)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Job created (200/201)\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": {{user2_id}},\n  \"serviceId\": 3,\n  \"startDate\": \"2026-01-30\",\n  \"endDate\": \"2026-02-04\",\n  \"workShiftStart\": \"08:00:00\",\n  \"workShiftEnd\": \"10:00:00\",\n  \"address\": \"20 Đội Cấn, Phường Đội Cấn, Thành phố Hà Nội\",\n  \"quantity\": 1,\n  \"isJobPost\": true,\n  \"notes\": \"Công việc kéo dài 5 ngày, bắt đầu từ 2026-01-30\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/bookings/admin",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "bookings",
+            "admin"
+          ]
+        }
+      }
+    },
+    {
+      "name": "4.2.3 Create Job 3 (2026-01-29 to 2026-02-01)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Job created (200/201)\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": {{user2_id}},\n  \"serviceId\": 3,\n  \"startDate\": \"2026-01-29\",\n  \"endDate\": \"2026-02-01\",\n  \"workShiftStart\": \"15:00:00\",\n  \"workShiftEnd\": \"17:00:00\",\n  \"address\": \"20 Đội Cấn, Phường Đội Cấn, Thành phố Hà Nội\",\n  \"quantity\": 1,\n  \"isJobPost\": true,\n  \"notes\": \"Công việc kéo dài 3 ngày, bắt đầu từ 2026-01-29\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/bookings/admin",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "bookings",
+            "admin"
+          ]
+        }
+      }
+    },
+    {
+      "name": "4.2.4 Create Job 4 (2026-01-28 to 2026-02-02)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Job created (200/201)\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": {{user2_id}},\n  \"serviceId\": 2,\n  \"startDate\": \"2026-01-28\",\n  \"endDate\": \"2026-02-02\",\n  \"workShiftStart\": \"14:00:00\",\n  \"workShiftEnd\": \"16:00:00\",\n  \"address\": \"20 Đội Cấn, Phường Đội Cấn, Thành phố Hà Nội\",\n  \"quantity\": 1,\n  \"isJobPost\": true,\n  \"notes\": \"Công việc kéo dài 5 ngày, bắt đầu từ 2026-01-28\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/bookings/admin",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "bookings",
+            "admin"
+          ]
+        }
+      }
+    },
+    {
+      "name": "4.2.5 Create Job 5 (2026-01-29 to 2026-02-02)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Job created (200/201)\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": {{user2_id}},\n  \"serviceId\": 3,\n  \"startDate\": \"2026-01-29\",\n  \"endDate\": \"2026-02-02\",\n  \"workShiftStart\": \"08:00:00\",\n  \"workShiftEnd\": \"10:00:00\",\n  \"address\": \"20 Đội Cấn, Phường Đội Cấn, Thành phố Hà Nội\",\n  \"quantity\": 1,\n  \"isJobPost\": true,\n  \"notes\": \"Công việc kéo dài 4 ngày, bắt đầu từ 2026-01-29\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/bookings/admin",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "bookings",
+            "admin"
+          ]
+        }
+      }
+    },
+    {
+      "name": "3.3 Create User: Lê Văn Sơn",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"User created (200/201)\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });",
+              "var jsonData = pm.response.json();",
+              "pm.test(\"User ID returned\", function () { pm.expect(jsonData.id).to.not.be.null; });",
+              "pm.environment.set(\"user3_id\", jsonData.id);",
+              "console.log(\"User 3 created with ID: \" + jsonData.id);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"fullName\": \"Lê Văn Sơn\",\n  \"email\": \"customer3@gmail.com\",\n  \"phone\": \"0933333333\",\n  \"password\": \"User@123\",\n  \"address\": \"30 Xuân Thủy, Phường Dịch Vọng, Thành phố Hà Nội\",\n  \"role\": 4,\n  \"status\": 1\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/register",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "register"
+          ]
+        }
+      }
+    },
+    {
+      "name": "4.3.1 Create Job 1 (2026-01-30 to 2026-02-02)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Job created (200/201)\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": {{user3_id}},\n  \"serviceId\": 3,\n  \"startDate\": \"2026-01-30\",\n  \"endDate\": \"2026-02-02\",\n  \"workShiftStart\": \"14:00:00\",\n  \"workShiftEnd\": \"16:00:00\",\n  \"address\": \"30 Xuân Thủy, Phường Dịch Vọng, Thành phố Hà Nội\",\n  \"quantity\": 1,\n  \"isJobPost\": true,\n  \"notes\": \"Công việc kéo dài 3 ngày, bắt đầu từ 2026-01-30\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/bookings/admin",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "bookings",
+            "admin"
+          ]
+        }
+      }
+    },
+    {
+      "name": "4.3.2 Create Job 2 (2026-01-27 to 2026-01-31)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Job created (200/201)\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": {{user3_id}},\n  \"serviceId\": 4,\n  \"startDate\": \"2026-01-27\",\n  \"endDate\": \"2026-01-31\",\n  \"workShiftStart\": \"11:00:00\",\n  \"workShiftEnd\": \"13:00:00\",\n  \"address\": \"30 Xuân Thủy, Phường Dịch Vọng, Thành phố Hà Nội\",\n  \"quantity\": 1,\n  \"isJobPost\": true,\n  \"notes\": \"Công việc kéo dài 4 ngày, bắt đầu từ 2026-01-27\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/bookings/admin",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "bookings",
+            "admin"
+          ]
+        }
+      }
+    },
+    {
+      "name": "4.3.3 Create Job 3 (2026-01-30 to 2026-02-03)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Job created (200/201)\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": {{user3_id}},\n  \"serviceId\": 3,\n  \"startDate\": \"2026-01-30\",\n  \"endDate\": \"2026-02-03\",\n  \"workShiftStart\": \"08:00:00\",\n  \"workShiftEnd\": \"10:00:00\",\n  \"address\": \"30 Xuân Thủy, Phường Dịch Vọng, Thành phố Hà Nội\",\n  \"quantity\": 1,\n  \"isJobPost\": true,\n  \"notes\": \"Công việc kéo dài 4 ngày, bắt đầu từ 2026-01-30\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/bookings/admin",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "bookings",
+            "admin"
+          ]
+        }
+      }
+    },
+    {
+      "name": "4.3.4 Create Job 4 (2026-01-30 to 2026-02-02)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Job created (200/201)\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": {{user3_id}},\n  \"serviceId\": 4,\n  \"startDate\": \"2026-01-30\",\n  \"endDate\": \"2026-02-02\",\n  \"workShiftStart\": \"09:00:00\",\n  \"workShiftEnd\": \"11:00:00\",\n  \"address\": \"30 Xuân Thủy, Phường Dịch Vọng, Thành phố Hà Nội\",\n  \"quantity\": 1,\n  \"isJobPost\": true,\n  \"notes\": \"Công việc kéo dài 3 ngày, bắt đầu từ 2026-01-30\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/bookings/admin",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "bookings",
+            "admin"
+          ]
+        }
+      }
+    },
+    {
+      "name": "4.3.5 Create Job 5 (2026-01-31 to 2026-02-05)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Job created (200/201)\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": {{user3_id}},\n  \"serviceId\": 4,\n  \"startDate\": \"2026-01-31\",\n  \"endDate\": \"2026-02-05\",\n  \"workShiftStart\": \"11:00:00\",\n  \"workShiftEnd\": \"13:00:00\",\n  \"address\": \"30 Xuân Thủy, Phường Dịch Vọng, Thành phố Hà Nội\",\n  \"quantity\": 1,\n  \"isJobPost\": true,\n  \"notes\": \"Công việc kéo dài 5 ngày, bắt đầu từ 2026-01-31\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/bookings/admin",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "bookings",
+            "admin"
+          ]
+        }
+      }
+    },
+    {
+      "name": "3.4 Create User: Phạm Thị Lan",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"User created (200/201)\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });",
+              "var jsonData = pm.response.json();",
+              "pm.test(\"User ID returned\", function () { pm.expect(jsonData.id).to.not.be.null; });",
+              "pm.environment.set(\"user4_id\", jsonData.id);",
+              "console.log(\"User 4 created with ID: \" + jsonData.id);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"fullName\": \"Phạm Thị Lan\",\n  \"email\": \"customer4@gmail.com\",\n  \"phone\": \"0944444444\",\n  \"password\": \"User@123\",\n  \"address\": \"40 Nguyễn Trãi, Phường Thanh Xuân Trung, Thành phố Hà Nội\",\n  \"role\": 4,\n  \"status\": 1\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/register",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "register"
+          ]
+        }
+      }
+    },
+    {
+      "name": "4.4.1 Create Job 1 (2026-01-31 to 2026-02-04)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Job created (200/201)\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": {{user4_id}},\n  \"serviceId\": 4,\n  \"startDate\": \"2026-01-31\",\n  \"endDate\": \"2026-02-04\",\n  \"workShiftStart\": \"16:00:00\",\n  \"workShiftEnd\": \"18:00:00\",\n  \"address\": \"40 Nguyễn Trãi, Phường Thanh Xuân Trung, Thành phố Hà Nội\",\n  \"quantity\": 1,\n  \"isJobPost\": true,\n  \"notes\": \"Công việc kéo dài 4 ngày, bắt đầu từ 2026-01-31\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/bookings/admin",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "bookings",
+            "admin"
+          ]
+        }
+      }
+    },
+    {
+      "name": "4.4.2 Create Job 2 (2026-01-27 to 2026-01-30)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Job created (200/201)\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": {{user4_id}},\n  \"serviceId\": 3,\n  \"startDate\": \"2026-01-27\",\n  \"endDate\": \"2026-01-30\",\n  \"workShiftStart\": \"11:00:00\",\n  \"workShiftEnd\": \"13:00:00\",\n  \"address\": \"40 Nguyễn Trãi, Phường Thanh Xuân Trung, Thành phố Hà Nội\",\n  \"quantity\": 1,\n  \"isJobPost\": true,\n  \"notes\": \"Công việc kéo dài 3 ngày, bắt đầu từ 2026-01-27\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/bookings/admin",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "bookings",
+            "admin"
+          ]
+        }
+      }
+    },
+    {
+      "name": "4.4.3 Create Job 3 (2026-01-29 to 2026-02-03)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Job created (200/201)\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": {{user4_id}},\n  \"serviceId\": 3,\n  \"startDate\": \"2026-01-29\",\n  \"endDate\": \"2026-02-03\",\n  \"workShiftStart\": \"14:00:00\",\n  \"workShiftEnd\": \"16:00:00\",\n  \"address\": \"40 Nguyễn Trãi, Phường Thanh Xuân Trung, Thành phố Hà Nội\",\n  \"quantity\": 1,\n  \"isJobPost\": true,\n  \"notes\": \"Công việc kéo dài 5 ngày, bắt đầu từ 2026-01-29\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/bookings/admin",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "bookings",
+            "admin"
+          ]
+        }
+      }
+    },
+    {
+      "name": "4.4.4 Create Job 4 (2026-01-31 to 2026-02-05)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Job created (200/201)\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": {{user4_id}},\n  \"serviceId\": 3,\n  \"startDate\": \"2026-01-31\",\n  \"endDate\": \"2026-02-05\",\n  \"workShiftStart\": \"12:00:00\",\n  \"workShiftEnd\": \"14:00:00\",\n  \"address\": \"40 Nguyễn Trãi, Phường Thanh Xuân Trung, Thành phố Hà Nội\",\n  \"quantity\": 1,\n  \"isJobPost\": true,\n  \"notes\": \"Công việc kéo dài 5 ngày, bắt đầu từ 2026-01-31\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/bookings/admin",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "bookings",
+            "admin"
+          ]
+        }
+      }
+    },
+    {
+      "name": "4.4.5 Create Job 5 (2026-01-30 to 2026-02-04)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Job created (200/201)\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": {{user4_id}},\n  \"serviceId\": 3,\n  \"startDate\": \"2026-01-30\",\n  \"endDate\": \"2026-02-04\",\n  \"workShiftStart\": \"15:00:00\",\n  \"workShiftEnd\": \"17:00:00\",\n  \"address\": \"40 Nguyễn Trãi, Phường Thanh Xuân Trung, Thành phố Hà Nội\",\n  \"quantity\": 1,\n  \"isJobPost\": true,\n  \"notes\": \"Công việc kéo dài 5 ngày, bắt đầu từ 2026-01-30\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/bookings/admin",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "bookings",
+            "admin"
+          ]
+        }
+      }
+    },
+    {
+      "name": "3.5 Create User: Hoàng Văn Dũng",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"User created (200/201)\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });",
+              "var jsonData = pm.response.json();",
+              "pm.test(\"User ID returned\", function () { pm.expect(jsonData.id).to.not.be.null; });",
+              "pm.environment.set(\"user5_id\", jsonData.id);",
+              "console.log(\"User 5 created with ID: \" + jsonData.id);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"fullName\": \"Hoàng Văn Dũng\",\n  \"email\": \"customer5@gmail.com\",\n  \"phone\": \"0955555555\",\n  \"password\": \"User@123\",\n  \"address\": \"50 Láng Hạ, Phường Láng Hạ, Thành phố Hà Nội\",\n  \"role\": 4,\n  \"status\": 1\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/register",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "register"
+          ]
+        }
+      }
+    },
+    {
+      "name": "4.5.1 Create Job 1 (2026-01-30 to 2026-02-02)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Job created (200/201)\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": {{user5_id}},\n  \"serviceId\": 3,\n  \"startDate\": \"2026-01-30\",\n  \"endDate\": \"2026-02-02\",\n  \"workShiftStart\": \"14:00:00\",\n  \"workShiftEnd\": \"16:00:00\",\n  \"address\": \"50 Láng Hạ, Phường Láng Hạ, Thành phố Hà Nội\",\n  \"quantity\": 1,\n  \"isJobPost\": true,\n  \"notes\": \"Công việc kéo dài 3 ngày, bắt đầu từ 2026-01-30\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/bookings/admin",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "bookings",
+            "admin"
+          ]
+        }
+      }
+    },
+    {
+      "name": "4.5.2 Create Job 2 (2026-01-31 to 2026-02-04)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Job created (200/201)\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": {{user5_id}},\n  \"serviceId\": 3,\n  \"startDate\": \"2026-01-31\",\n  \"endDate\": \"2026-02-04\",\n  \"workShiftStart\": \"11:00:00\",\n  \"workShiftEnd\": \"13:00:00\",\n  \"address\": \"50 Láng Hạ, Phường Láng Hạ, Thành phố Hà Nội\",\n  \"quantity\": 1,\n  \"isJobPost\": true,\n  \"notes\": \"Công việc kéo dài 4 ngày, bắt đầu từ 2026-01-31\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/bookings/admin",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "bookings",
+            "admin"
+          ]
+        }
+      }
+    },
+    {
+      "name": "4.5.3 Create Job 3 (2026-01-28 to 2026-01-31)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Job created (200/201)\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": {{user5_id}},\n  \"serviceId\": 1,\n  \"startDate\": \"2026-01-28\",\n  \"endDate\": \"2026-01-31\",\n  \"workShiftStart\": \"10:00:00\",\n  \"workShiftEnd\": \"12:00:00\",\n  \"address\": \"50 Láng Hạ, Phường Láng Hạ, Thành phố Hà Nội\",\n  \"quantity\": 1,\n  \"isJobPost\": true,\n  \"notes\": \"Công việc kéo dài 3 ngày, bắt đầu từ 2026-01-28\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/bookings/admin",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "bookings",
+            "admin"
+          ]
+        }
+      }
+    },
+    {
+      "name": "4.5.4 Create Job 4 (2026-01-31 to 2026-02-05)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Job created (200/201)\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": {{user5_id}},\n  \"serviceId\": 3,\n  \"startDate\": \"2026-01-31\",\n  \"endDate\": \"2026-02-05\",\n  \"workShiftStart\": \"16:00:00\",\n  \"workShiftEnd\": \"18:00:00\",\n  \"address\": \"50 Láng Hạ, Phường Láng Hạ, Thành phố Hà Nội\",\n  \"quantity\": 1,\n  \"isJobPost\": true,\n  \"notes\": \"Công việc kéo dài 5 ngày, bắt đầu từ 2026-01-31\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/bookings/admin",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "bookings",
+            "admin"
+          ]
+        }
+      }
+    },
+    {
+      "name": "4.5.5 Create Job 5 (2026-01-29 to 2026-02-01)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Job created (200/201)\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": {{user5_id}},\n  \"serviceId\": 1,\n  \"startDate\": \"2026-01-29\",\n  \"endDate\": \"2026-02-01\",\n  \"workShiftStart\": \"09:00:00\",\n  \"workShiftEnd\": \"11:00:00\",\n  \"address\": \"50 Láng Hạ, Phường Láng Hạ, Thành phố Hà Nội\",\n  \"quantity\": 1,\n  \"isJobPost\": true,\n  \"notes\": \"Công việc kéo dài 3 ngày, bắt đầu từ 2026-01-29\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/bookings/admin",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "bookings",
+            "admin"
+          ]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5217/api"
+    }
+  ]
+}

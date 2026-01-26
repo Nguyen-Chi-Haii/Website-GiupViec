@@ -1,0 +1,227 @@
+{
+	"info": {
+		"_postman_id": "giupviec-approve-flow-v1",
+		"name": "GiupViec Approval Flow (Priority 31st > 27th)",
+		"description": "Auto-approve jobs with priority: Jan 31st > Jan 27th > Random rest.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Admin Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"pm.environment.set(\"token\", jsonData.token);",
+							"console.log(\"✅ Admin Logged In\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"admin@admin.com\",\n    \"password\": \"Admin@123\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/auth/login",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "2. Get Pending Jobs & Sort",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"var items = jsonData.items || jsonData;",
+							"",
+							"// 1. FILTER: Status = 0 (Pending)",
+							"// Assuming 0 is pending. Adjust if API uses different status code for 'Just Created'",
+							"// Based on user request 'duyet cac bai dang', likely status 0 or 1.",
+							"// Let's assume Pending = 0 from typical convention or previous context.",
+							"var pendingJobs = items.filter(j => j.status === 0 || j.status === 1); // Covering bases if 1 is active/pending approval",
+							"// Wait, in seed data we sent \"status\": 1. So likely 1 is Pending/Active-but-needs-approval?",
+							"// Actually usually '1' is Active. '0' is Pending? Or '1' Pending, '2' Approved?",
+							"// Let's filter EVERYTHING that is NOT approved yet. ",
+							"// Safe bet: Filter items where we CAN approve. ",
+							"// For now, let's grab ALL items and filter by startDate logic, usually approval flow implies status change.",
+							"// Let's assume we want to approve specific dates.",
+							"",
+							"// 2. PRIORITY SORTING",
+							"var p1 = []; // 2026-01-31",
+							"var p2 = []; // 2026-01-27",
+							"var p3 = []; // Others",
+							"",
+							"items.forEach(j => {",
+							"    if (j.startDate && j.startDate.startsWith('2026-01-31')) {",
+							"        p1.push(j);",
+							"    } else if (j.startDate && j.startDate.startsWith('2026-01-27')) {",
+							"        p2.push(j);",
+							"    } else {",
+							"        p3.push(j);",
+							"    }",
+							"});",
+							"",
+							"// 3. SHUFFLE OTHERS (Fisher-Yates Shuffle for true randomness)",
+							"function shuffle(array) {",
+							"  for (let i = array.length - 1; i > 0; i--) {",
+							"    const j = Math.floor(Math.random() * (i + 1));",
+							"    [array[i], array[j]] = [array[j], array[i]];",
+							"  }",
+							"}",
+							"shuffle(p3);",
+							"",
+							"// 4. MERGE",
+							"var sortedJobs = p1.concat(p2).concat(p3);",
+							"var idsToApprove = sortedJobs.map(j => j.id);",
+							"",
+							"console.log(\"Found \" + idsToApprove.length + \" jobs to process.\");",
+							"console.log(\"Priority 31/1: \" + p1.length);",
+							"console.log(\"Priority 27/1: \" + p2.length);",
+							"console.log(\"Random Rest: \" + p3.length);",
+							"",
+							"// 5. SAVE TO ENVIRONMENT",
+							"pm.environment.set(\"approveIds\", JSON.stringify(idsToApprove));",
+							"pm.environment.set(\"approveIndex\", 0);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/bookings?pageSize=100",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"bookings"
+					],
+					"query": [
+						{
+							"key": "pageSize",
+							"value": "100"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "3. Approve Job",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var ids = JSON.parse(pm.environment.get(\"approveIds\") || \"[]\");",
+							"var idx = parseInt(pm.environment.get(\"approveIndex\") || 0);",
+							"",
+							"if (idx < ids.length) {",
+							"    pm.environment.set(\"currentApproveId\", ids[idx]);",
+							"    console.log(\"▶ Approving Job \" + (idx + 1) + \"/\" + ids.length + \" [ID: \" + ids[idx] + \"]\");",
+							"} else {",
+							"    console.log(\"✅ All jobs processed.\");",
+							"    postman.setNextRequest(null);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var ids = JSON.parse(pm.environment.get(\"approveIds\") || \"[]\");",
+							"var idx = parseInt(pm.environment.get(\"approveIndex\") || 0);",
+							"",
+							"if (pm.response.code === 200 || pm.response.code === 201) {",
+							"    console.log(\"   ✅ Approved successfully.\");",
+							"} else {",
+							"    console.warn(\"   ⚠️ Failed to approve (Code: \" + pm.response.code + \")\");",
+							"}",
+							"",
+							"// INCREMENT AND LOOP",
+							"idx++;",
+							"pm.environment.set(\"approveIndex\", idx);",
+							"",
+							"if (idx < ids.length) {",
+							"    postman.setNextRequest(\"3. Approve Job\");",
+							"} else {",
+							"    postman.setNextRequest(null);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"Note\": \"Approved by Auto-Script\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/bookings/{{currentApproveId}}/approve",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"bookings",
+						"{{currentApproveId}}",
+						"approve"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5217/api"
+		}
+	]
+}

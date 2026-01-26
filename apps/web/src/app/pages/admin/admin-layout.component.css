@@ -275,7 +275,8 @@
   padding: 0.5rem;
   border-radius: 8px;
   cursor: pointer;
-  display: flex;
+  cursor: pointer;
+  display: none; /* Hidden by default on desktop */
   align-items: center;
   justify-content: center;
 }
@@ -315,5 +316,9 @@
   
   .search-box {
     display: none;
+  }
+
+  .menu-toggle-btn {
+    display: flex; /* Show on mobile */
   }
 }
