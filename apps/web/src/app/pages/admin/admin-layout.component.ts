@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink, RouterLinkActive, RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { NotificationBellComponent } from '../../shared/components/notification-bell/notification-bell.component';
+import { AuthService } from '../../core/services/auth.service';
 
 interface NavItem {
   label: string;
@@ -20,6 +21,7 @@ interface NavItem {
 })
 export class AdminLayoutComponent implements OnInit {
   private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
   
   navItems: NavItem[] = [
     { label: 'Tổng Quan', icon: 'dashboard', route: '/admin' },
@@ -48,8 +50,8 @@ export class AdminLayoutComponent implements OnInit {
   }
 
   logout(): void {
-    localStorage.removeItem('token');
-    window.location.href = '/login';
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 
   showSettings(): void {

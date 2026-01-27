@@ -24,6 +24,7 @@ export interface RegisterResponse extends UserResponse {}
 export interface DecodedToken {
   nameid: string;  // User ID from ClaimTypes.NameIdentifier
   email: string;
+  fullName: string;
   role: string;    // User Role from ClaimTypes.Role
   exp: number;
   iss: string;
@@ -147,6 +148,7 @@ export class AuthService {
       return {
         nameid: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] || decoded.nameid,
         email: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'] || decoded.email,
+        fullName: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || decoded.unique_name || decoded.fullName || decoded.name,
         role: decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || decoded.role,
         exp: decoded.exp,
         iss: decoded.iss,

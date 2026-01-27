@@ -89,6 +89,11 @@
           </div>
 
           <div class="info-item">
+            <span class="material-symbols-outlined">person</span>
+            <span>{{ job.customerName || 'Khách vãng lai' }}</span>
+          </div>
+
+          <div class="info-item">
             <span class="material-symbols-outlined">calendar_today</span>
             <span>
               {{ job.startDate | date:'dd/MM/yyyy' }}

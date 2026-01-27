@@ -190,7 +190,23 @@ namespace GiupViecAPI.Services.Repositories
             if (filter.MaxPrice.HasValue)
                 query = query.Where(b => b.TotalPrice <= filter.MaxPrice.Value);
 
-            // Re-use Generic Helper? 
+
+            // EXCLUDE JOBS THAT CONFLICT WITH HELPER'S SCHEDULE
+            query = query.Where(j => !_db.Bookings.Any(m => 
+                m.HelperId == helperId &&
+                m.Status != BookingStatus.Cancelled &&
+                m.Status != BookingStatus.Rejected &&
+                // m.Status != BookingStatus.Completed && // Completed jobs don't block schedule? Usually past jobs don't block future, but schedule is schedule. 
+                                                          // Actually, past completed jobs shouldn't block future jobs. 
+                                                          // BUT, StartDate >= Today check on `j` (query) ensures we are looking at future jobs.
+                                                          // `m` can be anything. If `m` is completely in the past, it won't overlap with `j` (which is in future).
+                                                          // So simplistic overlap check is fine.
+
+                m.StartDate <= j.EndDate && m.EndDate >= j.StartDate && // Date overlap
+                m.WorkShiftStart < j.WorkShiftEnd && m.WorkShiftEnd > j.WorkShiftStart // Time overlap
+            ));
+
+             // Re-use Generic Helper? 
             // AvailableJobFilterDTO has specific props, but BaseFilterDTO props (Page, Sort) are there.
             // But Sort logic was custom in previous code (switch case).
             // Let's use the helper but map the specific sort keys if needed OR just let helper handle generic sort.

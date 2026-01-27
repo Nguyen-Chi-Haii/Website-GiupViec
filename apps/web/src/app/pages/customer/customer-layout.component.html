@@ -56,7 +56,7 @@
         <div class="user-avatar">{{ getUserInitials() }}</div>
         @if (!sidebarCollapsed()) {
           <div class="user-details">
-            <span class="user-name">{{ currentUser()?.email }}</span>
+            <span class="user-name">{{ currentUser()?.fullName || currentUser()?.email }}</span>
             <span class="user-role">Khách hàng</span>
           </div>
         }
