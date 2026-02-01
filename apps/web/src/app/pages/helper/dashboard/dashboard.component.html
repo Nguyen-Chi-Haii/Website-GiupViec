@@ -1,7 +1,7 @@
 <div class="page">
   <div class="page-header">
     <div class="header-main">
-      <h1>Xin chào, {{ userName() }}!</h1>
+      <h1>Xin chào, {{ userName() }}! 👋</h1>
       @if (profile()) {
         <span class="status-badge" [class]="profileStatusClass()">
           {{ profile()!.status === 'Active' ? 'Đang hoạt động' : 'Tạm dừng/Chưa kích hoạt' }}

@@ -25,6 +25,7 @@ export class ChatService {
   public selectedPartnerId = signal<number | null>(null);
   public tempPartner = signal<ChatPartner | null>(null); // For starting chat with new users
   public currentBookingContext = signal<number | null>(null);
+  public totalUnreadCount = signal<number>(0); // Total unread messages count
   
   // Real-time message subject
   private messageSubject = new Subject<ChatMessage>();
@@ -64,6 +65,20 @@ export class ChatService {
         bookingId: data.bookingId
       };
       this.messageSubject.next(msg);
+      
+      // Increment unread count if message is from someone else and not currently viewing their chat
+      const currentUser = this.authService.currentUser();
+      const currentUserId = currentUser ? parseInt(currentUser.nameid) : 0;
+      
+      // Only increment if:
+      // 1. Message is not from current user (msg.senderId !== currentUserId)
+      // 2. AND either chat is closed OR chatting with different person
+      if (msg.senderId !== currentUserId) {
+        const isViewingThisSender = this.isChatOpen() && this.selectedPartnerId() === msg.senderId;
+        if (!isViewingThisSender && !msg.isRead) {
+          this.totalUnreadCount.update(count => count + 1);
+        }
+      }
     });
 
     this.hubConnection.on('ReceiveNotification', (data: any) => {
@@ -121,5 +136,16 @@ export class ChatService {
 
   public getHistory(partnerId: number): Observable<ChatMessage[]> {
     return this.http.get<ChatMessage[]>(`${this.apiUrl}/history/${partnerId}`);
+  }
+
+  public getUnreadCount(): Observable<number> {
+    return this.http.get<number>(`${this.apiUrl}/unread-count`);
+  }
+
+  public refreshUnreadCount(): void {
+    this.getUnreadCount().subscribe({
+      next: (count) => this.totalUnreadCount.set(count),
+      error: (err) => console.error('Error fetching unread count:', err)
+    });
   }
 }

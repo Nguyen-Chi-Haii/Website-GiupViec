@@ -1,6 +1,6 @@
 <div class="page">
   <div class="welcome-section">
-    <h1>Xin chào, {{ authService.currentUser()?.fullName || authService.currentUser()?.email }}! 👋</h1>
+    <h1>Xin chào, {{ profile()?.fullName || authService.currentUser()?.fullName|| 'bạn' }}! 👋</h1>
     <p>Chào mừng bạn trở lại. Đây là tổng quan hoạt động của bạn.</p>
   </div>
 

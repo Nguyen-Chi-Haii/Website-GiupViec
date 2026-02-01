@@ -4,9 +4,9 @@
 }
 
 .header-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #fff;
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: var(--text-dark);
   width: 42px;
   height: 42px;
   border-radius: 12px;
@@ -18,9 +18,19 @@
   position: relative;
 }
 
+.dark .header-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
 .header-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.1);
   transform: translateY(-1px);
+}
+
+.dark .header-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .notification-badge-number {
@@ -34,7 +44,7 @@
   min-width: 18px;
   height: 18px;
   border-radius: 50%;
-  border: 2px solid #1a1a1a;
+  border: 2px solid var(--background-dark);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -53,13 +63,19 @@
   top: calc(100% + 12px);
   right: -10px;
   width: 360px;
-  background: #1e1e1e;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: white;
+  border: 1px solid #e5e7eb;
   border-radius: 16px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
   z-index: 101;
   overflow: hidden;
   animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dark .notification-dropdown {
+  background: #1e1e1e;
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
 }
 
 @keyframes slideIn {
@@ -69,15 +85,20 @@
 
 .dropdown-header {
   padding: 1.25rem;
-  background: rgba(255, 255, 255, 0.02);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
+.dark .dropdown-header {
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
 .dropdown-header h3 {
-  color: #fff;
+  color: var(--text-dark);
   font-weight: 700;
   font-size: 1rem;
   margin: 0;
@@ -107,7 +128,7 @@
 
 .notification-item {
   padding: 1rem 1.25rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid #f3f4f6;
   cursor: pointer;
   transition: all 0.2s;
   display: flex;
@@ -115,11 +136,23 @@
   position: relative;
 }
 
+.dark .notification-item {
+  border-bottom-color: rgba(255, 255, 255, 0.03);
+}
+
 .notification-item:hover {
+  background: #f9fafb;
+}
+
+.dark .notification-item:hover {
   background: rgba(255, 255, 255, 0.02);
 }
 
 .notification-item.unread {
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.dark .notification-item.unread {
   background: rgba(59, 130, 246, 0.03);
 }
 
@@ -150,7 +183,7 @@
 }
 
 .notification-title {
-  color: #fff;
+  color: var(--text-dark);
   font-weight: 600;
   font-size: 0.875rem;
   margin-bottom: 0.25rem;
@@ -158,7 +191,7 @@
 }
 
 .notification-message {
-  color: #a0a0a0;
+  color: #6b7280;
   font-size: 0.8125rem;
   line-height: 1.5;
   display: -webkit-box;
@@ -168,11 +201,19 @@
   overflow: hidden;
 }
 
+.dark .notification-message {
+  color: #a0a0a0;
+}
+
 .notification-time {
-  color: #666;
+  color: #9ca3af;
   font-size: 0.75rem;
   margin-top: 0.5rem;
   display: block;
+}
+
+.dark .notification-time {
+  color: #666;
 }
 
 /* Scrollbar */
@@ -185,14 +226,23 @@
 }
 
 .notification-list::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: #e5e7eb;
   border-radius: 10px;
+}
+
+.dark .notification-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .dropdown-footer {
   padding: 0.75rem;
+  background: #f9fafb;
+  border-top: 1px solid #e5e7eb;
+}
+
+.dark .dropdown-footer {
   background: rgba(255, 255, 255, 0.02);
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top-color: rgba(255, 255, 255, 0.05);
 }
 
 .view-all-link {
@@ -220,13 +270,21 @@
 
 .empty-box i {
   font-size: 2.5rem;
-  color: #333;
+  color: #9ca3af;
   margin-bottom: 1rem;
 }
 
+.dark .empty-box i {
+  color: #4b5563;
+}
+
 .empty-box p {
-  color: #666;
+  color: #6b7280;
   font-size: 0.875rem;
+}
+
+.dark .empty-box p {
+  color: #9ca3af;
 }
 
 /* Mobile Responsive */

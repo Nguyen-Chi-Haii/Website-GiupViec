@@ -5,9 +5,17 @@
         <h3 class="chat-title">
             <span class="material-symbols-outlined">forum</span> Tin nhắn
         </h3>
-        <button (click)="closeChat()" class="close-btn">
-            <span class="material-symbols-outlined">close</span>
-        </button>
+        <div class="header-actions">
+            <button *ngIf="shouldShowNotificationButton" 
+                    (click)="requestNotificationPermission()" 
+                    class="notification-permission-btn"
+                    title="Bật thông báo tin nhắn">
+                <span class="material-symbols-outlined">notifications_active</span>
+            </button>
+            <button (click)="closeChat()" class="close-btn">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
     </div>
 
     <div class="chat-body" [class.has-active-chat]="!!currentPartner()">
@@ -136,4 +144,7 @@
         (click)="chatService.toggleChat(true)"
         class="chat-toggle-btn animate-bounce-subtle">
     <span class="material-symbols-outlined">chat</span>
+    <span *ngIf="chatService.totalUnreadCount() > 0" class="chat-unread-badge">
+      {{ chatService.totalUnreadCount() }}
+    </span>
 </button>

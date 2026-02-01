@@ -1,9 +1,21 @@
 import { Component, inject, signal, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { BookingService } from '../../../core/services/booking.service';
 import { BookingResponseDTO } from '@giupviec/shared';
 import { AuthService } from '../../../core/services/auth.service';
+import { environment } from '../../../../environments/environment';
+
+interface UserProfile {
+  id: number;
+  fullName: string;
+  email: string;
+  phone: string;
+  address?: string;
+  role: string;
+  status: number;
+}
 
 @Component({
   selector: 'app-customer-dashboard',
@@ -14,9 +26,11 @@ import { AuthService } from '../../../core/services/auth.service';
 })
 export class CustomerDashboardComponent implements OnInit {
   private bookingService = inject(BookingService);
+  private http = inject(HttpClient);
   public authService = inject(AuthService);
 
   bookings = signal<BookingResponseDTO[]>([]);
+  profile = signal<UserProfile | null>(null);
   isLoading = signal(true);
 
   // Stats computed
@@ -82,6 +96,21 @@ export class CustomerDashboardComponent implements OnInit {
 
   ngOnInit() {
     this.loadData();
+    this.getUserProfile();
+  }
+
+  getUserProfile() {
+    const userId = this.authService.currentUser()?.nameid;
+    if (!userId) return;
+    
+    this.http.get<UserProfile>(`${environment.apiUrl}/users/${userId}`).subscribe({
+      next: (data) => {
+        this.profile.set(data);
+      },
+      error: (err) => {
+        console.error('Error loading user profile:', err);
+      }
+    });
   }
 
   loadData() {

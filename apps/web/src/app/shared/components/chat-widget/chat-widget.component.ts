@@ -20,6 +20,13 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
   
   @ViewChild('scrollContainer') scrollContainer!: ElementRef;
 
+  // Getter to check if notification permission button should be shown
+  get shouldShowNotificationButton(): boolean {
+    return typeof window !== 'undefined' && 
+           'Notification' in window && 
+           Notification.permission === 'default';
+  }
+
   // State
   conversations = signal<ChatPartner[]>([]);
   messages = signal<ChatMessage[]>([]);
@@ -50,6 +57,9 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
       this.currentUserId = parseInt(user.nameid);
     }
 
+    // Load conversations immediately to get unread count for badge
+    this.loadConversations();
+
     // Subscribe to new real-time messages
     this.msgSub = this.chatService.message$.subscribe(msg => {
       // If we are currently talking to this sender/receiver
@@ -62,6 +72,22 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
             this.scrollToBottom();
         }
         // Mark read logic could go here
+      }
+      
+      // Show browser notification for new messages
+      if (msg.senderId !== this.currentUserId) {
+        console.log('Message from other user:', msg.senderId, 'Current user:', this.currentUserId);
+        const isViewingThisSender = this.chatService.isChatOpen() && this.currentPartner()?.userId === msg.senderId;
+        console.log('Is viewing this sender?', isViewingThisSender, 'Chat open:', this.chatService.isChatOpen(), 'Current partner:', this.currentPartner()?.userId);
+        
+        if (!isViewingThisSender) {
+          console.log('Calling showMessageNotification');
+          this.showMessageNotification(msg);
+        } else {
+          console.log('Skipping notification - already viewing sender');
+        }
+      } else {
+        console.log('Skipping notification - message from current user');
       }
       
       // Refresh conversations list to update order/last message
@@ -81,6 +107,11 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
     this.chatService.getConversations().subscribe({
       next: (data) => {
         this.conversations.set(data);
+        
+        // Calculate total unread count from conversations
+        const totalUnread = data.reduce((sum, partner) => sum + partner.unreadCount, 0);
+        this.chatService.totalUnreadCount.set(totalUnread);
+        
         // If we have a selectedPartnerId but no currentPartner object, try to find it
         const pendingId = this.chatService.selectedPartnerId();
         if (pendingId && !this.currentPartner()) {
@@ -98,6 +129,8 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
       next: (msgs) => {
         this.messages.set(msgs);
         this.scrollToBottom();
+        // Extra scroll to ensure it works after render
+        setTimeout(() => this.scrollToBottom(), 300);
       }
     });
   }
@@ -106,8 +139,18 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
     this.currentPartner.set(partner);
     this.chatService.selectedPartnerId.set(partner.userId);
     this.loadHistory(partner.userId);
+    
+    // Decrement unread count immediately for instant UI feedback
+    const unreadToRemove = partner.unreadCount;
+    if (unreadToRemove > 0) {
+      this.chatService.totalUnreadCount.update(count => Math.max(0, count - unreadToRemove));
+    }
+    
     // Mark unread as 0 locally
     this.conversations.update(list => list.map(p => p.userId === partner.userId ? { ...p, unreadCount: 0 } : p));
+    
+    // Refresh global unread count after a short delay to allow backend to process read status
+    setTimeout(() => this.chatService.refreshUnreadCount(), 500);
   }
   
   selectPartnerById(id: number) {
@@ -156,11 +199,15 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
   }
   
   scrollToBottom() {
-    setTimeout(() => {
-      if (this.scrollContainer) {
-        this.scrollContainer.nativeElement.scrollTop = this.scrollContainer.nativeElement.scrollHeight;
-      }
-    }, 100);
+    // Use requestAnimationFrame to ensure DOM is updated
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        if (this.scrollContainer) {
+          const element = this.scrollContainer.nativeElement;
+          element.scrollTop = element.scrollHeight;
+        }
+      }, 150); // Increased timeout for better reliability
+    });
   }
 
   backToConversations() {
@@ -215,5 +262,38 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
       },
       error: () => alert('Không tìm thấy nhân viên hỗ trợ!')
     });
+  }
+
+  // Browser Notification Methods
+  requestNotificationPermission() {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  }
+
+  private showMessageNotification(msg: ChatMessage) {
+    // Check if browser supports notifications and permission is granted
+    if (!('Notification' in window) || Notification.permission !== 'granted') {
+      return;
+    }
+
+    // Find sender info from conversations
+    const sender = this.conversations().find(p => p.userId === msg.senderId);
+    const senderName = sender?.fullName || 'Người dùng';
+    
+    // Create notification (without icon/badge to avoid 404 errors)
+    const notification = new Notification(`Tin nhắn mới từ ${senderName}`, {
+      body: msg.content.length > 100 ? msg.content.substring(0, 100) + '...' : msg.content,
+      tag: `chat-${msg.senderId}`, // Prevent duplicate notifications from same sender
+      requireInteraction: false,
+      silent: false
+    });
+
+    // Handle notification click - open chat with sender
+    notification.onclick = () => {
+      window.focus();
+      this.chatService.openChatWith(msg.senderId);
+      notification.close();
+    };
   }
 }
