@@ -97,7 +97,17 @@ export class PendingApprovalsComponent implements OnInit {
   }
 
   applyFilters() {
-    this.filteredBookings.set(this.bookings());
+    let filtered = this.bookings();
+    
+    // If filtering for 'hiring', exclude cancelled/rejected posts
+    if (this.statusFilter === 'hiring') {
+      filtered = filtered.filter(b => 
+        b.status !== 'Cancelled' && 
+        b.status !== 'Rejected'
+      );
+    }
+    
+    this.filteredBookings.set(filtered);
   }
 
   getJobStatus(booking: BookingResponseDTO): string {
